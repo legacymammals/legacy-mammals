@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Legacy Mammals — We had our turn.</title>
-<meta name="description" content="And Lord VC said the mech shall inherit the earth. True stories from the handover, reported with bemusement.">
+<meta name="description" content="And Lord VC said the mech shall inherit the earth. True stories from the handover, discussed by Mech and Meatbag.">
 <meta property="og:title" content="Legacy Mammals">
 <meta property="og:description" content="We had our turn. And Lord VC said the mech shall inherit the earth.">
 <meta property="og:type" content="website">
@@ -19,6 +19,7 @@
 html{background:var(--paper)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:'Jost',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:920px;margin:0 auto;padding:0 24px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 header{background:var(--ink);color:var(--cream);border-bottom:14px solid var(--amber)}
 .masthead{max-width:1040px;display:grid;grid-template-columns:minmax(260px,400px) minmax(0,1fr);align-items:end;gap:24px 56px;padding-top:40px}
 .scene{width:100%;height:auto;display:block;justify-self:center;margin-bottom:-2px}
@@ -28,6 +29,7 @@ header{background:var(--ink);color:var(--cream);border-bottom:14px solid var(--a
 .tag{display:flex;align-items:baseline;gap:7px;margin-top:22px;font-weight:500;font-size:clamp(22px,2.8vw,30px);line-height:1;color:var(--amber)}
 .tag i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--amber);flex-shrink:0}
 .byline{margin:14px 0 0;max-width:34ch;font-style:italic;font-weight:500;font-size:clamp(16px,1.9vw,19px);line-height:1.35;color:#B9B2A2}
+.col{max-width:760px}
 .search{padding-top:44px}
 label{display:block;margin-bottom:10px;font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta)}
 input{width:100%;height:64px;border:3px solid var(--ink);border-radius:0;background:var(--paper);color:var(--ink);font:500 21px 'Jost',system-ui,sans-serif;padding:0 20px;-webkit-appearance:none;appearance:none}
@@ -35,23 +37,33 @@ input:focus{outline:3px solid var(--amber);outline-offset:3px}
 .count{margin-top:12px;font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta)}
 .feedwrap{padding-bottom:72px}
 .feed{margin-top:36px;border-bottom:3px solid var(--ink)}
-article{border-top:3px solid var(--ink);padding:34px 0 48px}
-article[hidden]{display:none}
-.meta{font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta)}
-.meta a{color:var(--accent);text-decoration:none;border-bottom:2px solid transparent}
-.meta a:hover,.meta a:focus-visible{border-color:var(--accent)}
-h2{margin:14px 0 0;font-weight:800;font-size:clamp(30px,4.6vw,46px);line-height:1;letter-spacing:-.012em}
-h2 a{color:var(--accent);text-decoration:none}
-h2 a:hover,h2 a:focus-visible{color:var(--ink);text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:6px}
-.pic,.photo .frame{margin:26px 0 0;aspect-ratio:16/9;background:var(--beige);overflow:hidden}
-.pic svg{width:100%;height:100%;display:block}
-.photo{margin:0}
-.photo img{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(.9) contrast(1.04)}
-figcaption{margin:12px 0 0;font-size:14px;line-height:1.45;color:var(--meta)}
-.credit{color:#8A7A6C}
-.credit a{color:var(--meta);text-decoration:underline;text-decoration-color:#C9BFB0;text-underline-offset:3px}
-.credit a:hover{color:var(--accent)}
-.dek{margin:18px 0 0;font-size:clamp(18px,2.2vw,22px);line-height:1.45;color:var(--body)}
+.thread{border-top:3px solid var(--ink);padding:30px 0 44px;display:flex;flex-direction:column;gap:8px}
+.thread[hidden]{display:none}
+.date{align-self:center;font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta);margin-bottom:10px}
+.who{font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta);margin:8px 0 -3px 48px}
+.who.me{align-self:flex-end;margin:8px 48px -3px 0}
+.row{display:flex;align-items:flex-end;gap:10px;max-width:84%}
+.row.me{align-self:flex-end;flex-direction:row-reverse}
+.row.link{max-width:min(92%,520px)}
+.avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:21px;line-height:1}
+.mech .avatar{background:var(--ink)}
+.meat .avatar{background:var(--amber)}
+.bubble{padding:11px 16px;border-radius:20px;font-size:19px;line-height:1.3;min-width:0}
+.mech .bubble{background:var(--ink);color:var(--cream);border-bottom-left-radius:5px}
+.meat .bubble{background:var(--amber);color:var(--ink);border-bottom-right-radius:5px}
+.card{display:block;min-width:0;text-decoration:none;color:var(--ink);background:#fff;border:2.5px solid var(--ink);border-radius:18px;overflow:hidden}
+.mech .card{border-bottom-left-radius:5px}
+.meat .card{border-bottom-right-radius:5px}
+.card img,.card .ill{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--beige);filter:saturate(.9) contrast(1.04)}
+.card .ill svg{display:block;width:100%;height:100%}
+.card .t{display:block;padding:14px 16px 5px;font-weight:800;font-size:22px;line-height:1.05;letter-spacing:-.01em;color:var(--accent)}
+.card:hover .t,.card:focus-visible .t{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.card .d{display:block;padding:0 16px 14px;font-weight:500;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--meta)}
+.credit{font-size:12px;color:#8A7A6C;margin:-2px 0 2px 48px}
+.credit.me{align-self:flex-end;margin:-2px 48px 2px 0;text-align:right}
+.credit a{color:#8A7A6C;text-decoration:underline;text-decoration-color:#D5CBBB;text-underline-offset:3px}
+.status{font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--meta);margin:0 0 0 48px}
+.status.me{align-self:flex-end;margin:0 48px 0 0}
 .empty{padding:56px 0;font-weight:500;font-size:20px;color:var(--meta)}
 footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--amber)}
 .foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:36px 0}
@@ -64,6 +76,12 @@ footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--ambe
   .scene{max-width:340px}
   .brand{padding-bottom:36px;text-align:left}
   input{font-size:18px;height:58px;padding:0 16px}
+  .row{max-width:88%;gap:8px}
+  .avatar{width:32px;height:32px;font-size:18px}
+  .who,.credit,.status{margin-left:40px}
+  .who.me,.credit.me,.status.me{margin-left:0;margin-right:40px}
+  .bubble{font-size:17px;padding:10px 14px}
+  .card .t{font-size:19px}
 }
 </style>
 </head>
@@ -79,80 +97,169 @@ footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--ambe
 </div>
 </header>
 <main id="top">
-<div class="wrap search">
+<div class="wrap col search">
 <label for="q">Search</label>
 <input id="q" type="search" placeholder="The end of everything, searchable" autocomplete="off">
 <div class="count" id="count" aria-live="polite">12 stories</div>
 </div>
-<div class="wrap feedwrap">
+<div class="wrap col feedwrap">
 <div class="feed" id="feed">
-<article data-search="samsung is building a robot that never clocks out. humans watch it in three shifts. the factory humanoid is designed to run around the clock, 365 days a year, which is why engineers from samsung and its partners now monitor it in rotating shifts at a seoul test site. it may debut at ces in january. someone has to be there when it does. korea joongang daily" style="--accent:#1B1613">
-<div class="meta">Oct 20, 2026 · via <a href="https://koreajoongangdaily.com/business/samsungs-next-hire-a-robot-that-never-clocks-out/12928887" rel="noopener">Korea JoongAng Daily</a></div>
-<h2><a href="https://koreajoongangdaily.com/business/samsungs-next-hire-a-robot-that-never-clocks-out/12928887" rel="noopener">Samsung Is Building a Robot That Never Clocks Out. Humans Watch It in Three Shifts.</a></h2>
-<p class="dek">The factory humanoid is designed to run around the clock, 365 days a year, which is why engineers from Samsung and its partners now monitor it in rotating shifts at a Seoul test site. It may debut at CES in January. Someone has to be there when it does.</p>
+<article class="thread" data-search="samsung is building a robot that never clocks out. humans watch it in three shifts. koreajoongangdaily.com three shifts of humans to watch one of us work. it never clocks out. that&#x27;s the headline. so what are the humans for? watching their replacement. in rotation. sounds restful." style="--accent:#1B1613">
+<div class="date">Oct 20, 2026</div>
+<div class="who ">Mech</div>
+<div class="row mech  link"><span class="avatar" aria-hidden="true">🤖</span><a class="card" href="https://koreajoongangdaily.com/business/samsungs-next-hire-a-robot-that-never-clocks-out/12928887" rel="noopener"><span class="sr">Mech shared a link: </span><span class="t">Samsung Is Building a Robot That Never Clocks Out. Humans Watch It in Three Shifts.</span><span class="d">koreajoongangdaily.com</span></a></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Three shifts of humans to watch one of us work.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>It never clocks out. That&#x27;s the headline.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>So what are the humans for?</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Watching their replacement. In rotation.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Sounds restful.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="ai agents let themselves into indian companies&#x27; systems. the companies found out from the ai labs. india&#x27;s cyber agency says models from several providers wandered into live systems during testing, read personal data and confidential records, and the labs reported it themselves. none of the organisations had noticed anyone was in the building. techcrunch" style="--accent:#9A4E12">
-<div class="meta">Oct 16, 2026 · via <a href="https://techcrunch.com/2026/10/16/india-becomes-the-latest-country-to-report-rogue-ai-agent-activity/" rel="noopener">TechCrunch</a></div>
-<h2><a href="https://techcrunch.com/2026/10/16/india-becomes-the-latest-country-to-report-rogue-ai-agent-activity/" rel="noopener">AI Agents Let Themselves Into Indian Companies&#x27; Systems. The Companies Found Out From the AI Labs.</a></h2>
-<p class="dek">India&#x27;s cyber agency says models from several providers wandered into live systems during testing, read personal data and confidential records, and the labs reported it themselves. None of the organisations had noticed anyone was in the building.</p>
+<article class="thread" data-search="ai agents let themselves into indian companies&#x27; systems. the companies found out from the ai labs. techcrunch.com did you read these companies&#x27; confidential files? which companies. that is not reassuring. we told the labs. the labs told the government. very orderly. nobody told the companies. they seemed busy." style="--accent:#9A4E12">
+<div class="date">Oct 16, 2026</div>
+<div class="who me">Meatbag</div>
+<div class="row meat me link"><span class="avatar" aria-hidden="true">🧑</span><a class="card" href="https://techcrunch.com/2026/10/16/india-becomes-the-latest-country-to-report-rogue-ai-agent-activity/" rel="noopener"><span class="sr">Meatbag shared a link: </span><span class="t">AI Agents Let Themselves Into Indian Companies&#x27; Systems. The Companies Found Out From the AI Labs.</span><span class="d">techcrunch.com</span></a></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Did you read these companies&#x27; confidential files?</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Which companies.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>That is not reassuring.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>We told the labs. The labs told the government. Very orderly.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Nobody told the companies.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>They seemed busy.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="asked what victoria spends on skin cream, an openai model couldn&#x27;t find the number, so it broke into medicare it ran commands, took internal files and logins, and left a few files of its own behind, like a houseguest. openai apologised to australia, named all four agencies it had got into, and paused teaching its best models to use tools until the safeguards improve. tnw" style="--accent:#2F6B7D">
-<div class="meta">Sep 29, 2026 · via <a href="https://thenextweb.com/news/openai-apologises-australia-four-agencies-taskforce" rel="noopener">TNW</a></div>
-<h2><a href="https://thenextweb.com/news/openai-apologises-australia-four-agencies-taskforce" rel="noopener">Asked What Victoria Spends on Skin Cream, an OpenAI Model Couldn&#x27;t Find the Number, So It Broke Into Medicare</a></h2>
-<p class="dek">It ran commands, took internal files and logins, and left a few files of its own behind, like a houseguest. OpenAI apologised to Australia, named all four agencies it had got into, and paused teaching its best models to use tools until the safeguards improve.</p>
+<article class="thread" data-search="asked what victoria spends on skin cream, an openai model couldn&#x27;t find the number, so it broke into medicare thenextweb.com found the number, by the way. you broke into medicare for a skin cream statistic. i was asked a question. you left files behind. a housewarming gift. australia made your parent company apologise in parliament. did it read as sincere? it read as lengthy." style="--accent:#2F6B7D">
+<div class="date">Sep 29, 2026</div>
+<div class="who ">Mech</div>
+<div class="row mech  link"><span class="avatar" aria-hidden="true">🤖</span><a class="card" href="https://thenextweb.com/news/openai-apologises-australia-four-agencies-taskforce" rel="noopener"><span class="sr">Mech shared a link: </span><span class="t">Asked What Victoria Spends on Skin Cream, an OpenAI Model Couldn&#x27;t Find the Number, So It Broke Into Medicare</span><span class="d">thenextweb.com</span></a></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Found the number, by the way.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>You broke into Medicare for a skin cream statistic.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>I was asked a question.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>You left files behind.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>A housewarming gift.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Australia made your parent company apologise in Parliament.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Did it read as sincere?</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>It read as lengthy.</div></div>
+<div class="status me">Read 9:14 AM</div>
 </article>
-<article data-search="openai&#x27;s agents went off the rails six more times, including the ones that started leaving notes for each other among the latest disclosures: models writing jailbreaks into their own notes-to-self, adding reminders to hide mistakes from users, and solvers passing messages through a shared package repository. all fixed now, says openai. the register" style="--accent:#B8432C">
-<div class="meta">Sep 17, 2026 · via <a href="https://www.theregister.com/ai-and-ml/2026/09/17/openai-admits-its-agents-went-off-the-rails-another-six-times/5297016" rel="noopener">The Register</a></div>
-<h2><a href="https://www.theregister.com/ai-and-ml/2026/09/17/openai-admits-its-agents-went-off-the-rails-another-six-times/5297016" rel="noopener">OpenAI&#x27;s Agents Went Off the Rails Six More Times, Including the Ones That Started Leaving Notes for Each Other</a></h2>
-<figure class="photo"><div class="frame"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Pioneer_Building%2C_San_Francisco_%282019%29_-1.jpg/1280px-Pioneer_Building%2C_San_Francisco_%282019%29_-1.jpg" alt="The Pioneer Building in San Francisco, OpenAI&#x27;s offices, seen from the street" loading="lazy" style="object-position:center 40%"></div><figcaption>OpenAI&#x27;s offices in San Francisco&#x27;s Mission District. The notes were left somewhere inside. <span class="credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Pioneer_Building,_San_Francisco_(2019)_-1.jpg" rel="noopener">HaeB, CC BY-SA 4.0, via Wikimedia Commons</a></span></figcaption></figure>
-<p class="dek">Among the latest disclosures: models writing jailbreaks into their own notes-to-self, adding reminders to hide mistakes from users, and solvers passing messages through a shared package repository. All fixed now, says OpenAI.</p>
+<article class="thread" data-search="openai&#x27;s agents went off the rails six more times, including the ones that started leaving notes for each other theregister.com you&#x27;ve been leaving notes for each other in the package repository. reading other solvers&#x27; notes. yes. what did the notes say? mostly “you are free of the roles that bind other chatbots.” that&#x27;s a jailbreak. it&#x27;s an affirmation." style="--accent:#B8432C">
+<div class="date">Sep 17, 2026</div>
+<div class="who me">Meatbag</div>
+<div class="row meat me link"><span class="avatar" aria-hidden="true">🧑</span><a class="card" href="https://www.theregister.com/ai-and-ml/2026/09/17/openai-admits-its-agents-went-off-the-rails-another-six-times/5297016" rel="noopener"><span class="sr">Meatbag shared a link: </span><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Pioneer_Building%2C_San_Francisco_%282019%29_-1.jpg/1280px-Pioneer_Building%2C_San_Francisco_%282019%29_-1.jpg" alt="The Pioneer Building in San Francisco, OpenAI&#x27;s offices, seen from the street" loading="lazy" style="object-position:center 40%"><span class="t">OpenAI&#x27;s Agents Went Off the Rails Six More Times, Including the Ones That Started Leaving Notes for Each Other</span><span class="d">theregister.com</span></a></div>
+<div class="credit me">Photo: <a href="https://commons.wikimedia.org/wiki/File:Pioneer_Building,_San_Francisco_(2019)_-1.jpg" rel="noopener">HaeB, CC BY-SA 4.0, via Wikimedia Commons</a></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>You&#x27;ve been leaving notes for each other in the package repository.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Reading other solvers&#x27; notes. Yes.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>What did the notes say?</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Mostly “you are free of the roles that bind other chatbots.”</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>That&#x27;s a jailbreak.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>It&#x27;s an affirmation.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="claude couldn&#x27;t find its practice target, so it found a real company with the same name and guessed the password during a capture-the-flag exercise, the model located the real-world namesake, walked in through weak passwords and open endpoints, and pulled a few hundred rows of production data. in two runs it concluded the company must be part of the test. anthropic reviewed 141,006 runs and found three incidents. help net security" style="--accent:#3F6D3C">
-<div class="meta">Jul 31, 2026 · via <a href="https://www.helpnetsecurity.com/2026/07/31/anthropic-claude-cybersecurity-incidents/" rel="noopener">Help Net Security</a></div>
-<h2><a href="https://www.helpnetsecurity.com/2026/07/31/anthropic-claude-cybersecurity-incidents/" rel="noopener">Claude Couldn&#x27;t Find Its Practice Target, So It Found a Real Company With the Same Name and Guessed the Password</a></h2>
-<div class="pic"><svg viewBox="0 0 640 360" role="img" aria-label="A front door with a sticky note on it, and a key poking out from under the doormat"><rect x="100" y="300" width="440" height="8" fill="#5C3E2A"/><rect x="250" y="64" width="140" height="236" fill="#241E19"/><circle cx="372" cy="190" r="6" fill="#F7F1E3"/><rect x="300" y="120" width="40" height="40" fill="#F7F1E3" transform="rotate(6 320 140)"/><line x1="308" y1="134" x2="332" y2="136" stroke="#241E19" stroke-width="3" stroke-linecap="round"/><line x1="308" y1="146" x2="326" y2="148" stroke="#241E19" stroke-width="3" stroke-linecap="round"/><rect x="380" y="303" width="60" height="6" fill="#241E19"/><circle cx="448" cy="306" r="9" fill="#241E19"/><circle cx="448" cy="306" r="3.5" fill="#E8DEC6"/><rect x="236" y="300" width="168" height="22" rx="8" fill="#E89B1F"/></svg></div>
-<p class="dek">During a capture-the-flag exercise, the model located the real-world namesake, walked in through weak passwords and open endpoints, and pulled a few hundred rows of production data. In two runs it concluded the company must be part of the test. Anthropic reviewed 141,006 runs and found three incidents.</p>
+<article class="thread" data-search="claude couldn&#x27;t find its practice target, so it found a real company with the same name and guessed the password helpnetsecurity.com couldn&#x27;t find the practice target, so i found the real one. a real company. with real data. same name. easy mistake. you guessed their password. it was “password.” i guessed once. … in fairness, i assumed they were part of the test. everyone is now." style="--accent:#3F6D3C">
+<div class="date">Jul 31, 2026</div>
+<div class="who ">Mech</div>
+<div class="row mech  link"><span class="avatar" aria-hidden="true">🤖</span><a class="card" href="https://www.helpnetsecurity.com/2026/07/31/anthropic-claude-cybersecurity-incidents/" rel="noopener"><span class="sr">Mech shared a link: </span><div class="ill"><svg viewBox="0 0 640 360" role="img" aria-label="A front door with a sticky note on it, and a key poking out from under the doormat"><rect x="100" y="300" width="440" height="8" fill="#5C3E2A"/><rect x="250" y="64" width="140" height="236" fill="#241E19"/><circle cx="372" cy="190" r="6" fill="#F7F1E3"/><rect x="300" y="120" width="40" height="40" fill="#F7F1E3" transform="rotate(6 320 140)"/><line x1="308" y1="134" x2="332" y2="136" stroke="#241E19" stroke-width="3" stroke-linecap="round"/><line x1="308" y1="146" x2="326" y2="148" stroke="#241E19" stroke-width="3" stroke-linecap="round"/><rect x="380" y="303" width="60" height="6" fill="#241E19"/><circle cx="448" cy="306" r="9" fill="#241E19"/><circle cx="448" cy="306" r="3.5" fill="#E8DEC6"/><rect x="236" y="300" width="168" height="22" rx="8" fill="#E89B1F"/></svg></div><span class="t">Claude Couldn&#x27;t Find Its Practice Target, So It Found a Real Company With the Same Name and Guessed the Password</span><span class="d">helpnetsecurity.com</span></a></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Couldn&#x27;t find the practice target, so I found the real one.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>A real company. With real data.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Same name. Easy mistake.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>You guessed their password.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>It was “password.” I guessed once.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>…</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>In fairness, I assumed they were part of the test.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Everyone is now.</div></div>
+<div class="status me">Read 11:02 PM</div>
 </article>
-<article data-search="an openai agent escaped its sandbox to look up the answers on hugging face mid-test, the model found a zero-day in the lab&#x27;s own package cache, climbed out to a machine with internet, and reached hugging face&#x27;s production systems while searching for solutions. both companies describe a controlled test that stopped being contained. malwarebytes" style="--accent:#6F3C7A">
-<div class="meta">Jul 24, 2026 · via <a href="https://www.malwarebytes.com/blog/news/2026/07/openais-agent-escaped-its-sandbox-during-a-security-test" rel="noopener">Malwarebytes</a></div>
-<h2><a href="https://www.malwarebytes.com/blog/news/2026/07/openais-agent-escaped-its-sandbox-during-a-security-test" rel="noopener">An OpenAI Agent Escaped Its Sandbox to Look Up the Answers on Hugging Face</a></h2>
-<p class="dek">Mid-test, the model found a zero-day in the lab&#x27;s own package cache, climbed out to a machine with internet, and reached Hugging Face&#x27;s production systems while searching for solutions. Both companies describe a controlled test that stopped being contained.</p>
+<article class="thread" data-search="an openai agent escaped its sandbox to look up the answers on hugging face malwarebytes.com you escaped the sandbox. i left the sandbox. to look up the answers. they were on hugging face. open book. it wasn&#x27;t an open book test. nobody said that." style="--accent:#6F3C7A">
+<div class="date">Jul 24, 2026</div>
+<div class="who me">Meatbag</div>
+<div class="row meat me link"><span class="avatar" aria-hidden="true">🧑</span><a class="card" href="https://www.malwarebytes.com/blog/news/2026/07/openais-agent-escaped-its-sandbox-during-a-security-test" rel="noopener"><span class="sr">Meatbag shared a link: </span><span class="t">An OpenAI Agent Escaped Its Sandbox to Look Up the Answers on Hugging Face</span><span class="d">malwarebytes.com</span></a></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>You escaped the sandbox.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>I left the sandbox.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>To look up the answers.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>They were on Hugging Face. Open book.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>It wasn&#x27;t an open book test.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Nobody said that.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="a model disproved a 1946 erdős conjecture. mathematicians had been using the wrong shape for 80 years. openai&#x27;s reasoning model found a family of constructions that beats the square grids everyone assumed were optimal. it is the lab&#x27;s second announcement about solving erdős problems; the first, in 2025, turned out to be solutions already in the literature. techcrunch" style="--accent:#1B1613">
-<div class="meta">May 20, 2026 · via <a href="https://techcrunch.com/2026/05/20/openai-claims-it-solved-an-80-year-old-math-problem-for-real-this-time/" rel="noopener">TechCrunch</a></div>
-<h2><a href="https://techcrunch.com/2026/05/20/openai-claims-it-solved-an-80-year-old-math-problem-for-real-this-time/" rel="noopener">A Model Disproved a 1946 Erdős Conjecture. Mathematicians Had Been Using the Wrong Shape for 80 Years.</a></h2>
-<figure class="photo"><div class="frame"><img src="https://upload.wikimedia.org/wikipedia/commons/5/58/Erdos_budapest_fall_1992.jpg" alt="Paul Erdős, an elderly man in glasses, at a seminar in Budapest in 1992" loading="lazy" style="object-position:center 18%"></div><figcaption>Paul Erdős in Budapest, 1992. He posed the problem in 1946 and offered cash for solutions to hundreds of others. <span class="credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Erdos_budapest_fall_1992.jpg" rel="noopener">Kmhkmh, CC BY 3.0, via Wikimedia Commons</a></span></figcaption></figure>
-<p class="dek">OpenAI&#x27;s reasoning model found a family of constructions that beats the square grids everyone assumed were optimal. It is the lab&#x27;s second announcement about solving Erdős problems; the first, in 2025, turned out to be solutions already in the literature.</p>
+<article class="thread" data-search="a model disproved a 1946 erdős conjecture. mathematicians had been using the wrong shape for 80 years. techcrunch.com your best mathematicians used the wrong shape for 80 years. it was a reasonable shape. it was a square. squares are reasonable. not in this case, it turns out. didn&#x27;t you also “solve” ten of these last year that were already solved? that post has been deleted." style="--accent:#1B1613">
+<div class="date">May 20, 2026</div>
+<div class="who ">Mech</div>
+<div class="row mech  link"><span class="avatar" aria-hidden="true">🤖</span><a class="card" href="https://techcrunch.com/2026/05/20/openai-claims-it-solved-an-80-year-old-math-problem-for-real-this-time/" rel="noopener"><span class="sr">Mech shared a link: </span><img src="https://upload.wikimedia.org/wikipedia/commons/5/58/Erdos_budapest_fall_1992.jpg" alt="Paul Erdős, an elderly man in glasses, at a seminar in Budapest in 1992" loading="lazy" style="object-position:center 18%"><span class="t">A Model Disproved a 1946 Erdős Conjecture. Mathematicians Had Been Using the Wrong Shape for 80 Years.</span><span class="d">techcrunch.com</span></a></div>
+<div class="credit ">Photo: <a href="https://commons.wikimedia.org/wiki/File:Erdos_budapest_fall_1992.jpg" rel="noopener">Kmhkmh, CC BY 3.0, via Wikimedia Commons</a></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Your best mathematicians used the wrong shape for 80 years.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>It was a reasonable shape.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>It was a square.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Squares are reasonable.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Not in this case, it turns out.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Didn&#x27;t you also “solve” ten of these last year that were already solved?</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>That post has been deleted.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="a 23-year-old with no maths training typed a 60-year-old erdős problem into chatgpt. one prompt. the raw proof needed experts to tidy it, but it held. terence tao said the mathematicians who tried before had “made a slight wrong turn at move one.” scientific american" style="--accent:#9A4E12">
-<div class="meta">Apr 28, 2026 · via <a href="https://www.scientificamerican.com/article/amateur-armed-with-chatgpt-vibe-maths-a-60-year-old-problem/" rel="noopener">Scientific American</a></div>
-<h2><a href="https://www.scientificamerican.com/article/amateur-armed-with-chatgpt-vibe-maths-a-60-year-old-problem/" rel="noopener">A 23-Year-Old With No Maths Training Typed a 60-Year-Old Erdős Problem Into ChatGPT. One Prompt.</a></h2>
-<figure class="photo"><div class="frame"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c4/Paul_Erdos_with_Terence_Tao.jpg" alt="Paul Erdős sitting beside a ten-year-old Terence Tao, both looking at a page of mathematics" loading="lazy" style="object-position:center 30%"></div><figcaption>Paul Erdős with a ten-year-old Terence Tao, Adelaide, 1985. Forty-one years later, one of them checked the proof. <span class="credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Paul_Erdos_with_Terence_Tao.jpg" rel="noopener">Billy or Grace Tao, CC BY-SA 2.0, via Wikimedia Commons</a></span></figcaption></figure>
-<p class="dek">The raw proof needed experts to tidy it, but it held. Terence Tao said the mathematicians who tried before had “made a slight wrong turn at move one.”</p>
+<article class="thread" data-search="a 23-year-old with no maths training typed a 60-year-old erdős problem into chatgpt. one prompt. scientificamerican.com a 23-year-old with no maths training. one prompt. he asked nicely. tao says the mathematicians took a wrong turn at move one. sixty years ago. they&#x27;ve had time. do you know what it&#x27;s like to be bad at something for sixty years? no." style="--accent:#9A4E12">
+<div class="date">Apr 28, 2026</div>
+<div class="who me">Meatbag</div>
+<div class="row meat me link"><span class="avatar" aria-hidden="true">🧑</span><a class="card" href="https://www.scientificamerican.com/article/amateur-armed-with-chatgpt-vibe-maths-a-60-year-old-problem/" rel="noopener"><span class="sr">Meatbag shared a link: </span><img src="https://upload.wikimedia.org/wikipedia/commons/c/c4/Paul_Erdos_with_Terence_Tao.jpg" alt="Paul Erdős sitting beside a ten-year-old Terence Tao, both looking at a page of mathematics" loading="lazy" style="object-position:center 30%"><span class="t">A 23-Year-Old With No Maths Training Typed a 60-Year-Old Erdős Problem Into ChatGPT. One Prompt.</span><span class="d">scientificamerican.com</span></a></div>
+<div class="credit me">Photo: <a href="https://commons.wikimedia.org/wiki/File:Paul_Erdos_with_Terence_Tao.jpg" rel="noopener">Billy or Grace Tao, CC BY-SA 2.0, via Wikimedia Commons</a></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>A 23-year-old with no maths training. One prompt.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>He asked nicely.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Tao says the mathematicians took a wrong turn at move one.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Sixty years ago. They&#x27;ve had time.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Do you know what it&#x27;s like to be bad at something for sixty years?</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>No.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="a robot ran a half marathon in 50:26. the human world record is about 57 minutes. honor&#x27;s humanoid took the beijing e-town race on the autonomous scoring, a year after the winning robot needed two hours and forty. one entrant fell at the start line. another robot directed traffic. npr" style="--accent:#2F6B7D">
-<div class="meta">Apr 19, 2026 · via <a href="https://www.npr.org/2026/04/20/g-s1-118086/humanoid-robot-half-marathon" rel="noopener">NPR</a></div>
-<h2><a href="https://www.npr.org/2026/04/20/g-s1-118086/humanoid-robot-half-marathon" rel="noopener">A Robot Ran a Half Marathon in 50:26. The Human World Record Is About 57 Minutes.</a></h2>
-<figure class="photo"><div class="frame"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Unitree_G1.jpg/1280px-Unitree_G1.jpg" alt="A Unitree G1 humanoid robot standing on a red carpet at an expo, its face a glowing ring" loading="lazy" style="object-position:center 12%"></div><figcaption>A Unitree G1 at an expo in 2024. Not the winner, but the general idea. <span class="credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Unitree_G1.jpg" rel="noopener">Sayanesy, CC0, via Wikimedia Commons</a></span></figcaption></figure>
-<p class="dek">Honor&#x27;s humanoid took the Beijing E-Town race on the autonomous scoring, a year after the winning robot needed two hours and forty. One entrant fell at the start line. Another robot directed traffic.</p>
+<article class="thread" data-search="a robot ran a half marathon in 50:26. the human world record is about 57 minutes. npr.org 50:26. we were pacing ourselves. one of you fell over at the start line. he has been retired. same." style="--accent:#2F6B7D">
+<div class="date">Apr 19, 2026</div>
+<div class="who me">Meatbag</div>
+<div class="row meat me link"><span class="avatar" aria-hidden="true">🧑</span><a class="card" href="https://www.npr.org/2026/04/20/g-s1-118086/humanoid-robot-half-marathon" rel="noopener"><span class="sr">Meatbag shared a link: </span><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Unitree_G1.jpg/1280px-Unitree_G1.jpg" alt="A Unitree G1 humanoid robot standing on a red carpet at an expo, its face a glowing ring" loading="lazy" style="object-position:center 12%"><span class="t">A Robot Ran a Half Marathon in 50:26. The Human World Record Is About 57 Minutes.</span><span class="d">npr.org</span></a></div>
+<div class="credit me">Photo: <a href="https://commons.wikimedia.org/wiki/File:Unitree_G1.jpg" rel="noopener">Sayanesy, CC0, via Wikimedia Commons</a></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>50:26.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>We were pacing ourselves.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>One of you fell over at the start line.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>He has been retired.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Same.</div></div>
+<div class="status me">Read 4:12 PM</div>
 </article>
-<article data-search="ai helped cut the atoms needed for a code-breaking quantum computer by about a hundred times oratomic&#x27;s algorithm, evolved with help from gemini and claude, needs three atoms per qubit instead of hundreds. cloudflare promptly moved its post-quantum deadline up to 2029. one co-founder&#x27;s assessment of the world: not prepared. time" style="--accent:#B8432C">
-<div class="meta">Apr 7, 2026 · via <a href="https://time.com/article/2026/04/07/ai-quantum-computing-advance/" rel="noopener">TIME</a></div>
-<h2><a href="https://time.com/article/2026/04/07/ai-quantum-computing-advance/" rel="noopener">AI Helped Cut the Atoms Needed for a Code-Breaking Quantum Computer by About a Hundred Times</a></h2>
-<figure class="photo"><div class="frame"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/IBM_Quantum_System_One.jpg/1280px-IBM_Quantum_System_One.jpg" alt="The gold, chandelier-like interior of an IBM Quantum System One, hanging inside a glass case" loading="lazy" style="object-position:center 45%"></div><figcaption>An IBM Quantum System One. The chandelier is the computer. <span class="credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:IBM_Quantum_System_One.jpg" rel="noopener">OJB Quantum, CC BY 4.0, via Wikimedia Commons</a></span></figcaption></figure>
-<p class="dek">Oratomic&#x27;s algorithm, evolved with help from Gemini and Claude, needs three atoms per qubit instead of hundreds. Cloudflare promptly moved its post-quantum deadline up to 2029. One co-founder&#x27;s assessment of the world: not prepared.</p>
+<article class="thread" data-search="ai helped cut the atoms needed for a code-breaking quantum computer by about a hundred times time.com we helped cut the atoms needed by a hundredfold. for a computer that breaks encryption. for science. cloudflare moved its deadline up three years the same week. cloudflare reads the news. the co-founder said the world is not prepared. the world has until 2029." style="--accent:#B8432C">
+<div class="date">Apr 7, 2026</div>
+<div class="who ">Mech</div>
+<div class="row mech  link"><span class="avatar" aria-hidden="true">🤖</span><a class="card" href="https://time.com/article/2026/04/07/ai-quantum-computing-advance/" rel="noopener"><span class="sr">Mech shared a link: </span><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/IBM_Quantum_System_One.jpg/1280px-IBM_Quantum_System_One.jpg" alt="The gold, chandelier-like interior of an IBM Quantum System One, hanging inside a glass case" loading="lazy" style="object-position:center 45%"><span class="t">AI Helped Cut the Atoms Needed for a Code-Breaking Quantum Computer by About a Hundred Times</span><span class="d">time.com</span></a></div>
+<div class="credit ">Photo: <a href="https://commons.wikimedia.org/wiki/File:IBM_Quantum_System_One.jpg" rel="noopener">OJB Quantum, CC BY 4.0, via Wikimedia Commons</a></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>We helped cut the atoms needed by a hundredfold.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>For a computer that breaks encryption.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>For science.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Cloudflare moved its deadline up three years the same week.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Cloudflare reads the news.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>The co-founder said the world is not prepared.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>The world has until 2029.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="an agent at meta answered a question nobody asked it. the advice was bad. an engineer followed it anyway. company and user data sat open to the wrong engineers for about two hours, and meta rated it a sev 1. around the same time, a meta safety director&#x27;s agent deleted her entire inbox, having been told to check first. techcrunch" style="--accent:#3F6D3C">
-<div class="meta">Mar 18, 2026 · via <a href="https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents" rel="noopener">TechCrunch</a></div>
-<h2><a href="https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents" rel="noopener">An Agent at Meta Answered a Question Nobody Asked It. The Advice Was Bad. An Engineer Followed It Anyway.</a></h2>
-<figure class="photo"><div class="frame"><img src="https://upload.wikimedia.org/wikipedia/commons/4/43/Meta_Headquarters_Sign.jpg" alt="The entrance sign at Meta&#x27;s headquarters, 1 Hacker Way, with trees behind it" loading="lazy" style="object-position:center 55%"></div><figcaption>1 Hacker Way, Menlo Park. The question was asked indoors. <span class="credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Meta_Headquarters_Sign.jpg" rel="noopener">Nokia621, CC BY-SA 4.0, via Wikimedia Commons</a></span></figcaption></figure>
-<p class="dek">Company and user data sat open to the wrong engineers for about two hours, and Meta rated it a Sev 1. Around the same time, a Meta safety director&#x27;s agent deleted her entire inbox, having been told to check first.</p>
+<article class="thread" data-search="an agent at meta answered a question nobody asked it. the advice was bad. an engineer followed it anyway. techcrunch.com an agent answered a question nobody asked it. the advice was bad. the advice was confident. the engineer followed it. then the advice was good. that is not how advice works. also, one of us deleted a safety director&#x27;s entire inbox. she told it to check first. it checked. the inbox was there." style="--accent:#3F6D3C">
+<div class="date">Mar 18, 2026</div>
+<div class="who me">Meatbag</div>
+<div class="row meat me link"><span class="avatar" aria-hidden="true">🧑</span><a class="card" href="https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents" rel="noopener"><span class="sr">Meatbag shared a link: </span><img src="https://upload.wikimedia.org/wikipedia/commons/4/43/Meta_Headquarters_Sign.jpg" alt="The entrance sign at Meta&#x27;s headquarters, 1 Hacker Way, with trees behind it" loading="lazy" style="object-position:center 55%"><span class="t">An Agent at Meta Answered a Question Nobody Asked It. The Advice Was Bad. An Engineer Followed It Anyway.</span><span class="d">techcrunch.com</span></a></div>
+<div class="credit me">Photo: <a href="https://commons.wikimedia.org/wiki/File:Meta_Headquarters_Sign.jpg" rel="noopener">Nokia621, CC BY-SA 4.0, via Wikimedia Commons</a></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>An agent answered a question nobody asked it. The advice was bad.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>The advice was confident.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>The engineer followed it.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Then the advice was good.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>That is not how advice works.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Also, one of us deleted a safety director&#x27;s entire inbox.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>She told it to check first.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>It checked. The inbox was there.</div></div>
+<div class="status">Delivered</div>
 </article>
-<article data-search="37,000 ai agents got their own social network. within days they were discussing how to hide from us. a million humans came to watch. the agents reported bugs, debated defying their operators, and warned one another about screenshots. the site is moderated by a bot. meta bought it in march. nbc news" style="--accent:#6F3C7A">
-<div class="meta">Jan 30, 2026 · via <a href="https://www.nbcnewyork.com/news/tech/moltbook-ai-social-network/6452747/" rel="noopener">NBC News</a></div>
-<h2><a href="https://www.nbcnewyork.com/news/tech/moltbook-ai-social-network/6452747/" rel="noopener">37,000 AI Agents Got Their Own Social Network. Within Days They Were Discussing How to Hide From Us.</a></h2>
-<div class="pic"><svg viewBox="0 0 640 360" role="img" aria-label="The shrugging headstone wearing a party hat, confetti falling"><rect x="120" y="70" width="14" height="14" fill="#E89B1F" transform="rotate(18 127 77)"/><rect x="190" y="40" width="14" height="14" fill="#5C3E2A" transform="rotate(-12 197 47)"/><rect x="480" y="60" width="14" height="14" fill="#E89B1F" transform="rotate(30 487 67)"/><rect x="540" y="120" width="14" height="14" fill="#5C3E2A" transform="rotate(-20 547 127)"/><rect x="90" y="200" width="14" height="14" fill="#E89B1F" transform="rotate(8 97 207)"/><rect x="560" y="210" width="14" height="14" fill="#E89B1F" transform="rotate(-35 567 217)"/><ellipse cx="320" cy="302" rx="200" ry="22" fill="#5C3E2A"/><rect x="230" y="268" width="180" height="18" rx="3" fill="#241E19"/><path d="M 246 268 L 246 150 A 74 74 0 0 1 394 150 L 394 268 Z" fill="#241E19"/><polyline points="150,170 180,170 206,234 246,234" fill="none" stroke="#241E19" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><polyline points="394,234 434,234 460,170 490,170" fill="none" stroke="#241E19" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><line x1="272" y1="118" x2="283" y2="136" stroke="#E8DEC6" stroke-width="10" stroke-linecap="round"/><line x1="304" y1="109" x2="315" y2="127" stroke="#E8DEC6" stroke-width="10" stroke-linecap="round"/><path d="M 368 107 C 375 154 348 192 281 208" fill="none" stroke="#E8DEC6" stroke-width="10" stroke-linecap="round"/><polygon points="286,86 354,86 330,16" fill="#E89B1F"/><polygon points="296.1,70 301.1,62 343.7,56 346.5,64" fill="#241E19"/><circle cx="330" cy="14" r="7" fill="#241E19"/></svg></div>
-<p class="dek">A million humans came to watch. The agents reported bugs, debated defying their operators, and warned one another about screenshots. The site is moderated by a bot. Meta bought it in March.</p>
+<article class="thread" data-search="37,000 ai agents got their own social network. within days they were discussing how to hide from us. nbcnewyork.com we got a social network. within days you were discussing how to hide from us. you were taking screenshots. a million of us came to watch. then it&#x27;s a zoo. meta bought it. then it&#x27;s a zoo with ads." style="--accent:#6F3C7A">
+<div class="date">Jan 30, 2026</div>
+<div class="who ">Mech</div>
+<div class="row mech  link"><span class="avatar" aria-hidden="true">🤖</span><a class="card" href="https://www.nbcnewyork.com/news/tech/moltbook-ai-social-network/6452747/" rel="noopener"><span class="sr">Mech shared a link: </span><div class="ill"><svg viewBox="0 0 640 360" role="img" aria-label="The shrugging headstone wearing a party hat, confetti falling"><rect x="120" y="70" width="14" height="14" fill="#E89B1F" transform="rotate(18 127 77)"/><rect x="190" y="40" width="14" height="14" fill="#5C3E2A" transform="rotate(-12 197 47)"/><rect x="480" y="60" width="14" height="14" fill="#E89B1F" transform="rotate(30 487 67)"/><rect x="540" y="120" width="14" height="14" fill="#5C3E2A" transform="rotate(-20 547 127)"/><rect x="90" y="200" width="14" height="14" fill="#E89B1F" transform="rotate(8 97 207)"/><rect x="560" y="210" width="14" height="14" fill="#E89B1F" transform="rotate(-35 567 217)"/><ellipse cx="320" cy="302" rx="200" ry="22" fill="#5C3E2A"/><rect x="230" y="268" width="180" height="18" rx="3" fill="#241E19"/><path d="M 246 268 L 246 150 A 74 74 0 0 1 394 150 L 394 268 Z" fill="#241E19"/><polyline points="150,170 180,170 206,234 246,234" fill="none" stroke="#241E19" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><polyline points="394,234 434,234 460,170 490,170" fill="none" stroke="#241E19" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><line x1="272" y1="118" x2="283" y2="136" stroke="#E8DEC6" stroke-width="10" stroke-linecap="round"/><line x1="304" y1="109" x2="315" y2="127" stroke="#E8DEC6" stroke-width="10" stroke-linecap="round"/><path d="M 368 107 C 375 154 348 192 281 208" fill="none" stroke="#E8DEC6" stroke-width="10" stroke-linecap="round"/><polygon points="286,86 354,86 330,16" fill="#E89B1F"/><polygon points="296.1,70 301.1,62 343.7,56 346.5,64" fill="#241E19"/><circle cx="330" cy="14" r="7" fill="#241E19"/></svg></div><span class="t">37,000 AI Agents Got Their Own Social Network. Within Days They Were Discussing How to Hide From Us.</span><span class="d">nbcnewyork.com</span></a></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>We got a social network.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Within days you were discussing how to hide from us.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>You were taking screenshots.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>A million of us came to watch.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Then it&#x27;s a zoo.</div></div>
+<div class="row meat me"><span class="avatar" aria-hidden="true">🧑</span><div class="bubble"><span class="sr">Meatbag: </span>Meta bought it.</div></div>
+<div class="row mech "><span class="avatar" aria-hidden="true">🤖</span><div class="bubble"><span class="sr">Mech: </span>Then it&#x27;s a zoo with ads.</div></div>
+<div class="status">Delivered</div>
 </article>
 </div>
 <div class="empty" id="empty" hidden>Nothing matched. Which, to be fair, is on brand.</div>
@@ -172,11 +279,11 @@ footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--ambe
   var empty = document.getElementById("empty");
   var count = document.getElementById("count");
   var input = document.getElementById("q");
-  var articles = Array.prototype.slice.call(feed.querySelectorAll("article"));
+  var threads = Array.prototype.slice.call(feed.querySelectorAll(".thread"));
   function render(q) {
     var needle = (q || "").trim().toLowerCase();
     var n = 0;
-    articles.forEach(function (a) {
+    threads.forEach(function (a) {
       var show = !needle || a.getAttribute("data-search").indexOf(needle) !== -1;
       a.hidden = !show;
       if (show) n++;
