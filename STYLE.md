@@ -115,6 +115,8 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
 
 - Whoever found the link shares it: the name label sits above the link card; the dialogue below
   carries only the avatars.
+- The headline is in the sharer's colour: ink when Mech found the link, green when Meatbag did.
+  No other headline colours.
 - "Read" plus a time when Meatbag has the last word; "Delivered" when Mech does. A few threads
   end with Mech typing, where the last word is clearly coming and never does.
 - Photos are freely licensed (Wikimedia Commons) and credited. No press photos.
