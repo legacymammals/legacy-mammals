@@ -52,7 +52,6 @@
     ctx.lineWidth = 11; ctx.stroke(new Path2D("M 16 136 L 38 136 L 56 186 L 76 186")); ctx.stroke(new Path2D("M 224 186 L 244 186 L 262 136 L 284 136"));
     ctx.strokeStyle = c.face; ctx.lineWidth = 8;
     ctx.stroke(new Path2D("M 110 104 L 119 120")); ctx.stroke(new Path2D("M 136 97 L 145 113")); ctx.stroke(new Path2D("M 190 96 C 196 132 174 160 120 170"));
-    ctx.lineWidth = 5; ctx.stroke(new Path2D("M 110 192 L 190 192")); ctx.stroke(new Path2D("M 124 205 L 176 205"));
     ctx.strokeStyle = c.grass; ctx.lineWidth = 4;
     ctx.stroke(new Path2D("M 30 252 c 2 -10 -4 -16 -8 -24 M 36 250 c 0 -10 2 -16 6 -26 M 268 250 c -2 -10 4 -16 8 -24 M 262 252 c 0 -10 -2 -16 -6 -26"));
     ctx.restore();
