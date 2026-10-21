@@ -47,6 +47,8 @@ const haveIG = !!(IG.user && IG.token);
 const DRY = env("SOCIAL_DRY_RUN").toLowerCase() === "true" || (!haveX && !haveIG);
 const FORCE = env("FORCE_STORY");
 
+// In Actions, the lines worth keeping are also raised as annotations, which show on the run's summary page.
+const note = (m) => { console.log(m); if (process.env.GITHUB_ACTIONS) console.log("::notice::" + m.replace(/\n/g, "%0A")); };
 const readJSON = (p, fallback) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch (e) { return fallback; } };
 const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(v, null, 2) + "\n"); };
 
@@ -93,7 +95,7 @@ async function render() {
       return { b64: c.toDataURL("image/png").split(",")[1], w: c.width, h: c.height, boxed, srcH: img.height };
     }, { b64: pngB64, W: IG_W, H: IG_H });
     fs.writeFileSync(path.join(OUT, s.id + "-ig.png"), Buffer.from(ig.b64, "base64"));
-    console.log("drew " + s.id + ": 1080 x " + ig.srcH + (ig.boxed ? " -> Instagram " + ig.w + " x " + ig.h + " with side bars" : " (fits Instagram as is)"));
+    note("drew " + s.id + ": 1080 x " + ig.srcH + (ig.boxed ? " -> Instagram " + ig.w + " x " + ig.h + " with side bars" : " (fits Instagram as is)"));
   }
   await browser.close();
   writeJSON(PENDING, fresh);
@@ -154,7 +156,7 @@ async function post() {
   const ledger = readJSON(LEDGER, { posted: {} });
   const pending = readJSON(PENDING, []);
   if (!pending.length) { console.log("nothing to post"); return; }
-  console.log(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
+  note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
 
   for (const s of pending) {
     const permalink = SITE + "/#" + s.id;
@@ -165,22 +167,22 @@ async function post() {
     const record = Object.assign({}, prev, { title, at: new Date().toISOString() });
 
     if (DRY) {
-      console.log("would post " + s.id + ":\n" + xText.replace(/^/gm, "    "));
+      note("would post " + s.id + ":\n" + xText.replace(/^/gm, "    "));
       if (s.forced) continue; // a test render leaves the ledger alone
       record.dryRun = true;
     } else {
       const png = fs.readFileSync(path.join(OUT, s.id + ".png"));
       let sent = false;
       if (haveX && !prev.x) {
-        try { record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; console.log("posted " + s.id + " to X: " + record.x); }
-        catch (e) { record.xError = e.message; console.log(e.message); }
+        try { record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; note("posted " + s.id + " to X: " + record.x); }
+        catch (e) { record.xError = e.message; note(e.message); }
       }
       if (haveIG && !prev.ig) {
         // Instagram fetches the image itself, from the copy the workflow pushed a moment ago.
-        try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png", igCaption); delete record.igError; sent = true; console.log("posted " + s.id + " to Instagram: " + record.ig); }
-        catch (e) { record.igError = e.message; console.log(e.message); }
+        try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png", igCaption); delete record.igError; sent = true; note("posted " + s.id + " to Instagram: " + record.ig); }
+        catch (e) { record.igError = e.message; note(e.message); }
       }
-      if (!sent && !prev.x && !prev.ig) { console.log("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
+      if (!sent && !prev.x && !prev.ig) { note("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
       delete record.dryRun;
     }
     ledger.posted[s.id] = record;
