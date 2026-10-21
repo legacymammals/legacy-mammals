@@ -17,6 +17,9 @@
  *   node scripts/publish.js check
  *     Verifies the keys without posting anything (see check() below).
  *
+ *   node scripts/publish.js refresh
+ *     Renews the Instagram token and stores it (see refresh() below). Runs on a schedule.
+ *
  *   node scripts/publish.js post
  *     Posts each pending story to X (image + headline + permalink) and Instagram (image +
  *     headline + "link in bio"), then records it in social/posted.json so it never posts twice.
@@ -250,6 +253,25 @@ async function check() {
   note(ok ? "Check finished: everything configured works." : "Check finished: something above needs fixing.");
 }
 
+// ---------------------------------------------------------------- refresh
+// An Instagram Login token lasts 60 days. This asks Instagram for a fresh one and stores it
+// back in the repository's secrets with `gh secret set`, which needs SECRETS_TOKEN: a
+// fine-grained GitHub token for this repository with Secrets read-and-write. The new token
+// goes to gh over stdin and is never printed. A Facebook Page token does not expire.
+async function refresh() {
+  if (!IG.token) { note("Instagram: no token to refresh"); return; }
+  if (IG.host !== "graph.instagram.com") { note("Instagram: a Facebook token does not expire; nothing to refresh"); return; }
+  const r = await fetch("https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=" + enc(IG.token));
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.access_token) throw new Error("Instagram refused to refresh the token: " + JSON.stringify(j).slice(0, 300) + " (if it has expired, generate a new one in the Meta developer portal and paste it into IG_ACCESS_TOKEN)");
+  const days = Math.round((j.expires_in || 0) / 86400);
+  if (!env("SECRETS_TOKEN")) throw new Error("Instagram gave a fresh token good for " + days + " days, but it cannot be stored: add a SECRETS_TOKEN secret (fine-grained GitHub token, this repository, Secrets: read and write)");
+  const { spawnSync } = require("child_process");
+  const res = spawnSync("gh", ["secret", "set", "IG_ACCESS_TOKEN", "--repo", process.env.GITHUB_REPOSITORY || "legacymammals/legacy-mammals"], { input: j.access_token, env: Object.assign({}, process.env, { GH_TOKEN: env("SECRETS_TOKEN") }), encoding: "utf8" });
+  if (res.status !== 0) throw new Error("gh secret set failed: " + (res.stderr || "").slice(0, 300));
+  note("Instagram: token refreshed and stored; good for " + days + " days");
+}
+
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : Promise.reject(new Error("usage: publish.js render|post|check")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : Promise.reject(new Error("usage: publish.js render|post|check|refresh")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });

@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths: [index.html]
+  schedule:
+    - cron: "17 9 1,15 * *"   # twice a month: renew the Instagram token before its 60 days run out
   workflow_dispatch:
     inputs:
       story:
@@ -28,7 +30,23 @@ permissions:
   contents: write
 
 jobs:
+  renew-instagram-token:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Renew the Instagram token
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          SECRETS_TOKEN: ${{ secrets.SECRETS_TOKEN }}
+        run: node scripts/publish.js refresh
+
   publish:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     env:
       # A manual run follows its own switch; a push follows the SOCIAL_DRY_RUN repository
