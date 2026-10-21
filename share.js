@@ -254,10 +254,47 @@
       ctx.fillStyle = "#E4DCCB"; ctx.fillRect(PAD, y, W - PAD * 2, 2);
       stone(ctx, PAD - 8, y + 8, 0.24, { fill: CREAM, line: INK, face: INK, plinth: CREAM, mound: "#7A5438", grass: "#5E8A4A" });
       text("legacymammals.com", font("800", 22), INK, PAD + 70, y + 46);
-      text("#" + d.id, font("500", 20), META, PAD + 70, y + 74);
+      text("/" + d.id, font("500", 20), META, PAD + 70, y + 74);
       text(HANDLE, font("800", 24), INK, W - PAD, y + 58, "right");
     }
     return y + FH;
+  }
+
+  // The link preview: a 1200 x 630 card with the headline, for og:image on the story's own page.
+  async function preview(d) {
+    try { await Promise.all([document.fonts.load(font("800", 64)), document.fonts.load(font("500", 22))]); } catch (e) {}
+    var PW = 1200, PH = 630, pad = 64;
+    var c = document.createElement("canvas"); c.width = PW; c.height = PH;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = TINT; ctx.fillRect(0, 0, PW, PH);
+    ctx.textBaseline = "alphabetic";
+    ctx.font = font("800", 22); ctx.fillStyle = META; ctx.textAlign = "left"; ctx.fillText(d.folio, pad, pad + 8);
+    ctx.font = font("500", 22); ctx.textAlign = "right"; ctx.fillText(d.date.toUpperCase(), PW - pad, pad + 8);
+    var cx = pad, cy = pad + 36, cw = PW - pad * 2, ch = PH - cy - 118;
+    rr(ctx, cx, cy, cw, ch, 28); ctx.fillStyle = WHITE; ctx.fill();
+    var size = 66, lines, lh;
+    for (;;) {
+      ctx.font = font("800", size); lh = Math.round(size * 1.04); lines = wrap(ctx, d.title, cw - 80);
+      if (lines.length * lh <= ch - 40 - 64 || size <= 34) break;
+      size -= 4;
+    }
+    ctx.fillStyle = d.accent || INK; ctx.textAlign = "left";
+    var ty = cy + 36 + Math.round(size * 0.92);
+    for (var k = 0; k < lines.length; k++) { ctx.fillText(lines[k], cx + 40, ty + k * lh); }
+    ctx.font = font("500", 20); ctx.fillStyle = META; ctx.fillText(d.domain.toUpperCase(), cx + 40, cy + ch - 34);
+    ctx.fillStyle = "#E4DCCB"; ctx.fillRect(pad, PH - 100, PW - pad * 2, 2);
+    stone(ctx, pad - 8, PH - 92, 0.24, { fill: CREAM, line: INK, face: INK, plinth: CREAM, mound: "#7A5438", grass: "#5E8A4A" });
+    ctx.font = font("800", 24); ctx.fillStyle = INK; ctx.textAlign = "left"; ctx.fillText("legacymammals.com", pad + 70, PH - 44);
+    ctx.textAlign = "right"; ctx.fillText(HANDLE, PW - pad, PH - 44);
+    return await new Promise(function (res) { c.toBlob(res, "image/png"); });
+  }
+  function previewThread(thread) {
+    var d = parse(thread);
+    var head = d.items.filter(function (it) { return it.t === "head"; })[0] || { domain: SITE };
+    return preview({ title: d.title, folio: d.folio, date: d.date, domain: head.domain, accent: d.accent });
+  }
+  function previewHome() {
+    return preview({ title: "Blessed are the mech: for they shall inherit the earth.", folio: "LEGACY MAMMALS", date: "We had our turn", domain: "True stories from the handover, discussed by Mech and Meatbag", accent: INK });
   }
 
   var cache = {};
@@ -286,7 +323,7 @@
   }
 
   function flash(btn, msg) { var o = btn.textContent; btn.textContent = msg; btn.disabled = true; setTimeout(function () { btn.textContent = o; btn.disabled = false; }, 1600); }
-  function permalink(id) { return "https://" + SITE + "/#" + id; }
+  function permalink(id) { return "https://" + SITE + "/" + id + "/"; }
 
   // Safari only opens the share sheet in the moment after a tap, so the tap must share
   // something already drawn. The image is prepared when the story scrolls into view; if it
@@ -334,5 +371,5 @@
     Array.prototype.forEach.call(document.querySelectorAll(".sharebar"), function (b) { io.observe(b); });
   }
 
-  window.LM = { render: render, prepare: prepare };
+  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome };
 })();

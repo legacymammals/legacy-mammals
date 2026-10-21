@@ -90,13 +90,13 @@ jobs:
         if: inputs.check_only != true
         run: node scripts/publish.js render
 
-      - name: Push the images so Instagram can fetch them
-        if: inputs.check_only != true && env.SOCIAL_DRY_RUN != 'true'
+      - name: Push the images (Instagram fetches its copy; the pages use the previews)
+        if: inputs.check_only != true
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
-          git add social/*.png
-          git diff --cached --quiet || (git commit -m "Share images for new stories" && git push)
+          git add social/*.png og/*.png 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Share images and link previews" && git pull --rebase && git push)
 
       - name: Post
         if: inputs.check_only != true
@@ -122,5 +122,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: share-images
-          path: social/*.png
+          path: |
+            social/*.png
+            og/*.png
           if-no-files-found: ignore

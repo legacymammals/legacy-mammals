@@ -42,6 +42,7 @@ const ROOT = path.resolve(__dirname, "..");
 const SITE = "https://legacymammals.com";
 const RAW = "https://raw.githubusercontent.com/legacymammals/legacy-mammals/main";
 const OUT = path.join(ROOT, "social");
+const OG = path.join(ROOT, "og"); // link-preview images, one per story page
 const LEDGER = path.join(OUT, "posted.json");
 const PENDING = path.join(process.env.LM_TMP || process.env.RUNNER_TEMP || os.tmpdir(), "legacymammals-pending.json");
 const LOCAL = process.env.LOCAL_URL || "http://127.0.0.1:8080/";
@@ -122,8 +123,37 @@ async function render() {
     fs.writeFileSync(path.join(OUT, s.id + "-ig.png"), Buffer.from(ig.b64, "base64"));
     note("drew " + s.id + ": 1080 x " + ig.srcH + (ig.boxed ? " -> Instagram " + ig.w + " x " + ig.h + " with side bars" : " (fits Instagram as is)"));
   }
+  // Link previews (og:image) for the story pages: drawn once per story, and one for the home page.
+  fs.mkdirSync(OG, { recursive: true });
+  const previews = stories.filter((s) => !fs.existsSync(path.join(OG, s.id + ".png")));
+  for (const s of previews) {
+    const b64 = await page.evaluate(async (id) => {
+      const blob = await window.LM.preview(document.getElementById(id));
+      return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result.split(",")[1]); fr.readAsDataURL(blob); });
+    }, s.id);
+    fs.writeFileSync(path.join(OG, s.id + ".png"), Buffer.from(b64, "base64"));
+  }
+  if (!fs.existsSync(path.join(OG, "home.png"))) {
+    const b64 = await page.evaluate(async () => {
+      const blob = await window.LM.previewHome();
+      return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result.split(",")[1]); fr.readAsDataURL(blob); });
+    });
+    fs.writeFileSync(path.join(OG, "home.png"), Buffer.from(b64, "base64"));
+  }
+  if (previews.length) note("drew link previews for " + previews.map((s) => s.id).join(", "));
   await browser.close();
   writeJSON(PENDING, fresh);
+}
+
+// The story's own page and its preview image must be live before the links go out, or X and
+// friends cache an empty card. GitHub Pages usually deploys within a minute or two.
+async function waitLive(url, minutes) {
+  const until = Date.now() + minutes * 60000;
+  while (Date.now() < until) {
+    try { const r = await fetch(url, { method: "HEAD", cache: "no-store" }); if (r.ok) return true; } catch (e) {}
+    await new Promise((res) => setTimeout(res, 10000));
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------- X (OAuth 1.0a user context)
@@ -190,7 +220,7 @@ async function post() {
   note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
 
   for (const s of pending) {
-    const permalink = SITE + "/#" + s.id;
+    const permalink = SITE + "/" + s.id + "/";
     const title = s.title || "Legacy Mammals";
     const xText = (title.length > 240 ? title.slice(0, 237) + "…" : title) + "\n\n" + permalink;
     const igCaption = title + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.";
@@ -204,6 +234,7 @@ async function post() {
     } else {
       const png = fs.readFileSync(path.join(OUT, s.id + ".png"));
       let sent = false;
+      if (!(await waitLive(permalink, 4)) || !(await waitLive(SITE + "/og/" + s.id + ".png", 4))) note("warning: " + permalink + " or its preview image is not live yet; posting anyway");
       if (haveX && !prev.x) {
         // A retraction: the ledger names an earlier post to take down before this one goes up.
         try { if (prev.xDelete) { await xDelete(prev.xDelete); delete record.xDelete; note("took down the earlier X post of " + s.id); } record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; note("posted " + s.id + " to X: " + record.x); }
