@@ -31,8 +31,16 @@
       i.crossOrigin = "anonymous";
       i.onload = function () { res(i); };
       i.onerror = function () { res(null); };
-      i.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "lm=share";
+      i.src = src.indexOf("data:") === 0 ? src : src + (src.indexOf("?") > -1 ? "&" : "?") + "lm=share";
     });
+  }
+  // An inline illustration (SVG in the card) becomes an image the canvas can draw.
+  function svgUrl(svg) {
+    var m = /viewBox="([\d.\s,-]+)"/.exec(svg), w = 640, h = 360;
+    if (m) { var p = m[1].trim().split(/[\s,]+/); w = parseFloat(p[2]) || w; h = parseFloat(p[3]) || h; }
+    if (!/<svg[^>]*\sxmlns=/.test(svg)) svg = svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+    if (!/<svg[^>]*\swidth=/.test(svg)) svg = svg.replace("<svg", '<svg width="' + w + '" height="' + h + '"');
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
   }
   function drawCover(ctx, img, x, y, w, h, pos) {
     var ir = img.naturalWidth / img.naturalHeight, r = w / h, sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
@@ -71,8 +79,8 @@
       if (el.classList.contains("status")) { out.items.push({ t: "status", me: el.classList.contains("me"), text: el.textContent }); return; }
       var card = el.querySelector(".card");
       if (card) {
-        var img = card.querySelector("img");
-        out.items.push({ t: "head", who: who, title: card.querySelector(".t").textContent, domain: card.querySelector(".d").textContent, img: img ? img.getAttribute("src") : null, pos: img ? img.style.objectPosition : "", ill: !!card.querySelector(".ill") });
+        var img = card.querySelector("img"), ill = card.querySelector(".ill svg");
+        out.items.push({ t: "head", who: who, title: card.querySelector(".t").textContent, domain: card.querySelector(".d").textContent, img: img ? img.getAttribute("src") : ill ? svgUrl(ill.outerHTML) : null, pos: img ? img.style.objectPosition : "", ill: !!ill });
         out.title = card.querySelector(".t").textContent; out.href = card.getAttribute("href");
         return;
       }

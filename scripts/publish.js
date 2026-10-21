@@ -94,7 +94,8 @@ async function render() {
   if (FORCE) {
     const f = stories.find((s) => s.id === FORCE);
     if (!f) throw new Error("FORCE_STORY " + FORCE + " is not on the page");
-    if (!fresh.some((s) => s.id === FORCE)) fresh.push(Object.assign({ forced: true }, f));
+    const already = fresh.find((s) => s.id === FORCE);
+    if (already) already.forced = true; else fresh.push(Object.assign({ forced: true }, f));
   }
   note((queue.length ? "next up: " + fresh.filter((s) => !s.retry).map((s) => s.id).join(", ") + (queue.length > MAX ? " (" + (queue.length - MAX) + " more waiting, one per hour)" : "") : "nothing new") + (retries.length ? "; retrying " + retries.map((s) => s.id).join(", ") : ""));
 
