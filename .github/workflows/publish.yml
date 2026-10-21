@@ -14,6 +14,10 @@ on:
         description: "Dry run: draw the images, post nothing"
         type: boolean
         default: true
+      check_only:
+        description: "Only check that the X and Instagram keys work; post nothing"
+        type: boolean
+        default: false
 
 # One run at a time, so two quick pushes can't post the same story twice.
 concurrency:
@@ -38,22 +42,36 @@ jobs:
         with:
           node-version: 22
 
+      - name: Check the keys
+        if: inputs.check_only == true
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node scripts/publish.js check
+
       - name: Install Playwright
+        if: inputs.check_only != true
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Serve the site
+        if: inputs.check_only != true
         run: |
           nohup python3 -m http.server 8080 --bind 127.0.0.1 > /dev/null 2>&1 &
           sleep 1
           curl -sfo /dev/null http://127.0.0.1:8080/index.html
 
       - name: Draw the share images
+        if: inputs.check_only != true
         run: node scripts/publish.js render
 
       - name: Push the images so Instagram can fetch them
-        if: env.SOCIAL_DRY_RUN != 'true'
+        if: inputs.check_only != true && env.SOCIAL_DRY_RUN != 'true'
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
@@ -61,6 +79,7 @@ jobs:
           git diff --cached --quiet || (git commit -m "Share images for new stories" && git push)
 
       - name: Post
+        if: inputs.check_only != true
         env:
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
@@ -71,6 +90,7 @@ jobs:
         run: node scripts/publish.js post
 
       - name: Record what went out
+        if: inputs.check_only != true
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
@@ -78,7 +98,7 @@ jobs:
           git diff --cached --quiet || (git commit -m "Record posted stories" && git pull --rebase && git push)
 
       - name: Keep the images with the run
-        if: always()
+        if: always() && inputs.check_only != true
         uses: actions/upload-artifact@v4
         with:
           name: share-images

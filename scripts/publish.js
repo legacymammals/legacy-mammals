@@ -14,6 +14,9 @@
  *                            with black bars at the sides
  *     The workflow then pushes the images, so Instagram can fetch them from a public URL.
  *
+ *   node scripts/publish.js check
+ *     Verifies the keys without posting anything (see check() below).
+ *
  *   node scripts/publish.js post
  *     Posts each pending story to X (image + headline + permalink) and Instagram (image +
  *     headline + "link in bio"), then records it in social/posted.json so it never posts twice.
@@ -190,6 +193,52 @@ async function post() {
   }
 }
 
+// ---------------------------------------------------------------- check
+// Verifies the keys without posting anything. X: who the keys sign in as, then a test image
+// upload (unused media is discarded by X within a day, so nothing appears). Instagram: the
+// account, the token's permissions and expiry, and the publishing quota. Prints no secrets.
+const TEST_PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
+async function check() {
+  let ok = true;
+  const missing = (names) => names.filter((n) => !env(n));
+  const xMissing = missing(["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_SECRET"]);
+  if (xMissing.length === 4) note("X: no keys yet (X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET)");
+  else if (xMissing.length) { ok = false; note("X: incomplete, missing " + xMissing.join(", ")); }
+  else {
+    const url = "https://api.x.com/2/users/me";
+    const r = await fetch(url, { headers: { Authorization: oauthHeader("GET", url) } });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.data) { ok = false; note("X: the keys were rejected (" + r.status + "): " + JSON.stringify(j).slice(0, 300)); }
+    else {
+      note("X: signed in as @" + j.data.username);
+      try { await xUploadMedia(TEST_PNG); note("X: write access works (a test image uploaded and was not posted)"); }
+      catch (e) { ok = false; note("X: can read but cannot upload media, so posting will fail. " + e.message.slice(0, 400)); }
+    }
+  }
+  const igMissing = missing(["IG_USER_ID", "IG_ACCESS_TOKEN"]);
+  if (igMissing.length === 2) note("Instagram: no keys yet (IG_USER_ID, IG_ACCESS_TOKEN)");
+  else if (igMissing.length) { ok = false; note("Instagram: incomplete, missing " + igMissing.join(", ")); }
+  else {
+    const base = "https://" + IG.host + "/" + IG.version + "/";
+    const me = await (await fetch(base + IG.user + "?fields=id,username,media_count&access_token=" + enc(IG.token))).json().catch(() => ({}));
+    if (me.error || !me.username) { ok = false; note("Instagram: rejected: " + ((me.error && me.error.message) || JSON.stringify(me).slice(0, 300))); }
+    else {
+      note("Instagram: account @" + me.username + " (" + me.media_count + " posts)");
+      const dbg = await (await fetch(base + "debug_token?input_token=" + enc(IG.token) + "&access_token=" + enc(IG.token))).json().catch(() => ({}));
+      if (dbg.data) {
+        const scopes = dbg.data.scopes || [], exp = dbg.data.expires_at ? new Date(dbg.data.expires_at * 1000).toISOString().slice(0, 10) : "never";
+        const canPublish = scopes.includes("instagram_content_publish");
+        if (!canPublish) ok = false;
+        note("Instagram: " + (dbg.data.type || "token") + " token, expires " + exp + ", publish permission " + (canPublish ? "granted" : "MISSING (needs instagram_content_publish)"));
+      }
+      const q = await (await fetch(base + IG.user + "/content_publishing_limit?fields=quota_usage,config&access_token=" + enc(IG.token))).json().catch(() => ({}));
+      if (q.data && q.data[0]) note("Instagram: publishing quota used " + q.data[0].quota_usage + " of " + q.data[0].config.quota_total + " per " + Math.round(q.data[0].config.quota_duration / 3600) + " hours");
+      else if (q.error) { ok = false; note("Instagram: publishing check failed: " + q.error.message); }
+    }
+  }
+  note(ok ? "Check finished: everything configured works." : "Check finished: something above needs fixing.");
+}
+
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : Promise.reject(new Error("usage: publish.js render|post")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : Promise.reject(new Error("usage: publish.js render|post|check")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
