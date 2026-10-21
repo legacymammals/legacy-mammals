@@ -44,7 +44,11 @@ const IG_W = 1080, IG_H = 1350; // 4:5, the tallest Instagram allows in the feed
 
 const env = (k) => (process.env[k] || "").trim();
 const X = { key: env("X_API_KEY"), secret: env("X_API_SECRET"), token: env("X_ACCESS_TOKEN"), tokenSecret: env("X_ACCESS_SECRET") };
-const IG = { user: env("IG_USER_ID"), token: env("IG_ACCESS_TOKEN"), host: env("IG_API_HOST") || "graph.facebook.com", version: env("IG_API_VERSION") || "v23.0" };
+// Two kinds of Instagram token exist. A Facebook Page token (starts with "EAA") talks to
+// graph.facebook.com; a token from "Instagram API with Instagram Login" (starts with "IG") talks
+// to graph.instagram.com. The host follows the token unless IG_API_HOST says otherwise.
+const IG = { user: env("IG_USER_ID"), token: env("IG_ACCESS_TOKEN"), version: env("IG_API_VERSION") || "v23.0" };
+IG.host = env("IG_API_HOST") || (IG.token.startsWith("IG") ? "graph.instagram.com" : "graph.facebook.com");
 const haveX = !!(X.key && X.secret && X.token && X.tokenSecret);
 const haveIG = !!(IG.user && IG.token);
 const DRY = env("SOCIAL_DRY_RUN").toLowerCase() === "true" || (!haveX && !haveIG);
@@ -220,6 +224,13 @@ async function check() {
   else if (igMissing.length) { ok = false; note("Instagram: incomplete, missing " + igMissing.join(", ")); }
   else {
     const base = "https://" + IG.host + "/" + IG.version + "/";
+    note("Instagram: token looks like " + (IG.token.startsWith("IG") ? "an Instagram Login token" : IG.token.startsWith("EAA") ? "a Facebook token" : "neither a Facebook (EAA...) nor an Instagram Login (IG...) token; check what was pasted") + ", using " + IG.host);
+    // Who does the token belong to, and does IG_USER_ID point at that account?
+    const who = await (await fetch(base + "me?fields=id,username" + (IG.host === "graph.instagram.com" ? ",user_id" : "") + "&access_token=" + enc(IG.token))).json().catch(() => ({}));
+    if (who.username) {
+      const ids = [who.id, who.user_id].filter(Boolean);
+      note("Instagram: token belongs to @" + who.username + "; IG_USER_ID " + (ids.includes(IG.user) ? "matches it" : "does not match it (" + (IG.host === "graph.instagram.com" ? "use the user_id this token reports" : "it must be the Instagram business account id linked to the Page, not the Page id or the app id") + ")"));
+    } else if (who.error) note("Instagram: me lookup: " + who.error.message);
     const me = await (await fetch(base + IG.user + "?fields=id,username,media_count&access_token=" + enc(IG.token))).json().catch(() => ({}));
     if (me.error || !me.username) { ok = false; note("Instagram: rejected: " + ((me.error && me.error.message) || JSON.stringify(me).slice(0, 300))); }
     else {
