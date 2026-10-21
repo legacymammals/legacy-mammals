@@ -40,15 +40,21 @@
     if (ir > r) { sw = sh * r; sx = (img.naturalWidth - sw) / 2; } else { sh = sw / r; sy = (img.naturalHeight - sh) * py; }
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
   }
-  function stone(ctx, x, y, s, fill, face) {
+  function stone(ctx, x, y, s, c) {
+    // G2 mark: outlined dome headstone on a stepped plinth with inscription lines, mound and grass.
     ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
-    ctx.fillStyle = BROWN; ctx.beginPath(); ctx.ellipse(150, 256, 128, 16, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = fill; rr(ctx, 70, 230, 160, 16, 3); ctx.fill();
-    ctx.fill(new Path2D("M 84 230 L 84 110 A 66 66 0 0 1 216 110 L 216 230 Z"));
-    ctx.strokeStyle = fill; ctx.lineWidth = 11; ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.stroke(new Path2D("M 22 130 L 44 130 L 64 180 L 84 180")); ctx.stroke(new Path2D("M 216 180 L 236 180 L 256 130 L 278 130"));
-    ctx.strokeStyle = face; ctx.lineWidth = 9;
-    ctx.stroke(new Path2D("M 104 96 L 114 112")); ctx.stroke(new Path2D("M 132 88 L 142 104")); ctx.stroke(new Path2D("M 190 86 C 196 128 172 162 112 176"));
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.fillStyle = c.mound; ctx.strokeStyle = c.line; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.ellipse(150, 262, 134, 18, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = c.plinth; rr(ctx, 44, 236, 212, 22, 4); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.rect(60, 218, 180, 20); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = c.fill; var dome = new Path2D("M 76 220 L 76 120 A 74 70 0 0 1 224 120 L 224 220 Z"); ctx.fill(dome); ctx.stroke(dome);
+    ctx.lineWidth = 11; ctx.stroke(new Path2D("M 16 136 L 38 136 L 56 186 L 76 186")); ctx.stroke(new Path2D("M 224 186 L 244 186 L 262 136 L 284 136"));
+    ctx.strokeStyle = c.face; ctx.lineWidth = 8;
+    ctx.stroke(new Path2D("M 110 104 L 119 120")); ctx.stroke(new Path2D("M 136 97 L 145 113")); ctx.stroke(new Path2D("M 190 96 C 196 132 174 160 120 170"));
+    ctx.lineWidth = 5; ctx.stroke(new Path2D("M 110 192 L 190 192")); ctx.stroke(new Path2D("M 124 205 L 176 205"));
+    ctx.strokeStyle = c.grass; ctx.lineWidth = 4;
+    ctx.stroke(new Path2D("M 30 252 c 2 -10 -4 -16 -8 -24 M 36 250 c 0 -10 2 -16 6 -26 M 268 250 c -2 -10 4 -16 8 -24 M 262 252 c 0 -10 -2 -16 -6 -26"));
     ctx.restore();
   }
 
@@ -239,7 +245,7 @@
     var FH = 96;
     if (ctx) {
       ctx.fillStyle = "#E4DCCB"; ctx.fillRect(PAD, y, W - PAD * 2, 2);
-      stone(ctx, PAD - 4, y + 18, 0.2, INK, TINT);
+      stone(ctx, PAD - 8, y + 8, 0.24, { fill: CREAM, line: INK, face: INK, plinth: CREAM, mound: "#7A5438", grass: "#5E8A4A" });
       text("legacymammals.com", font("800", 22), INK, PAD + 70, y + 46);
       text("#" + d.id, font("500", 20), META, PAD + 70, y + 74);
       text(HANDLE, font("800", 24), INK, W - PAD, y + 58, "right");
