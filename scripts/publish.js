@@ -80,17 +80,27 @@ async function render() {
     title: ((t.querySelector(".card .t") || {}).textContent || "").trim(),
     href: (t.querySelector(".card") || {}).getAttribute("href") || "",
   })));
-  const queue = stories.filter((s) => !ledger.posted[s.id]).reverse(); // oldest first, so a backlog posts in order
+  const rec = (id) => ledger.posted[id] || null;
+  const queue = stories.filter((s) => !rec(s.id)).reverse(); // oldest first, so a backlog posts in order
   let fresh = queue.slice(0, MAX);
+  // Each platform catches up on its own: the oldest story that failed on X, and the oldest
+  // that failed on Instagram, are tried again every run until they go through.
+  const retries = [];
+  for (const side of ["x", "ig"]) {
+    const c = stories.filter((s) => rec(s.id) && rec(s.id)[side + "Error"] && !rec(s.id)[side]).pop();
+    if (c && !fresh.some((f) => f.id === c.id) && !retries.some((f) => f.id === c.id)) retries.push(Object.assign({ retry: true }, c));
+  }
+  fresh = fresh.concat(retries);
   if (FORCE) {
     const f = stories.find((s) => s.id === FORCE);
     if (!f) throw new Error("FORCE_STORY " + FORCE + " is not on the page");
     if (!fresh.some((s) => s.id === FORCE)) fresh.push(Object.assign({ forced: true }, f));
   }
-  note(fresh.length ? "to draw: " + fresh.map((s) => s.id).join(", ") + (queue.length > fresh.length ? " (" + (queue.length - fresh.length) + " more waiting, one per hour)" : "") : "nothing new");
+  note((queue.length ? "next up: " + fresh.filter((s) => !s.retry).map((s) => s.id).join(", ") + (queue.length > MAX ? " (" + (queue.length - MAX) + " more waiting, one per hour)" : "") : "nothing new") + (retries.length ? "; retrying " + retries.map((s) => s.id).join(", ") : ""));
 
   fs.mkdirSync(OUT, { recursive: true });
   for (const s of fresh) {
+    if (!s.forced && fs.existsSync(path.join(OUT, s.id + ".png")) && fs.existsSync(path.join(OUT, s.id + "-ig.png"))) { console.log("images for " + s.id + " already drawn"); continue; }
     const pngB64 = await page.evaluate(async (id) => {
       const r = await window.LM.render(document.getElementById(id));
       return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result.split(",")[1]); fr.readAsDataURL(r.png); });
@@ -182,7 +192,7 @@ async function post() {
 
     if (DRY) {
       note("would post " + s.id + ":\n" + xText.replace(/^/gm, "    "));
-      if (s.forced) continue; // a test render leaves the ledger alone
+      if (s.forced || s.retry) continue; // a test render leaves the ledger alone
       record.dryRun = true;
     } else {
       const png = fs.readFileSync(path.join(OUT, s.id + ".png"));
