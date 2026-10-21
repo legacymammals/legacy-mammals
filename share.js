@@ -191,9 +191,19 @@
         if (ctx) {
           ctx.save(); rr(ctx, mx, y, mw, mh, me ? [26, 26, 8, 26] : [26, 26, 26, 8]); ctx.fillStyle = BEIGE; ctx.fill(); ctx.clip();
           if (mi2) drawCover(ctx, mi2, mx, y, mw, mh, it.pos);
-          ctx.font = font("800", 44); ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.lineJoin = "round"; ctx.lineWidth = 8; ctx.strokeStyle = "#000"; ctx.fillStyle = "#fff";
-          if (it.top) { ctx.strokeText(it.top.toUpperCase(), mx + mw / 2, y + 58); ctx.fillText(it.top.toUpperCase(), mx + mw / 2, y + 58); }
-          if (it.bottom) { ctx.strokeText(it.bottom.toUpperCase(), mx + mw / 2, y + mh - 22); ctx.fillText(it.bottom.toUpperCase(), mx + mw / 2, y + mh - 22); }
+          ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000"; ctx.fillStyle = "#fff";
+          var cap = function (str, bottom) {
+            str = str.toUpperCase(); var size = 44, lines;
+            do { ctx.font = font("800", size); lines = wrap(ctx, str, mw - 32); if (lines.length <= 1 || size <= 30) break; size -= 2; } while (true);
+            if (lines.length > 2) { lines = [lines[0], lines.slice(1).join(" ")]; }
+            ctx.lineWidth = Math.max(5, size / 6);
+            for (var li = 0; li < lines.length; li++) {
+              var ly = bottom ? y + mh - 22 - (lines.length - 1 - li) * (size + 6) : y + 58 + li * (size + 6);
+              ctx.strokeText(lines[li], mx + mw / 2, ly); ctx.fillText(lines[li], mx + mw / 2, ly);
+            }
+          };
+          if (it.top) cap(it.top, false);
+          if (it.bottom) cap(it.bottom, true);
           ctx.restore();
         }
         avatar(it.who, me ? W - PAD - AV : PAD, y + mh - AV);
