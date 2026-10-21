@@ -260,44 +260,66 @@
     var ctx = c.getContext("2d");
     paint(ctx, d, imgs);
     var blob = await new Promise(function (res) { c.toBlob(res, "image/png"); });
-    var jpg = await new Promise(function (res) { c.toBlob(res, "image/jpeg", 0.92); });
-    cache[d.id] = { png: blob, jpg: jpg, canvas: c, title: d.title, href: d.href, id: d.id };
+    var file = new File([blob], "legacymammals-" + d.id + ".png", { type: "image/png" });
+    cache[d.id] = { png: blob, file: file, title: d.title, href: d.href, id: d.id, canvas: c };
     return cache[d.id];
+  }
+  var pending = {};
+  function prepare(thread) {
+    var id = thread.id;
+    if (cache[id]) return Promise.resolve(cache[id]);
+    if (!pending[id]) pending[id] = render(thread).then(function (r) { delete r.canvas; delete pending[id]; return r; }, function () { delete pending[id]; });
+    return pending[id];
   }
 
   function flash(btn, msg) { var o = btn.textContent; btn.textContent = msg; btn.disabled = true; setTimeout(function () { btn.textContent = o; btn.disabled = false; }, 1600); }
   function permalink(id) { return "https://" + SITE + "/#" + id; }
 
-  document.addEventListener("click", async function (ev) {
+  // Safari only opens the share sheet in the moment after a tap, so the tap must share
+  // something already drawn. The image is prepared when the story scrolls into view; if it
+  // isn't ready yet, the first tap prepares it and the button asks for one more tap.
+  document.addEventListener("click", function (ev) {
     var btn = ev.target.closest("[data-act]"); if (!btn) return;
     var thread = btn.closest(".thread"); if (!thread) return;
     var act = btn.getAttribute("data-act");
     var url = permalink(thread.id);
-    try {
-      if (act === "shareimg") {
-        var r = await render(thread);
-        var file = new File([r.png], "legacymammals-" + r.id + ".png", { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: r.title, text: r.title + " " + url });
-          flash(btn, "Shared");
-        } else if (navigator.clipboard && window.ClipboardItem) {
-          await navigator.clipboard.write([new ClipboardItem({ "image/png": r.png })]);
-          flash(btn, "Image copied");
-        } else {
-          var a = document.createElement("a"); a.href = URL.createObjectURL(r.png); a.download = "legacymammals-" + r.id + ".png"; document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-          flash(btn, "Saved");
-        }
-      } else if (act === "sharelink") {
-        var title = (thread.querySelector(".card .t") || {}).textContent || "Legacy Mammals";
-        if (navigator.share) { await navigator.share({ title: title, text: title, url: url }); flash(btn, "Shared"); }
-        else { await navigator.clipboard.writeText(url); flash(btn, "Link copied"); }
-      }
-    } catch (err) {
+    var title = (thread.querySelector(".card .t") || {}).textContent || "Legacy Mammals";
+    function fail(err) {
       if (err && err.name === "AbortError") return;
-      try { await navigator.clipboard.writeText(url); flash(btn, "Link copied"); } catch (e2) { flash(btn, "Couldn't share"); }
+      navigator.clipboard && navigator.clipboard.writeText(url).then(function () { flash(btn, "Link copied"); }, function () { flash(btn, "Couldn't share"); });
+    }
+    if (act === "sharelink") {
+      if (navigator.share) { navigator.share({ title: title, text: title, url: url }).then(function () { flash(btn, "Shared"); }, fail); }
+      else if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function () { flash(btn, "Link copied"); }, fail); }
+      return;
+    }
+    if (act === "shareimg") {
+      var r = cache[thread.id];
+      if (!r) {
+        btn.textContent = "Preparing\u2026"; btn.disabled = true;
+        prepare(thread).then(function () { btn.disabled = false; btn.textContent = "Tap again to share"; }, function () { btn.disabled = false; btn.textContent = "Share image"; flash(btn, "Couldn't draw it"); });
+        return;
+      }
+      btn.textContent = "Share image";
+      if (navigator.canShare && navigator.canShare({ files: [r.file] })) {
+        navigator.share({ files: [r.file], title: title, text: title + " " + url }).then(function () { flash(btn, "Shared"); }, fail);
+      } else if (navigator.clipboard && window.ClipboardItem) {
+        navigator.clipboard.write([new ClipboardItem({ "image/png": r.png })]).then(function () { flash(btn, "Image copied"); }, function () {
+          var a = document.createElement("a"); a.href = URL.createObjectURL(r.png); a.download = r.file.name; document.body.appendChild(a); a.click(); a.remove(); flash(btn, "Saved");
+        });
+      } else {
+        var a = document.createElement("a"); a.href = URL.createObjectURL(r.png); a.download = r.file.name; document.body.appendChild(a); a.click(); a.remove(); flash(btn, "Saved");
+      }
     }
   });
 
-  window.LM = { render: render };
+  // Prepare a story's image when its share bar comes near the screen.
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { io.unobserve(en.target); var th = en.target.closest(".thread"); if (th) prepare(th); } });
+    }, { rootMargin: "400px 0px" });
+    Array.prototype.forEach.call(document.querySelectorAll(".sharebar"), function (b) { io.observe(b); });
+  }
+
+  window.LM = { render: render, prepare: prepare };
 })();
