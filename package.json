@@ -1,0 +1,12 @@
+{
+  "name": "legacy-mammals",
+  "private": true,
+  "description": "legacymammals.com and the script that posts new stories to X and Instagram",
+  "scripts": {
+    "render": "node scripts/publish.js render",
+    "post": "node scripts/publish.js post"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}

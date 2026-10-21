@@ -1,0 +1,193 @@
+#!/usr/bin/env node
+/* Legacy Mammals — post new stories to X and Instagram.
+ *
+ * Runs in GitHub Actions (.github/workflows/publish.yml) after each push that changes
+ * index.html, in two phases:
+ *
+ *   node scripts/publish.js render
+ *     Opens the site (served locally from the checkout), finds the stories that are not yet in
+ *     social/posted.json, draws each one's share image with the site's own share.js (so the
+ *     fonts, photos and the sign-off are exactly what the Share button gives), and writes
+ *       social/<id>.png      the share image, as the site draws it
+ *       social/<id>-ig.png   the Instagram version: the same image, and if the story is
+ *                            taller than Instagram's 4:5 limit, shrunk to fit 1080 x 1350
+ *                            with black bars at the sides
+ *     The workflow then pushes the images, so Instagram can fetch them from a public URL.
+ *
+ *   node scripts/publish.js post
+ *     Posts each pending story to X (image + headline + permalink) and Instagram (image +
+ *     headline + "link in bio"), then records it in social/posted.json so it never posts twice.
+ *
+ * Dry run: when no keys are configured, or SOCIAL_DRY_RUN=true, the images are drawn and the
+ * stories are recorded as seen, but nothing is posted. Stories first seen during a dry run are
+ * not posted later; only stories added after the keys exist go out.
+ *
+ * FORCE_STORY=<id> re-renders that story even if it is already recorded (and, outside a dry
+ * run, posts it again). A forced story is recorded only when it is actually posted.
+ */
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const crypto = require("crypto");
+
+const ROOT = path.resolve(__dirname, "..");
+const SITE = "https://legacymammals.com";
+const RAW = "https://raw.githubusercontent.com/legacymammals/legacy-mammals/main";
+const OUT = path.join(ROOT, "social");
+const LEDGER = path.join(OUT, "posted.json");
+const PENDING = path.join(process.env.LM_TMP || process.env.RUNNER_TEMP || os.tmpdir(), "legacymammals-pending.json");
+const LOCAL = process.env.LOCAL_URL || "http://127.0.0.1:8080/";
+const IG_W = 1080, IG_H = 1350; // 4:5, the tallest Instagram allows in the feed
+
+const env = (k) => (process.env[k] || "").trim();
+const X = { key: env("X_API_KEY"), secret: env("X_API_SECRET"), token: env("X_ACCESS_TOKEN"), tokenSecret: env("X_ACCESS_SECRET") };
+const IG = { user: env("IG_USER_ID"), token: env("IG_ACCESS_TOKEN"), host: env("IG_API_HOST") || "graph.facebook.com", version: env("IG_API_VERSION") || "v23.0" };
+const haveX = !!(X.key && X.secret && X.token && X.tokenSecret);
+const haveIG = !!(IG.user && IG.token);
+const DRY = env("SOCIAL_DRY_RUN").toLowerCase() === "true" || (!haveX && !haveIG);
+const FORCE = env("FORCE_STORY");
+
+const readJSON = (p, fallback) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch (e) { return fallback; } };
+const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(v, null, 2) + "\n"); };
+
+// ---------------------------------------------------------------- render
+async function render() {
+  const { chromium } = require("playwright");
+  const ledger = readJSON(LEDGER, { posted: {} });
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  page.on("pageerror", (e) => console.log("page error:", e.message));
+  await page.goto(LOCAL, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => window.LM && window.LM.render, null, { timeout: 30000 });
+
+  const stories = await page.evaluate(() => Array.prototype.map.call(document.querySelectorAll(".thread[id]"), (t) => ({
+    id: t.id,
+    title: ((t.querySelector(".card .t") || {}).textContent || "").trim(),
+    href: (t.querySelector(".card") || {}).getAttribute("href") || "",
+  })));
+  let fresh = stories.filter((s) => !ledger.posted[s.id]).reverse(); // oldest first, so a backlog posts in order
+  if (FORCE) {
+    const f = stories.find((s) => s.id === FORCE);
+    if (!f) throw new Error("FORCE_STORY " + FORCE + " is not on the page");
+    if (!fresh.some((s) => s.id === FORCE)) fresh.push(Object.assign({ forced: true }, f));
+  }
+  console.log(fresh.length ? "to draw: " + fresh.map((s) => s.id).join(", ") : "nothing new");
+
+  fs.mkdirSync(OUT, { recursive: true });
+  for (const s of fresh) {
+    const pngB64 = await page.evaluate(async (id) => {
+      const r = await window.LM.render(document.getElementById(id));
+      return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result.split(",")[1]); fr.readAsDataURL(r.png); });
+    }, s.id);
+    fs.writeFileSync(path.join(OUT, s.id + ".png"), Buffer.from(pngB64, "base64"));
+
+    const ig = await page.evaluate(async ({ b64, W, H }) => {
+      const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode();
+      const c = document.createElement("canvas"); let boxed = false;
+      if (img.height / img.width <= H / W) { c.width = img.width; c.height = img.height; c.getContext("2d").drawImage(img, 0, 0); }
+      else {
+        boxed = true; c.width = W; c.height = H; const ctx = c.getContext("2d");
+        ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+        const w = Math.round(img.width * H / img.height); ctx.drawImage(img, Math.round((W - w) / 2), 0, w, H);
+      }
+      return { b64: c.toDataURL("image/png").split(",")[1], w: c.width, h: c.height, boxed, srcH: img.height };
+    }, { b64: pngB64, W: IG_W, H: IG_H });
+    fs.writeFileSync(path.join(OUT, s.id + "-ig.png"), Buffer.from(ig.b64, "base64"));
+    console.log("drew " + s.id + ": 1080 x " + ig.srcH + (ig.boxed ? " -> Instagram " + ig.w + " x " + ig.h + " with side bars" : " (fits Instagram as is)"));
+  }
+  await browser.close();
+  writeJSON(PENDING, fresh);
+}
+
+// ---------------------------------------------------------------- X (OAuth 1.0a user context)
+const enc = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase());
+function oauthHeader(method, url) {
+  const o = {
+    oauth_consumer_key: X.key, oauth_nonce: crypto.randomBytes(16).toString("hex"), oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: Math.floor(Date.now() / 1000).toString(), oauth_token: X.token, oauth_version: "1.0",
+  };
+  const paramStr = Object.keys(o).sort().map((k) => enc(k) + "=" + enc(o[k])).join("&");
+  const base = [method.toUpperCase(), enc(url), enc(paramStr)].join("&");
+  o.oauth_signature = crypto.createHmac("sha1", enc(X.secret) + "&" + enc(X.tokenSecret)).update(base).digest("base64");
+  return "OAuth " + Object.keys(o).sort().map((k) => enc(k) + '="' + enc(o[k]) + '"').join(", ");
+}
+async function xUploadMedia(png) {
+  const url = "https://api.x.com/2/media/upload";
+  const form = new FormData();
+  form.append("media", new Blob([png], { type: "image/png" }), "story.png");
+  form.append("media_category", "tweet_image");
+  form.append("media_type", "image/png");
+  const r = await fetch(url, { method: "POST", headers: { Authorization: oauthHeader("POST", url) }, body: form });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error("X media upload failed: " + r.status + " " + JSON.stringify(j));
+  return (j.data && j.data.id) || j.media_id_string || j.id;
+}
+async function xPost(text, mediaId) {
+  const url = "https://api.x.com/2/tweets";
+  const r = await fetch(url, { method: "POST", headers: { Authorization: oauthHeader("POST", url), "Content-Type": "application/json" }, body: JSON.stringify({ text, media: { media_ids: [String(mediaId)] } }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error("X post failed: " + r.status + " " + JSON.stringify(j));
+  return j.data && j.data.id;
+}
+
+// ---------------------------------------------------------------- Instagram (Graph API)
+async function igPost(imageUrl, caption) {
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ image_url: imageUrl, caption, access_token: IG.token }) });
+  let j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram container failed: " + r.status + " " + JSON.stringify(j));
+  const creation = j.id;
+  for (let i = 0; i < 20; i++) {
+    const s = await (await fetch(base + creation + "?fields=status_code&access_token=" + enc(IG.token))).json().catch(() => ({}));
+    if (s.status_code === "FINISHED") break;
+    if (s.status_code === "ERROR" || s.status_code === "EXPIRED") throw new Error("Instagram container " + s.status_code + ": " + JSON.stringify(s));
+    await new Promise((res) => setTimeout(res, 3000));
+  }
+  r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: creation, access_token: IG.token }) });
+  j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram publish failed: " + r.status + " " + JSON.stringify(j));
+  return j.id;
+}
+
+// ---------------------------------------------------------------- post
+async function post() {
+  const ledger = readJSON(LEDGER, { posted: {} });
+  const pending = readJSON(PENDING, []);
+  if (!pending.length) { console.log("nothing to post"); return; }
+  console.log(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
+
+  for (const s of pending) {
+    const permalink = SITE + "/#" + s.id;
+    const title = s.title || "Legacy Mammals";
+    const xText = (title.length > 240 ? title.slice(0, 237) + "…" : title) + "\n\n" + permalink;
+    const igCaption = title + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.";
+    const prev = ledger.posted[s.id] || {}; // a forced re-run only fills in what is missing
+    const record = Object.assign({}, prev, { title, at: new Date().toISOString() });
+
+    if (DRY) {
+      console.log("would post " + s.id + ":\n" + xText.replace(/^/gm, "    "));
+      if (s.forced) continue; // a test render leaves the ledger alone
+      record.dryRun = true;
+    } else {
+      const png = fs.readFileSync(path.join(OUT, s.id + ".png"));
+      let sent = false;
+      if (haveX && !prev.x) {
+        try { record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; console.log("posted " + s.id + " to X: " + record.x); }
+        catch (e) { record.xError = e.message; console.log(e.message); }
+      }
+      if (haveIG && !prev.ig) {
+        // Instagram fetches the image itself, from the copy the workflow pushed a moment ago.
+        try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png", igCaption); delete record.igError; sent = true; console.log("posted " + s.id + " to Instagram: " + record.ig); }
+        catch (e) { record.igError = e.message; console.log(e.message); }
+      }
+      if (!sent && !prev.x && !prev.ig) { console.log("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
+      delete record.dryRun;
+    }
+    ledger.posted[s.id] = record;
+    writeJSON(LEDGER, ledger);
+  }
+}
+
+const mode = process.argv[2];
+(mode === "render" ? render() : mode === "post" ? post() : Promise.reject(new Error("usage: publish.js render|post")))
+  .catch((e) => { console.error(e.message || e); process.exit(1); });

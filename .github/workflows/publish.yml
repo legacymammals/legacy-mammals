@@ -1,0 +1,86 @@
+name: Post new stories to X and Instagram
+
+on:
+  push:
+    branches: [main]
+    paths: [index.html]
+  workflow_dispatch:
+    inputs:
+      story:
+        description: "Story to re-render, e.g. no-16 (blank = only stories not yet posted)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Dry run: draw the images, post nothing"
+        type: boolean
+        default: true
+
+# One run at a time, so two quick pushes can't post the same story twice.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      # A manual run follows its own switch; a push follows the SOCIAL_DRY_RUN repository
+      # variable (unset = live, as long as the keys exist). Without keys it is always a dry run.
+      SOCIAL_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.dry_run) || format('{0}', vars.SOCIAL_DRY_RUN) }}
+      FORCE_STORY: ${{ inputs.story }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Serve the site
+        run: |
+          nohup python3 -m http.server 8080 --bind 127.0.0.1 > /dev/null 2>&1 &
+          sleep 1
+          curl -sfo /dev/null http://127.0.0.1:8080/index.html
+
+      - name: Draw the share images
+        run: node scripts/publish.js render
+
+      - name: Push the images so Instagram can fetch them
+        if: env.SOCIAL_DRY_RUN != 'true'
+        run: |
+          git config user.name "legacymammals"
+          git config user.email "legacymammals@users.noreply.github.com"
+          git add social/*.png
+          git diff --cached --quiet || (git commit -m "Share images for new stories" && git push)
+
+      - name: Post
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node scripts/publish.js post
+
+      - name: Record what went out
+        run: |
+          git config user.name "legacymammals"
+          git config user.email "legacymammals@users.noreply.github.com"
+          git add social/posted.json
+          git diff --cached --quiet || (git commit -m "Record posted stories" && git pull --rebase && git push)
+
+      - name: Keep the images with the run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: share-images
+          path: social/*.png
+          if-no-files-found: ignore
