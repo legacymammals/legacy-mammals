@@ -26,9 +26,8 @@
  *
  * One story per run (MAX_PER_RUN), oldest first; an hourly schedule drains any backlog.
  *
- * Dry run: when no keys are configured, or SOCIAL_DRY_RUN=true, the images are drawn and the
- * stories are recorded as seen, but nothing is posted. Stories first seen during a dry run are
- * not posted later; only stories added after the keys exist go out.
+ * Dry run: when no keys are configured, or SOCIAL_DRY_RUN=true, the images are drawn but nothing
+ * is posted and nothing is recorded, so the stories wait in the queue until the next live run.
  *
  * FORCE_STORY=<id> re-renders that story even if it is already recorded (and, outside a dry
  * run, posts it again). A forced story is recorded only when it is actually posted.
@@ -227,11 +226,8 @@ async function post() {
     const prev = ledger.posted[s.id] || {}; // a forced re-run only fills in what is missing
     const record = Object.assign({}, prev, { title, at: new Date().toISOString() });
 
-    if (DRY) {
-      note("would post " + s.id + ":\n" + xText.replace(/^/gm, "    "));
-      if (s.forced || s.retry) continue; // a test render leaves the ledger alone
-      record.dryRun = true;
-    } else {
+    if (DRY) { note("would post " + s.id + ":\n" + xText.replace(/^/gm, "    ")); continue; } // a dry run posts nothing and records nothing; the story waits
+    else {
       const png = fs.readFileSync(path.join(OUT, s.id + ".png"));
       let sent = false;
       if (!(await waitLive(permalink, 4)) || !(await waitLive(SITE + "/og/" + s.id + ".png", 4))) note("warning: " + permalink + " or its preview image is not live yet; posting anyway");
