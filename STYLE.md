@@ -84,7 +84,10 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
 
 ## The strip
 
-- Two to ten bubbles. As many as the beat needs and not one more.
+- Every bubble must add a fact, escalate the situation, reveal character, or land the joke.
+  Otherwise, cut it.
+- Two to ten bubbles; aim for four to six when that is enough. Don't force every piece into
+  the same length.
 - The first bubble is the whole story in one breath, with the who and the what, so a reader
   who never taps the link still gets it. It can be a question from Meatbag if the question
   carries the facts.
@@ -94,6 +97,9 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
 - When the story is technical, Mech gets two bubbles up front: why it matters, then what
   changed. No jargon survives, not even "qubit."
 - Each of them gets one wry line. One.
+- Once the joke lands, stop. No grimace after the punchline. (No. 16 ended on Meatbag's
+  paradox and Mech's 😬; the cut that stuck ends on "You turned off your own safety monitor?"
+  "It was making us look unsafe.")
 - End on the punchline, whoever has it, and cut everything after it, even if it is good. The
   cut lines go in the drawer. When the fact itself is the punchline ("The co-founder said the
   world is not prepared"), nobody adds to it.
