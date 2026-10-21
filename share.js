@@ -110,19 +110,9 @@
       else { ctx.moveTo(bx + bw - 20, by + bh); ctx.quadraticCurveTo(bx + bw - 4, by + bh, bx + bw + 12, by + bh); ctx.quadraticCurveTo(bx + bw - 2, by + bh - 6, bx + bw - 2, by + bh - 24); ctx.lineTo(bx + bw - 20, by + bh - 24); }
       ctx.closePath(); ctx.fill();
     }
-    // header
-    var HH = 168;
-    if (ctx) {
-      ctx.fillStyle = INK; ctx.fillRect(0, 0, W, HH);
-      ctx.fillStyle = AMBER; ctx.fillRect(0, HH, W, 12);
-      stone(ctx, PAD - 10, 26, 0.5, CREAM, INK);
-      text("LEGACY MAMMALS", font("800", 46), CREAM, PAD + 150, 84);
-      text("We had our turn.", font("500", 26), AMBER, PAD + 152, 122);
-      text(HANDLE, font("800", 32), AMBER, W - PAD, 104, "right");
-    }
-    y = HH + 12;
-    if (ctx) { ctx.fillStyle = TINT; ctx.fillRect(0, y, W, 20000); }
-    y += 44;
+    // just the exchange: tinted ground, a small date line, no masthead
+    if (ctx) { ctx.fillStyle = TINT; ctx.fillRect(0, 0, W, 20000); }
+    y = 44;
     text(d.folio, font("800", 22), META, PAD, y + 8);
     text(d.date.toUpperCase(), font("500", 22), META, W / 2, y + 8, "center");
     y += 44;
@@ -244,17 +234,17 @@
         y += shh + 12; continue;
       }
     }
-    y += 30;
-    // footer
-    var FH = 132;
+    y += 26;
+    // small sign-off: the stone, the address, the handle
+    var FH = 96;
     if (ctx) {
-      ctx.fillStyle = AMBER; ctx.fillRect(0, y, W, 12);
-      ctx.fillStyle = INK; ctx.fillRect(0, y + 12, W, FH);
-      text(HANDLE, font("800", 44), AMBER, PAD, y + 12 + 84);
-      text(SITE + "/#" + d.id, font("500", 24), CREAM, W - PAD, y + 12 + 70, "right");
-      text("Shared from Legacy Mammals", font("500", 20), "#B9B2A2", W - PAD, y + 12 + 100, "right");
+      ctx.fillStyle = "#E4DCCB"; ctx.fillRect(PAD, y, W - PAD * 2, 2);
+      stone(ctx, PAD - 4, y + 18, 0.2, INK, TINT);
+      text("legacymammals.com", font("800", 22), INK, PAD + 70, y + 46);
+      text("#" + d.id, font("500", 20), META, PAD + 70, y + 74);
+      text(HANDLE, font("800", 24), INK, W - PAD, y + 58, "right");
     }
-    return y + 12 + FH;
+    return y + FH;
   }
 
   var cache = {};
@@ -282,38 +272,32 @@
     var btn = ev.target.closest("[data-act]"); if (!btn) return;
     var thread = btn.closest(".thread"); if (!thread) return;
     var act = btn.getAttribute("data-act");
+    var url = permalink(thread.id);
     try {
-      if (act === "copy") {
-        if (!navigator.clipboard || !window.ClipboardItem) throw new Error("no clipboard");
-        var item = new ClipboardItem({ "image/png": render(thread).then(function (r) { return r.png; }) });
-        await navigator.clipboard.write([item]);
-        flash(btn, "Copied");
-      } else if (act === "dl") {
+      if (act === "shareimg") {
         var r = await render(thread);
-        var a = document.createElement("a"); a.href = URL.createObjectURL(r.jpg); a.download = "legacymammals-" + r.id + ".jpg"; document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-        flash(btn, "Saved");
-      } else if (act === "share") {
-        var r2 = await render(thread);
-        var file = new File([r2.png], "legacymammals-" + r2.id + ".png", { type: "image/png" });
-        var data = { files: [file], title: r2.title, text: r2.title + " " + permalink(r2.id) };
-        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share(data); }
-        else if (navigator.share) { await navigator.share({ title: r2.title, text: r2.title, url: permalink(r2.id) }); }
-        else { await navigator.clipboard.writeText(permalink(r2.id)); flash(btn, "Link copied"); return; }
-        flash(btn, "Shared");
-      } else if (act === "link") {
-        await navigator.clipboard.writeText(permalink(thread.id));
-        flash(btn, "Link copied");
+        var file = new File([r.png], "legacymammals-" + r.id + ".png", { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: r.title, text: r.title + " " + url });
+          flash(btn, "Shared");
+        } else if (navigator.clipboard && window.ClipboardItem) {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": r.png })]);
+          flash(btn, "Image copied");
+        } else {
+          var a = document.createElement("a"); a.href = URL.createObjectURL(r.png); a.download = "legacymammals-" + r.id + ".png"; document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          flash(btn, "Saved");
+        }
+      } else if (act === "sharelink") {
+        var title = (thread.querySelector(".card .t") || {}).textContent || "Legacy Mammals";
+        if (navigator.share) { await navigator.share({ title: title, text: title, url: url }); flash(btn, "Shared"); }
+        else { await navigator.clipboard.writeText(url); flash(btn, "Link copied"); }
       }
     } catch (err) {
       if (err && err.name === "AbortError") return;
-      flash(btn, "Try Download");
+      try { await navigator.clipboard.writeText(url); flash(btn, "Link copied"); } catch (e2) { flash(btn, "Couldn't share"); }
     }
   });
-
-  // Hide the native share button where the browser can't do it.
-  if (!navigator.share) { Array.prototype.forEach.call(document.querySelectorAll('[data-act="share"]'), function (b) { b.hidden = true; }); }
-  if (!navigator.clipboard || !window.ClipboardItem) { Array.prototype.forEach.call(document.querySelectorAll('[data-act="copy"]'), function (b) { b.hidden = true; }); }
 
   window.LM = { render: render };
 })();
