@@ -106,7 +106,7 @@
     var mctx = ctx || document.createElement("canvas").getContext("2d");
     var y = 0, inner = W - PAD * 2, AV = 56, GAP = 14, maxB = Math.round(inner * 0.78);
     function text(str, f, color, x, yy, align) { if (!ctx) return; ctx.font = f; ctx.fillStyle = color; ctx.textAlign = align || "left"; ctx.textBaseline = "alphabetic"; ctx.fillText(str, x, yy); }
-    function avatar(who, x, yy) { if (!ctx) return; ctx.fillStyle = who === "mech" ? INK : DRAB; ctx.beginPath(); ctx.arc(x + AV / 2, yy + AV / 2, AV / 2, 0, Math.PI * 2); ctx.fill(); ctx.font = "30px " + EMOJI; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = INK; ctx.fillText(who === "mech" ? "🤖" : "🧑", x + AV / 2, yy + AV / 2 + 2); }
+    function avatar(who, x, yy) { if (!ctx) return; ctx.fillStyle = who === "mech" ? INK : DRAB; ctx.beginPath(); ctx.arc(x + AV / 2, yy + AV / 2, AV / 2, 0, Math.PI * 2); ctx.fill(); ctx.font = "30px " + EMOJI; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = INK; ctx.fillText(who === "mech" ? "🤖" : "🧑🏽", x + AV / 2, yy + AV / 2 + 2); }
     function tail(who, bx, by, bw, bh) {
       if (!ctx) return;
       var c = who === "mech" ? INK : DRAB;

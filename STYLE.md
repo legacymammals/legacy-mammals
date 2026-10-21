@@ -30,7 +30,7 @@ funny; he says something technically true in a funnier way ("The bots weren't pr
 discern quality"). He is the one who delivers the facts of the story. He sends charts,
 screenshots and documents. He does not send memes.
 
-### Meatbag 🧑
+### Meatbag 🧑🏽
 
 Meatbag is a person. He has a body, a commute, a bad knee, opinions about sandwiches, a kid
 who kept him up once. He is the reader's representative: he asks the question a normal person
@@ -58,6 +58,21 @@ A story runs only if the machine is smarter, stranger or more capable than us in
 already living here on our bill, and Mech gets to be the one saying so. A true story about
 humans being greedy or stupid with no clever machine in it does not run, however good the
 joke. If the first bubble cannot make a stranger say "wait, what?", it does not run either.
+
+## The range
+
+The territory is: we're being replaced, and our objections are not always compelling. That
+leaves room for delight, resentment, absurdity and uncertainty, and it is more interesting
+than every story confirming that the machines are threatening. Keep the AI focus and broaden
+the emotional range across the run:
+
+- astonishing progress (the thing nobody could do, done over a weekend);
+- human vanity (the ways we flatter ourselves about what only we can do);
+- convenient hypocrisy (the objections we drop the moment the machine is useful to us);
+- the relief of handing something unpleasant over to a machine.
+
+A story can be a threat, but it can also be a gift, a joke at our expense, or a thing nobody
+understands yet. The feed should not read as one note.
 
 ## The headline
 
