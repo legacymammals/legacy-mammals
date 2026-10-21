@@ -149,6 +149,12 @@ async function xUploadMedia(png) {
   if (!r.ok) throw new Error("X media upload failed: " + r.status + " " + JSON.stringify(j));
   return (j.data && j.data.id) || j.media_id_string || j.id;
 }
+async function xDelete(id) {
+  const url = "https://api.x.com/2/tweets/" + id;
+  const r = await fetch(url, { method: "DELETE", headers: { Authorization: oauthHeader("DELETE", url) } });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error("X delete failed: " + r.status + " " + JSON.stringify(j));
+}
 async function xPost(text, mediaId) {
   const url = "https://api.x.com/2/tweets";
   const r = await fetch(url, { method: "POST", headers: { Authorization: oauthHeader("POST", url), "Content-Type": "application/json" }, body: JSON.stringify({ text, media: { media_ids: [String(mediaId)] } }) });
@@ -199,12 +205,13 @@ async function post() {
       const png = fs.readFileSync(path.join(OUT, s.id + ".png"));
       let sent = false;
       if (haveX && !prev.x) {
-        try { record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; note("posted " + s.id + " to X: " + record.x); }
+        // A retraction: the ledger names an earlier post to take down before this one goes up.
+        try { if (prev.xDelete) { await xDelete(prev.xDelete); delete record.xDelete; note("took down the earlier X post of " + s.id); } record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; note("posted " + s.id + " to X: " + record.x); }
         catch (e) { record.xError = e.message; note(e.message); }
       }
       if (haveIG && !prev.ig) {
         // Instagram fetches the image itself, from the copy the workflow pushed a moment ago.
-        try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png", igCaption); delete record.igError; sent = true; note("posted " + s.id + " to Instagram: " + record.ig); }
+        try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png?v=" + Date.now(), igCaption); delete record.igError; sent = true; note("posted " + s.id + " to Instagram: " + record.ig); }
         catch (e) { record.igError = e.message; note(e.message); }
       }
       if (!sent && !prev.x && !prev.ig) { note("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
