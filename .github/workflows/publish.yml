@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths: [index.html]
   schedule:
+    - cron: "23 * * * *"      # hourly: post the next waiting story, if any
     - cron: "17 9 1,15 * *"   # twice a month: renew the Instagram token before its 60 days run out
   workflow_dispatch:
     inputs:
@@ -31,7 +32,7 @@ permissions:
 
 jobs:
   renew-instagram-token:
-    if: github.event_name == 'schedule'
+    if: github.event.schedule == '17 9 1,15 * *'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,9 +47,10 @@ jobs:
         run: node scripts/publish.js refresh
 
   publish:
-    if: github.event_name != 'schedule'
+    if: github.event_name != 'schedule' || github.event.schedule == '23 * * * *'
     runs-on: ubuntu-latest
     env:
+      MAX_PER_RUN: ${{ vars.MAX_PER_RUN }}
       # A manual run follows its own switch; a push follows the SOCIAL_DRY_RUN repository
       # variable (unset = live, as long as the keys exist). Without keys it is always a dry run.
       SOCIAL_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.dry_run) || format('{0}', vars.SOCIAL_DRY_RUN) }}

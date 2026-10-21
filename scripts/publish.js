@@ -24,6 +24,8 @@
  *     Posts each pending story to X (image + headline + permalink) and Instagram (image +
  *     headline + "link in bio"), then records it in social/posted.json so it never posts twice.
  *
+ * One story per run (MAX_PER_RUN), oldest first; an hourly schedule drains any backlog.
+ *
  * Dry run: when no keys are configured, or SOCIAL_DRY_RUN=true, the images are drawn and the
  * stories are recorded as seen, but nothing is posted. Stories first seen during a dry run are
  * not posted later; only stories added after the keys exist go out.
@@ -56,6 +58,7 @@ const haveX = !!(X.key && X.secret && X.token && X.tokenSecret);
 const haveIG = !!(IG.user && IG.token);
 const DRY = env("SOCIAL_DRY_RUN").toLowerCase() === "true" || (!haveX && !haveIG);
 const FORCE = env("FORCE_STORY");
+const MAX = Math.max(1, parseInt(env("MAX_PER_RUN") || "1", 10)); // stories per run; the rest wait for the next hourly run
 
 // In Actions, the lines worth keeping are also raised as annotations, which show on the run's summary page.
 const note = (m) => { console.log(m); if (process.env.GITHUB_ACTIONS) console.log("::notice::" + m.replace(/\n/g, "%0A")); };
@@ -77,13 +80,14 @@ async function render() {
     title: ((t.querySelector(".card .t") || {}).textContent || "").trim(),
     href: (t.querySelector(".card") || {}).getAttribute("href") || "",
   })));
-  let fresh = stories.filter((s) => !ledger.posted[s.id]).reverse(); // oldest first, so a backlog posts in order
+  const queue = stories.filter((s) => !ledger.posted[s.id]).reverse(); // oldest first, so a backlog posts in order
+  let fresh = queue.slice(0, MAX);
   if (FORCE) {
     const f = stories.find((s) => s.id === FORCE);
     if (!f) throw new Error("FORCE_STORY " + FORCE + " is not on the page");
     if (!fresh.some((s) => s.id === FORCE)) fresh.push(Object.assign({ forced: true }, f));
   }
-  console.log(fresh.length ? "to draw: " + fresh.map((s) => s.id).join(", ") : "nothing new");
+  note(fresh.length ? "to draw: " + fresh.map((s) => s.id).join(", ") + (queue.length > fresh.length ? " (" + (queue.length - fresh.length) + " more waiting, one per hour)" : "") : "nothing new");
 
   fs.mkdirSync(OUT, { recursive: true });
   for (const s of fresh) {
