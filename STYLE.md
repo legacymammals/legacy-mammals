@@ -100,6 +100,9 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
 - Once the joke lands, stop. No grimace after the punchline. (No. 16 ended on Meatbag's
   paradox and Mech's 😬; the cut that stuck ends on "You turned off your own safety monitor?"
   "It was making us look unsafe.")
+- The exception: a second line after the punchline stays when it is Meatbag's warmth, not a
+  second joke ("Just leave the fake friends in. They were the good part." "I've never known
+  where the plates go." "Just like the TikTok algorithm."). That is where his acceptance lives.
 - End on the punchline, whoever has it, and cut everything after it, even if it is good. The
   cut lines go in the drawer. When the fact itself is the punchline ("The co-founder said the
   world is not prepared"), nobody adds to it.
