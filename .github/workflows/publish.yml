@@ -41,7 +41,7 @@ permissions:
 jobs:
   renew-instagram-token:
     if: github.event.schedule == '17 9 1,15 * *'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
 
   publish:
     if: github.event_name != 'schedule' || github.event.schedule == '23 * * * *'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MAX_PER_RUN: ${{ vars.MAX_PER_RUN }}
       # A manual run follows its own switch; a push follows the repository
@@ -83,6 +83,7 @@ jobs:
 
       - name: Install Playwright
         if: inputs.check_only != true
+        timeout-minutes: 8
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
