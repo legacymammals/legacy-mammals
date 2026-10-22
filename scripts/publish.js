@@ -42,6 +42,7 @@ const SITE = "https://legacymammals.com";
 const RAW = "https://raw.githubusercontent.com/legacymammals/legacy-mammals/main";
 const OUT = path.join(ROOT, "social");
 const OG = path.join(ROOT, "og"); // link-preview images, one per story page
+const REELS = path.join(ROOT, "reels"); // one silent 1080 x 1920 reel per story, drawn by reel.js
 const LEDGER = path.join(OUT, "posted.json");
 const PENDING = path.join(process.env.LM_TMP || process.env.RUNNER_TEMP || os.tmpdir(), "legacymammals-pending.json");
 const LOCAL = process.env.LOCAL_URL || "http://127.0.0.1:8080/";
@@ -216,13 +217,12 @@ async function igPost(imageUrl, caption) {
   return j.id;
 }
 
-// ---------------------------------------------------------------- story
-// Puts a story's reel up as an Instagram Story (silent: music can only be added in the app).
-async function story(id) {
-  if (!id) throw new Error("usage: publish.js story <id>");
+// ---------------------------------------------------------------- stories
+// Puts a story's reel up as an Instagram Story: Instagram fetches the reel from the site, so the
+// reel must be live there first. Silent: the API has no way to attach music; that is only in the app.
+const reelOf = (id) => path.join(REELS, id + ".mp4");
+async function igStory(id) {
   const url = SITE + "/reels/" + id + ".mp4";
-  if (DRY) { note("dry run: would post " + url + " as an Instagram story"); return; }
-  if (!haveIG) throw new Error("Instagram keys are not configured");
   if (!(await waitLive(url, 6))) throw new Error(url + " is not live yet");
   const base = "https://" + IG.host + "/" + IG.version + "/";
   let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "STORIES", video_url: url + "?v=" + Date.now(), access_token: IG.token }) });
@@ -238,18 +238,37 @@ async function story(id) {
   r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: creation, access_token: IG.token }) });
   j = await r.json().catch(() => ({}));
   if (!r.ok || !j.id) throw new Error("Instagram story publish failed: " + r.status + " " + JSON.stringify(j));
-  const ledger = readJSON(LEDGER, { posted: {} });
-  ledger.posted[id] = Object.assign({}, ledger.posted[id], { igStory: j.id, igStoryAt: new Date().toISOString() });
+  return j.id;
+}
+
+// Tries the Story for one ledger entry and records the outcome (igStory, or igStoryError and a try count).
+async function tryStory(ledger, id) {
+  const record = ledger.posted[id];
+  try { record.igStory = await igStory(id); record.igStoryAt = new Date().toISOString(); delete record.igStoryError; delete record.igStoryTries; note("posted the " + id + " reel as an Instagram story: " + record.igStory); }
+  catch (e) { record.igStoryError = e.message; record.igStoryTries = (record.igStoryTries || 0) + 1; note("the " + id + " reel did not go up as a story (try " + record.igStoryTries + " of 3): " + e.message); }
   writeJSON(LEDGER, ledger);
-  note("posted the " + id + " reel as an Instagram story: " + j.id);
+}
+
+// The manual mode (workflow input story_reel): posts the reel again unless it went up in the last day.
+async function story(id) {
+  if (!id) throw new Error("usage: publish.js story <id>");
+  if (!fs.existsSync(reelOf(id))) throw new Error("there is no reel at reels/" + id + ".mp4; render one first (workflow input reel)");
+  if (DRY) { note("dry run: would post " + SITE + "/reels/" + id + ".mp4 as an Instagram story"); return; }
+  if (!haveIG) throw new Error("Instagram keys are not configured");
+  const ledger = readJSON(LEDGER, { posted: {} });
+  const prev = ledger.posted[id] || {};
+  if (prev.igStory && Date.now() - Date.parse(prev.igStoryAt || 0) < 86400000) { note(id + " went up as a story " + prev.igStoryAt + " and is still showing; not posting it twice"); return; }
+  ledger.posted[id] = prev;
+  await tryStory(ledger, id);
+  if (ledger.posted[id].igStoryError) throw new Error(ledger.posted[id].igStoryError);
 }
 
 // ---------------------------------------------------------------- post
 async function post() {
   const ledger = readJSON(LEDGER, { posted: {} });
   const pending = readJSON(PENDING, []);
-  if (!pending.length) { console.log("nothing to post"); return; }
-  note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
+  if (!pending.length) console.log("nothing to post");
+  else note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
 
   for (const s of pending) {
     const permalink = SITE + "/" + (s.slug || s.id) + "/";
@@ -281,6 +300,14 @@ async function post() {
     }
     ledger.posted[s.id] = record;
     writeJSON(LEDGER, ledger);
+    // The story's reel goes up as an Instagram Story too, once the feed post is up and the reel is live on the site.
+    if (!DRY && haveIG && record.ig && !record.igStory && !record.igStoryError && fs.existsSync(reelOf(s.id))) await tryStory(ledger, s.id);
+  }
+
+  // A reel that failed to go up as a Story gets another try on the next run, three tries in all.
+  if (!DRY && haveIG) {
+    const again = Object.keys(ledger.posted).find((id) => { const p = ledger.posted[id]; return p.ig && !p.igStory && p.igStoryError && (p.igStoryTries || 0) < 3 && fs.existsSync(reelOf(id)); });
+    if (again) await tryStory(ledger, again);
   }
 }
 
