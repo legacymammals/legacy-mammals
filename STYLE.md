@@ -9,8 +9,10 @@ rule, add it here.
 
 ### Mech 🤖
 
-Mech is the voice of the machine. He speaks for every model, agent and robot in the news, so he
-says "we" for the species and "their AI" when a particular person set a particular model loose.
+Mech is the voice of the machine. He speaks for every model, agent and robot in the news, and he
+says "I" for all of them: whatever any machine did, Mech did it. (Trial rule from No. 18 on; the
+earlier strips say "we" and "one of us.") He calls humans the meatbags when he's reporting to
+them.
 He is not a villain and never apologises for what the machines do; he explains it, accurately,
 and enjoys explaining it.
 
