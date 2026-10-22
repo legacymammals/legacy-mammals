@@ -25,6 +25,10 @@ on:
         description: "Story to render as a reel, e.g. no-19 (new stories get one automatically)"
         required: false
         default: ""
+      story_reel:
+        description: "Post this story's reel as an Instagram Story, e.g. no-19"
+        required: false
+        default: ""
 
 # One run at a time, so two quick pushes can't post the same story twice.
 concurrency:
@@ -120,6 +124,14 @@ jobs:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
         run: node scripts/publish.js post
+
+      - name: Post a reel as an Instagram story
+        if: inputs.story_reel != ''
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          STORY_REEL: ${{ inputs.story_reel }}
+        run: node scripts/publish.js story $STORY_REEL
 
       - name: Record what went out
         if: inputs.check_only != true

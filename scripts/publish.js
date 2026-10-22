@@ -216,6 +216,34 @@ async function igPost(imageUrl, caption) {
   return j.id;
 }
 
+// ---------------------------------------------------------------- story
+// Puts a story's reel up as an Instagram Story (silent: music can only be added in the app).
+async function story(id) {
+  if (!id) throw new Error("usage: publish.js story <id>");
+  const url = SITE + "/reels/" + id + ".mp4";
+  if (DRY) { note("dry run: would post " + url + " as an Instagram story"); return; }
+  if (!haveIG) throw new Error("Instagram keys are not configured");
+  if (!(await waitLive(url, 6))) throw new Error(url + " is not live yet");
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "STORIES", video_url: url + "?v=" + Date.now(), access_token: IG.token }) });
+  let j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram story container failed: " + r.status + " " + JSON.stringify(j));
+  const creation = j.id;
+  for (let i = 0; i < 90; i++) {
+    const st = await (await fetch(base + creation + "?fields=status_code,status&access_token=" + enc(IG.token))).json().catch(() => ({}));
+    if (st.status_code === "FINISHED") break;
+    if (st.status_code === "ERROR" || st.status_code === "EXPIRED") throw new Error("Instagram story container " + st.status_code + ": " + JSON.stringify(st));
+    await new Promise((res) => setTimeout(res, 5000));
+  }
+  r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: creation, access_token: IG.token }) });
+  j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram story publish failed: " + r.status + " " + JSON.stringify(j));
+  const ledger = readJSON(LEDGER, { posted: {} });
+  ledger.posted[id] = Object.assign({}, ledger.posted[id], { igStory: j.id, igStoryAt: new Date().toISOString() });
+  writeJSON(LEDGER, ledger);
+  note("posted the " + id + " reel as an Instagram story: " + j.id);
+}
+
 // ---------------------------------------------------------------- post
 async function post() {
   const ledger = readJSON(LEDGER, { posted: {} });
@@ -329,5 +357,5 @@ async function refresh() {
 }
 
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : Promise.reject(new Error("usage: publish.js render|post|check|refresh")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
