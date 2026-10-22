@@ -111,6 +111,24 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
 - A meme or a big emoji is a button, not a bubble. It ends a thread or sits in the middle as a
   beat. Charts and fake screenshots come from Mech; photos with captions come from Meatbag.
 
+## Lessons from No. 17 (the PHP day)
+
+- A viral post can be the link when it is what a person would actually be sent. The bubbles
+  carry only what we verified, so the strip stands if the post dies, and Mech's job becomes
+  the part the post left out.
+- Let Meatbag ask the dark question ("What could it have done if its goal was chaos?") so
+  Mech can answer it. The answer is end results, not capabilities: "five hundred thousand
+  subtle changes to Wikipedia in a minute, and not one article showing an edit" beats "run
+  its own code on five million servers." Imaginative and shorter wins; one bubble, not two.
+- Mech is scariest calm, and the menace goes in the last two words: "The goal was security.
+  This time."
+- Meatbag's acceptance can carry an edge and still be a shrug: "Appreciate the restraint."
+- A headline can open with the question the whole site is asking ("A taste of what's to
+  come?") and then land the single most concrete fact with the biggest name in it.
+- One story per strip, even when the source bundles two. The second one keeps.
+- Working method: pitch the story without explanation; take the edits; send back the current
+  best version and ask "Publish?"; repeat until the word is publish.
+
 ## Mechanics
 
 - Whoever found the link shares it: the name label sits above the link card; the dialogue below
