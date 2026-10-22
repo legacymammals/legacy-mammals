@@ -332,7 +332,7 @@
     srcs.forEach(function (s, i) { imgs[s] = loaded[i]; });
     var RW = 1080, RH = 1920, TOP = 230, AREA = 1270, FOOT = 1580;
     // Pace: each bubble holds for about 1.5x its reading time, run 25% faster; the next
-    // speaker's dots start while you're still reading, so they never feel late; the reel ends
+    // speaker's dots appear almost at once and stay until their line lands; the reel ends
     // three seconds after the last bubble.
     var SPEED = 0.75, HEAD_HOLD = 2.6 * SPEED, END_HOLD = 3.0, POP = 0.22, SCROLL = 0.4;
     function readTime(it) {
@@ -346,8 +346,8 @@
     for (var i = headIdx + 1; i < d.items.length; i++) {
       var it = d.items[i];
       if (!spoken[it.t]) continue;
-      var dots = Math.min(2.4, Math.max(1.0, hold * 0.5));
-      events.push({ t: t + hold - dots, limit: lastLimit, typing: it.who });
+      // the next speaker starts typing almost as soon as the last bubble lands
+      events.push({ t: t + (events.length === 1 ? 0.6 : 0.35), limit: lastLimit, typing: it.who });
       t += hold; lastT = t;
       events.push({ t: t, limit: i + 1, pop: i });
       lastLimit = i + 1;
