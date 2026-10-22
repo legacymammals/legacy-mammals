@@ -73,7 +73,7 @@ const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true })
 async function render() {
   const { chromium } = require("playwright");
   const ledger = readJSON(LEDGER, { posted: {} });
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.PW_EXEC ? { executablePath: process.env.PW_EXEC } : {});
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   page.on("pageerror", (e) => console.log("page error:", e.message));
   await page.goto(LOCAL, { waitUntil: "networkidle" });

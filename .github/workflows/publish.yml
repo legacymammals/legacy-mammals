@@ -83,10 +83,21 @@ jobs:
 
       - name: Install Playwright
         if: inputs.check_only != true
-        timeout-minutes: 8
+        timeout-minutes: 14
+        # Each command is given a few minutes and retried, because a stalled download has twice
+        # hung this step for good. The runner image already carries Chromium's libraries, so no
+        # apt step; if the browser download keeps failing, the image's own Chrome is used instead.
         run: |
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          npm config set fetch-retries 5 fetch-retry-mintimeout 10000 fetch-timeout 60000
+          for i in 1 2 3; do timeout 150 npm install --no-audit --no-fund && break; echo "::warning::npm install, attempt $i, failed or hung"; sleep 5; done
+          test -d node_modules/playwright || { echo "::error::npm install failed three times"; exit 1; }
+          ok=
+          for i in 1 2 3; do timeout 200 npx playwright install chromium && { ok=1; break; }; echo "::warning::browser download, attempt $i, failed or hung"; sleep 5; done
+          if [ -z "$ok" ]; then
+            chrome=$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)
+            [ -n "$chrome" ] || { echo "::error::no browser could be installed or found"; exit 1; }
+            echo "PW_EXEC=$chrome" >> "$GITHUB_ENV"; echo "::warning::using the runner's own browser at $chrome"
+          fi
 
       - name: Serve the site
         if: inputs.check_only != true
