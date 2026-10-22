@@ -21,6 +21,10 @@ on:
         description: "Only check that the X and Instagram keys work; post nothing"
         type: boolean
         default: false
+      reel:
+        description: "Story to render as a reel, e.g. no-19 (new stories get one automatically)"
+        required: false
+        default: ""
 
 # One run at a time, so two quick pushes can't post the same story twice.
 concurrency:
@@ -90,13 +94,19 @@ jobs:
         if: inputs.check_only != true
         run: node scripts/publish.js render
 
-      - name: Push the images (Instagram fetches its copy; the pages use the previews)
+      - name: Make reels
+        if: inputs.check_only != true
+        env:
+          REEL: ${{ inputs.reel }}
+        run: node scripts/reel.js $REEL
+
+      - name: Push the images and reels (Instagram fetches its copy; the pages use the previews)
         if: inputs.check_only != true
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
-          git add social/*.png og/*.png 2>/dev/null || true
-          git diff --cached --quiet || (git commit -m "Share images and link previews" && git pull --rebase && git push)
+          git add social/*.png og/*.png reels/*.mp4 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Share images, link previews, reels" && git pull --rebase && git push)
 
       - name: Post
         if: inputs.check_only != true

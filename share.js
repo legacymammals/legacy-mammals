@@ -110,9 +110,11 @@
   }
 
   // Lay out and draw. `ctx` null = measure only.
-  function paint(ctx, d, imgs) {
+  function paint(ctx, d, imgs, opts) {
+    opts = opts || {};
     var mctx = ctx || document.createElement("canvas").getContext("2d");
     var y = 0, inner = W - PAD * 2, AV = 56, GAP = 14, maxB = Math.round(inner * 0.78);
+    var popped = false;
     function text(str, f, color, x, yy, align) { if (!ctx) return; ctx.font = f; ctx.fillStyle = color; ctx.textAlign = align || "left"; ctx.textBaseline = "alphabetic"; ctx.fillText(str, x, yy); }
     function avatar(who, x, yy) { if (!ctx) return; ctx.fillStyle = who === "mech" ? INK : DRAB; ctx.beginPath(); ctx.arc(x + AV / 2, yy + AV / 2, AV / 2, 0, Math.PI * 2); ctx.fill(); ctx.font = "30px " + EMOJI; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = INK; ctx.fillText(who === "mech" ? "🤖" : "🧑🏽", x + AV / 2, yy + AV / 2 + 2); }
     function tail(who, bx, by, bw, bh) {
@@ -129,10 +131,26 @@
     text(d.folio, font("800", 22), META, PAD, y + 8);
     text(d.date.toUpperCase(), font("500", 22), META, W / 2, y + 8, "center");
     y += 44;
-    var i, it;
-    for (i = 0; i < d.items.length; i++) {
+    var i, it, n = opts.limit == null ? d.items.length : Math.min(opts.limit, d.items.length);
+    function typingBubble(who, phase) {
+      var tw = 118, th = 62, tme = who === "meat";
+      var tx0 = tme ? W - PAD - AV - GAP - tw : PAD + AV + GAP;
+      if (ctx) {
+        rr(ctx, tx0, y, tw, th, 28); ctx.fillStyle = tme ? DRAB : INK; ctx.fill(); tail(who, tx0, y, tw, th);
+        ctx.fillStyle = tme ? INK : "#B9B2A2";
+        for (var q = 0; q < 3; q++) { var dy = phase == null ? 0 : -7 * Math.max(0, Math.sin(phase * Math.PI * 2 - q * 0.9)); ctx.beginPath(); ctx.arc(tx0 + 34 + q * 25, y + 31 + dy, 7, 0, Math.PI * 2); ctx.fill(); }
+      }
+      avatar(who, tme ? W - PAD - AV : PAD, y + th - AV);
+      y += th + 10;
+    }
+    for (i = 0; i < n; i++) {
       it = d.items[i];
       var me = it.who === "meat" || it.me;
+      if (popped) { ctx.restore(); popped = false; }
+      if (ctx && opts.pop && opts.pop.index === i && opts.pop.scale < 1) {
+        var ax = me ? W - PAD - AV : PAD + AV, ay = y + 30;
+        ctx.save(); ctx.translate(ax, ay); ctx.scale(opts.pop.scale, opts.pop.scale); ctx.translate(-ax, -ay); popped = true;
+      }
       if (it.t === "who") { text(it.text.toUpperCase(), font("500", 20), META, me ? W - PAD - AV - GAP : PAD + AV + GAP, y + 20, me ? "right" : "left"); y += 30; continue; }
       if (it.t === "status") { text(it.text.toUpperCase(), font("500", 19), META, me ? W - PAD - AV - GAP : PAD + AV + GAP, y + 18, me ? "right" : "left"); y += 30; continue; }
       var bx = me ? 0 : PAD + AV + GAP; // left edge for left-side bubbles; right-side computed from width
@@ -182,12 +200,7 @@
         avatar(it.who, me ? W - PAD - AV : PAD, y + 96 - AV);
         y += 108; continue;
       }
-      if (it.t === "typing") {
-        var x2 = PAD + AV + GAP;
-        if (ctx) { rr(ctx, x2, y, 118, 62, 28); ctx.fillStyle = INK; ctx.fill(); tail("mech", x2, y, 118, 62); ctx.fillStyle = "#B9B2A2"; for (var q = 0; q < 3; q++) { ctx.beginPath(); ctx.arc(x2 + 34 + q * 25, y + 31, 7, 0, Math.PI * 2); ctx.fill(); } }
-        avatar("mech", PAD, y + 62 - AV);
-        y += 72; continue;
-      }
+      if (it.t === "typing") { typingBubble("mech", null); continue; }
       if (it.t === "img") {
         var mw = Math.min(Math.round(inner * 0.72), 600), mh = Math.round(mw * 3 / 4), mx = me ? W - PAD - AV - GAP - mw : PAD + AV + GAP;
         var mi2 = imgs[it.src];
@@ -247,6 +260,9 @@
         y += shh + 12; continue;
       }
     }
+    if (popped) { ctx.restore(); popped = false; }
+    if (opts.typing) typingBubble(opts.typing, opts.phase);
+    if (opts.noFooter) return y;
     y += 26;
     // small sign-off: the stone, the address, the handle
     var FH = 96;
@@ -295,6 +311,69 @@
   }
   function previewHome() {
     return preview({ title: "Blessed are the mech: for they shall inherit the earth.", folio: "LEGACY MAMMALS", date: "We had our turn", domain: "True stories from the handover, discussed by Mech and Meatbag", accent: INK });
+  }
+
+  function signoff(ctx, y, slug) {
+    ctx.fillStyle = "#E4DCCB"; ctx.fillRect(PAD, y, W - PAD * 2, 2);
+    stone(ctx, PAD - 8, y + 8, 0.24, { fill: CREAM, line: INK, face: INK, plinth: CREAM, mound: "#7A5438", grass: "#5E8A4A" });
+    ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+    ctx.font = font("800", 22); ctx.fillStyle = INK; ctx.fillText("legacymammals.com", PAD + 70, y + 46);
+    ctx.font = font("500", 20); ctx.fillStyle = META; ctx.fillText("/" + slug, PAD + 70, y + 74);
+    ctx.font = font("800", 24); ctx.fillStyle = INK; ctx.textAlign = "right"; ctx.fillText(HANDLE, W - PAD, y + 58);
+  }
+
+  // A reel of the story: 1080 x 1920, the headline first, then each bubble after a typing pause,
+  // held for about one and a half times the time it takes to read. frame(t) draws the frame at t.
+  async function reel(thread) {
+    var d = parse(thread);
+    try { await Promise.all([document.fonts.load(font("800", 50)), document.fonts.load(font("500", 24)), document.fonts.load(font("400", 33))]); } catch (e) {}
+    var srcs = []; d.items.forEach(function (it) { if (it.img) srcs.push(it.img); if (it.src) srcs.push(it.src); });
+    var loaded = await Promise.all(srcs.map(loadImg)), imgs = {};
+    srcs.forEach(function (s, i) { imgs[s] = loaded[i]; });
+    var RW = 1080, RH = 1920, TOP = 230, AREA = 1270, FOOT = 1580;
+    var HEAD_HOLD = 2.6, TYPE = 1.3, END_HOLD = 3.0, POP = 0.22, SCROLL = 0.4;
+    function readTime(it) {
+      if (it.t === "text") { var words = it.text.split(/\s+/).length; return 0.8 + words / 3.4; }
+      if (it.t === "big") return 1.2;
+      return 2.6; // a picture, a chart, a screenshot
+    }
+    var spoken = { text: 1, big: 1, img: 1, chart: 1, shot: 1 };
+    var headIdx = 0; for (var h = 0; h < d.items.length; h++) if (d.items[h].t === "head") { headIdx = h; break; }
+    var events = [{ t: 0, limit: headIdx + 1 }], t = HEAD_HOLD;
+    for (var i = headIdx + 1; i < d.items.length; i++) {
+      var it = d.items[i];
+      if (!spoken[it.t]) continue;
+      events.push({ t: t, limit: i, typing: it.who }); t += TYPE;
+      events.push({ t: t, limit: i + 1, pop: i }); t += 1.5 * readTime(it);
+    }
+    events.push({ t: t, limit: d.items.length }); // the read receipt and any closing typing
+    var duration = t + END_HOLD;
+    var content = document.createElement("canvas"); content.width = W;
+    var frameC = document.createElement("canvas"); frameC.width = RW; frameC.height = RH;
+    function heightOf(ev) { return paint(null, d, imgs, { limit: ev.limit, typing: ev.typing, noFooter: true }); }
+    function offsetOf(ev) { var ch = heightOf(ev); return Math.max(0, ch - AREA); }
+    function ease(p) { p = Math.max(0, Math.min(1, p)); return 1 - Math.pow(1 - p, 3); }
+    function frame(tt) {
+      var k = 0; for (var e = 0; e < events.length; e++) if (events[e].t <= tt) k = e;
+      var ev = events[k], prev = events[k - 1], since = tt - ev.t;
+      var opts = { limit: ev.limit, typing: ev.typing, phase: since / 0.6, noFooter: true };
+      if (ev.pop != null && since < POP) opts.pop = { index: ev.pop, scale: 0.84 + 0.16 * ease(since / POP) };
+      var ch = paint(null, d, imgs, opts);
+      content.height = Math.max(ch, 10);
+      var cctx = content.getContext("2d");
+      paint(cctx, d, imgs, opts);
+      var off = offsetOf(ev), offPrev = prev ? offsetOf(prev) : 0;
+      var cur = offPrev + (off - offPrev) * ease(since / SCROLL);
+      var fx = frameC.getContext("2d");
+      fx.fillStyle = TINT; fx.fillRect(0, 0, RW, RH);
+      fx.save(); fx.beginPath(); fx.rect(0, TOP - 20, RW, AREA + 40); fx.clip();
+      fx.drawImage(content, 0, TOP - cur);
+      fx.restore();
+      if (cur > 0) { var g = fx.createLinearGradient(0, TOP - 20, 0, TOP + 70); g.addColorStop(0, TINT); g.addColorStop(1, "rgba(243,238,227,0)"); fx.fillStyle = g; fx.fillRect(0, TOP - 20, RW, 90); }
+      signoff(fx, FOOT, d.slug);
+      return frameC;
+    }
+    return { duration: duration, events: events, frame: frame, canvas: frameC };
   }
 
   var cache = {};
@@ -371,5 +450,5 @@
     Array.prototype.forEach.call(document.querySelectorAll(".sharebar"), function (b) { io.observe(b); });
   }
 
-  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome };
+  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome, reel: reel };
 })();
