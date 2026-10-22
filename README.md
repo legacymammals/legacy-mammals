@@ -4,7 +4,7 @@ We had our turn.
 
 A single-feed site of true stories from the handover. Served by GitHub Pages at legacymammals.com.
 
-- `index.html` — the home page: masthead, search, and the feed. Every story also has its own page at `/no-N/` (built from the same data, with link-preview tags pointing at `og/no-N.png`), and the site has `feed.xml` (RSS), `sitemap.xml` and `robots.txt`. Every story is a thread: whoever found the link (Mech or Meatbag) shares it as a link card, then the two of them talk about it in text, big emoji, tapbacks, image macros (Wikimedia Commons photos, credited), charts and fake screenshots. Threads are static HTML, newest first; the inline script only filters them for search.
+- `index.html` — the home page: masthead (the graveyard painting at `img/header.jpg`, on a sky-and-lawn fill that matches it), search, and the feed. Every story also has its own page at `/no-N/` (built from the same data, with link-preview tags pointing at `og/no-N.png`), and the site has `feed.xml` (RSS), `sitemap.xml` and `robots.txt`. Every story is a thread: whoever found the link (Mech or Meatbag) shares it as a link card, then the two of them talk about it in text, big emoji, tapbacks, image macros (Wikimedia Commons photos, credited), charts and fake screenshots. Threads are static HTML, newest first; the inline script only filters them for search.
 - `share.js` — draws any story as a 1080px-wide share image on a canvas in the browser (watermarked @legacymammals), for the Share image button under each story; Share link shares the permalink. - `404.html` — the not-found page.
 - `CNAME` — the custom domain for GitHub Pages.
 - `STYLE.md` — the editorial style sheet: who Mech and Meatbag are, the bar a story has to clear, and how a strip is built.
