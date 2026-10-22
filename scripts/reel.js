@@ -59,7 +59,7 @@ const FPS = 30;
       "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", String(FPS),
       "-c:a", "aac", "-b:a", "64k", "-movflags", "+faststart", out], { encoding: "utf8" });
     fs.rmSync(frames, { recursive: true, force: true });
-    if (ff.status !== 0) { console.log(id + ": ffmpeg failed: " + ff.stderr); continue; }
+    if (ff.status !== 0) { const m = id + ": ffmpeg failed: " + (ff.error ? ff.error.message : ff.stderr); console.log(m); if (process.env.GITHUB_ACTIONS) console.log("::warning::" + m.replace(/\n/g, " ")); continue; }
     const msg = "reel " + id + ": " + info.duration.toFixed(1) + "s, " + info.bubbles + " bubbles, " + Math.round(fs.statSync(out).size / 1024) + " KB";
     console.log(msg); if (process.env.GITHUB_ACTIONS) console.log("::notice::" + msg);
     // back to the story page for the next one
