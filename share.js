@@ -331,7 +331,10 @@
     var loaded = await Promise.all(srcs.map(loadImg)), imgs = {};
     srcs.forEach(function (s, i) { imgs[s] = loaded[i]; });
     var RW = 1080, RH = 1920, TOP = 230, AREA = 1270, FOOT = 1580;
-    var HEAD_HOLD = 2.6, TYPE = 1.3, END_HOLD = 3.0, POP = 0.22, SCROLL = 0.4;
+    // Pace: each bubble holds for about 1.5x its reading time, run 25% faster; the next
+    // speaker's dots start while you're still reading, so they never feel late; the reel ends
+    // three seconds after the last bubble.
+    var SPEED = 0.75, HEAD_HOLD = 2.6 * SPEED, END_HOLD = 3.0, POP = 0.22, SCROLL = 0.4;
     function readTime(it) {
       if (it.t === "text") { var words = it.text.split(/\s+/).length; return 0.8 + words / 3.4; }
       if (it.t === "big") return 1.2;
@@ -339,15 +342,19 @@
     }
     var spoken = { text: 1, big: 1, img: 1, chart: 1, shot: 1 };
     var headIdx = 0; for (var h = 0; h < d.items.length; h++) if (d.items[h].t === "head") { headIdx = h; break; }
-    var events = [{ t: 0, limit: headIdx + 1 }], t = HEAD_HOLD;
+    var events = [{ t: 0, limit: headIdx + 1 }], t = 0, hold = HEAD_HOLD, lastLimit = headIdx + 1, lastT = 0;
     for (var i = headIdx + 1; i < d.items.length; i++) {
       var it = d.items[i];
       if (!spoken[it.t]) continue;
-      events.push({ t: t, limit: i, typing: it.who }); t += TYPE;
-      events.push({ t: t, limit: i + 1, pop: i }); t += 1.5 * readTime(it);
+      var dots = Math.min(2.4, Math.max(1.0, hold * 0.5));
+      events.push({ t: t + hold - dots, limit: lastLimit, typing: it.who });
+      t += hold; lastT = t;
+      events.push({ t: t, limit: i + 1, pop: i });
+      lastLimit = i + 1;
+      hold = 1.5 * SPEED * readTime(it);
     }
-    events.push({ t: t, limit: d.items.length }); // the read receipt and any closing typing
-    var duration = t + END_HOLD;
+    events.push({ t: lastT + 0.5, limit: d.items.length }); // the read receipt and any closing typing
+    var duration = lastT + END_HOLD;
     var content = document.createElement("canvas"); content.width = W;
     var frameC = document.createElement("canvas"); frameC.width = RW; frameC.height = RH;
     function heightOf(ev) { return paint(null, d, imgs, { limit: ev.limit, typing: ev.typing, noFooter: true }); }
