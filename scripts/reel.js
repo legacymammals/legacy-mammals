@@ -13,6 +13,9 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
+// ffmpeg: the FFMPEG variable, else the static build the ffmpeg-static package downloads at npm
+// install (no apt step on the runner, which has hung), else whatever is on the PATH.
+const FFMPEG = process.env.FFMPEG || (() => { try { return require("ffmpeg-static") || "ffmpeg"; } catch (e) { return "ffmpeg"; } })();
 const { chromium } = require("playwright");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -54,7 +57,7 @@ const FPS = 30;
       jpgs.forEach((b64, i) => fs.writeFileSync(path.join(frames, String(f + i).padStart(5, "0") + ".jpg"), Buffer.from(b64, "base64")));
     }
     const out = path.join(OUT, id + ".mp4");
-    const ff = spawnSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(FPS), "-i", path.join(frames, "%05d.jpg"),
+    const ff = spawnSync(FFMPEG, ["-y", "-loglevel", "error", "-framerate", String(FPS), "-i", path.join(frames, "%05d.jpg"),
       "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100", "-shortest",
       "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", String(FPS),
       "-c:a", "aac", "-b:a", "64k", "-movflags", "+faststart", out], { encoding: "utf8" });

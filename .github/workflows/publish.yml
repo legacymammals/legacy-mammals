@@ -112,11 +112,11 @@ jobs:
 
       - name: Make reels
         if: inputs.check_only != true
+        timeout-minutes: 15
+        continue-on-error: true # a reel that fails must not hold up the posts; render it by hand with the reel input
         env:
           REEL: ${{ inputs.reel }}
-        run: |
-          which ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
-          node scripts/reel.js $REEL
+        run: node scripts/reel.js $REEL
 
       - name: Push the images and reels (Instagram fetches its copy; the pages use the previews)
         if: inputs.check_only != true
