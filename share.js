@@ -331,10 +331,10 @@
     var loaded = await Promise.all(srcs.map(loadImg)), imgs = {};
     srcs.forEach(function (s, i) { imgs[s] = loaded[i]; });
     var RW = 1080, RH = 1920, TOP = 230, AREA = 1270, FOOT = 1580;
-    // Pace: each bubble holds for about 1.5x its reading time, run 25% faster; the next
-    // speaker's dots appear almost at once and stay until their line lands; the reel ends
-    // three seconds after the last bubble.
-    var SPEED = 0.75, HEAD_HOLD = 2.6 * SPEED, END_HOLD = 3.0, POP = 0.22, SCROLL = 0.4;
+    // Pace: each bubble holds for about 1.5x its reading time, run 40% faster (25%, then
+    // another 20%); the next speaker's dots appear almost at once and stay until their line
+    // lands; the reel hangs on the last bubble for nine seconds.
+    var SPEED = 0.6, HEAD_HOLD = 2.6 * SPEED, END_HOLD = 9.0, DOTS = 0.8, POP = 0.22, SCROLL = 0.4;
     function readTime(it) {
       if (it.t === "text") { var words = it.text.split(/\s+/).length; return 0.8 + words / 3.4; }
       if (it.t === "big") return 1.2;
@@ -347,7 +347,7 @@
       var it = d.items[i];
       if (!spoken[it.t]) continue;
       // the next speaker starts typing almost as soon as the last bubble lands
-      events.push({ t: t + (events.length === 1 ? 0.6 : 0.35), limit: lastLimit, typing: it.who });
+      events.push({ t: t + DOTS * (events.length === 1 ? 0.6 : 0.35), limit: lastLimit, typing: it.who });
       t += hold; lastT = t;
       events.push({ t: t, limit: i + 1, pop: i });
       lastLimit = i + 1;
