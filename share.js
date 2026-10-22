@@ -71,7 +71,7 @@
     out.folio = (thread.querySelector(".folio") || {}).textContent || "";
     out.date = (thread.querySelector(".stamp") || {}).textContent || "";
     out.accent = getComputedStyle(thread).getPropertyValue("--accent").trim() || INK;
-    out.id = thread.id;
+    out.id = thread.id; out.slug = thread.getAttribute("data-slug") || thread.id;
     var rows = thread.querySelectorAll(".who, .row, .status");
     Array.prototype.forEach.call(rows, function (el) {
       var who = el.classList.contains("mech") ? "mech" : el.classList.contains("meat") ? "meat" : null;
@@ -254,7 +254,7 @@
       ctx.fillStyle = "#E4DCCB"; ctx.fillRect(PAD, y, W - PAD * 2, 2);
       stone(ctx, PAD - 8, y + 8, 0.24, { fill: CREAM, line: INK, face: INK, plinth: CREAM, mound: "#7A5438", grass: "#5E8A4A" });
       text("legacymammals.com", font("800", 22), INK, PAD + 70, y + 46);
-      text("/" + d.id, font("500", 20), META, PAD + 70, y + 74);
+      text("/" + (d.slug || d.id), font("500", 20), META, PAD + 70, y + 74);
       text(HANDLE, font("800", 24), INK, W - PAD, y + 58, "right");
     }
     return y + FH;
@@ -323,7 +323,7 @@
   }
 
   function flash(btn, msg) { var o = btn.textContent; btn.textContent = msg; btn.disabled = true; setTimeout(function () { btn.textContent = o; btn.disabled = false; }, 1600); }
-  function permalink(id) { return "https://" + SITE + "/" + id + "/"; }
+  function permalink(id) { var th = document.getElementById(id); return "https://" + SITE + "/" + ((th && th.getAttribute("data-slug")) || id) + "/"; }
 
   // Safari only opens the share sheet in the moment after a tap, so the tap must share
   // something already drawn. The image is prepared when the story scrolls into view; if it

@@ -77,6 +77,7 @@ async function render() {
 
   const stories = await page.evaluate(() => Array.prototype.map.call(document.querySelectorAll(".thread[id]"), (t) => ({
     id: t.id,
+    slug: t.getAttribute("data-slug") || t.id,
     title: ((t.querySelector(".card .t") || {}).textContent || "").trim(),
     href: (t.querySelector(".card") || {}).getAttribute("href") || "",
   })));
@@ -220,7 +221,7 @@ async function post() {
   note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
 
   for (const s of pending) {
-    const permalink = SITE + "/" + s.id + "/";
+    const permalink = SITE + "/" + (s.slug || s.id) + "/";
     const title = s.title || "Legacy Mammals";
     const xText = (title.length > 240 ? title.slice(0, 237) + "…" : title) + "\n\n" + permalink;
     const igCaption = title + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.";
