@@ -46,6 +46,9 @@ const LEDGER = path.join(OUT, "posted.json");
 const PENDING = path.join(process.env.LM_TMP || process.env.RUNNER_TEMP || os.tmpdir(), "legacymammals-pending.json");
 const LOCAL = process.env.LOCAL_URL || "http://127.0.0.1:8080/";
 const IG_W = 1080, IG_H = 1350; // 4:5, the tallest Instagram allows in the feed
+// Hashtags. X rewards few; Instagram rewards a set. Edit here.
+const X_TAGS = "#AI #AInews #LegacyMammals";
+const IG_TAGS = "#AI #ArtificialIntelligence #AInews #OpenAI #ChatGPT #Claude #Robots #Tech #TechNews #Satire #Comics #Singularity #EndOfHumanity #WeHadOurTurn #LegacyMammals";
 
 const env = (k) => (process.env[k] || "").trim();
 const X = { key: env("X_API_KEY"), secret: env("X_API_SECRET"), token: env("X_ACCESS_TOKEN"), tokenSecret: env("X_ACCESS_SECRET") };
@@ -223,8 +226,10 @@ async function post() {
   for (const s of pending) {
     const permalink = SITE + "/" + (s.slug || s.id) + "/";
     const title = s.title || "Legacy Mammals";
-    const xText = (title.length > 240 ? title.slice(0, 237) + "…" : title) + "\n\n" + permalink;
-    const igCaption = title + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.";
+    // X counts any link as 23 characters; keep the whole post inside 280
+    const xRoom = 280 - 23 - 4 - X_TAGS.length;
+    const xText = (title.length > xRoom ? title.slice(0, xRoom - 1) + "…" : title) + "\n\n" + permalink + "\n\n" + X_TAGS;
+    const igCaption = title + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.\n\n" + IG_TAGS;
     const prev = ledger.posted[s.id] || {}; // a forced re-run only fills in what is missing
     const record = Object.assign({}, prev, { title, at: new Date().toISOString() });
 
