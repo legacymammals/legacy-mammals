@@ -82,7 +82,8 @@ async function render() {
   })));
   const rec = (id) => ledger.posted[id] || null;
   const queue = stories.filter((s) => !rec(s.id)).reverse(); // oldest first, so a backlog posts in order
-  let fresh = queue.slice(0, MAX);
+  // A push carries a story just added: that one goes out now. The hourly runs drain the backlog oldest first.
+  let fresh = process.env.GITHUB_EVENT_NAME === "push" ? queue.slice(-MAX) : queue.slice(0, MAX);
   // Each platform catches up on its own: the oldest story that failed on X, and the oldest
   // that failed on Instagram, are tried again every run until they go through.
   const retries = [];
