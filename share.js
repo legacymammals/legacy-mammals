@@ -324,7 +324,8 @@
 
   // A reel of the story: 1080 x 1920, the headline first, then each bubble after a typing pause,
   // held for about one and a half times the time it takes to read. frame(t) draws the frame at t.
-  async function reel(thread) {
+  async function reel(thread, opts) {
+    opts = opts || {};
     var d = parse(thread);
     try { await Promise.all([document.fonts.load(font("800", 50)), document.fonts.load(font("500", 24)), document.fonts.load(font("400", 33))]); } catch (e) {}
     var srcs = []; d.items.forEach(function (it) { if (it.img) srcs.push(it.img); if (it.src) srcs.push(it.src); });
@@ -355,6 +356,13 @@
     }
     events.push({ t: lastT + 0.5, limit: d.items.length }); // the read receipt and any closing typing
     var duration = lastT + END_HOLD;
+    // An Instagram Story holds 60 seconds at most. A longer strip is played proportionally faster
+    // so the whole thing fits (opts.maxDuration, in seconds).
+    if (opts.maxDuration && duration > opts.maxDuration) {
+      var squeeze = opts.maxDuration / duration;
+      events.forEach(function (ev) { ev.t *= squeeze; });
+      duration = opts.maxDuration;
+    }
     var content = document.createElement("canvas"); content.width = W;
     var frameC = document.createElement("canvas"); frameC.width = RW; frameC.height = RH;
     function heightOf(ev) { return paint(null, d, imgs, { limit: ev.limit, typing: ev.typing, noFooter: true }); }

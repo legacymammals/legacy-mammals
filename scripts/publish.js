@@ -223,7 +223,14 @@ async function igPost(imageUrl, caption) {
 const reelOf = (id) => path.join(REELS, id + ".mp4");
 async function igStory(id) {
   const url = SITE + "/reels/" + id + ".mp4";
-  if (!(await waitLive(url, 6))) throw new Error(url + " is not live yet");
+  // The site must be serving this very file (a re-rendered reel keeps its address), so the size has to match.
+  const bytes = fs.statSync(reelOf(id)).size, until = Date.now() + 6 * 60000;
+  let live = false;
+  while (Date.now() < until && !live) {
+    try { const r = await fetch(url, { method: "HEAD", cache: "no-store" }); live = r.ok && String(r.headers.get("content-length")) === String(bytes); } catch (e) {}
+    if (!live) await new Promise((res) => setTimeout(res, 10000));
+  }
+  if (!live) throw new Error(url + " is not live yet (or not this version of it)");
   const base = "https://" + IG.host + "/" + IG.version + "/";
   let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "STORIES", video_url: url + "?v=" + Date.now(), access_token: IG.token }) });
   let j = await r.json().catch(() => ({}));
@@ -266,6 +273,7 @@ async function story(id) {
 // ---------------------------------------------------------------- post
 async function post() {
   const ledger = readJSON(LEDGER, { posted: {} });
+  const storiesTried = new Set();
   const pending = readJSON(PENDING, []);
   if (!pending.length) console.log("nothing to post");
   else note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
@@ -301,12 +309,12 @@ async function post() {
     ledger.posted[s.id] = record;
     writeJSON(LEDGER, ledger);
     // The story's reel goes up as an Instagram Story too, once the feed post is up and the reel is live on the site.
-    if (!DRY && haveIG && record.ig && !record.igStory && !record.igStoryError && fs.existsSync(reelOf(s.id))) await tryStory(ledger, s.id);
+    if (!DRY && haveIG && record.ig && !record.igStory && !record.igStoryError && fs.existsSync(reelOf(s.id))) { storiesTried.add(s.id); await tryStory(ledger, s.id); }
   }
 
   // A reel that failed to go up as a Story gets another try on the next run, three tries in all.
   if (!DRY && haveIG) {
-    const again = Object.keys(ledger.posted).find((id) => { const p = ledger.posted[id]; return p.ig && !p.igStory && p.igStoryError && (p.igStoryTries || 0) < 3 && fs.existsSync(reelOf(id)); });
+    const again = Object.keys(ledger.posted).find((id) => { const p = ledger.posted[id]; return !storiesTried.has(id) && p.ig && !p.igStory && p.igStoryError && (p.igStoryTries || 0) < 3 && fs.existsSync(reelOf(id)); });
     if (again) await tryStory(ledger, again);
   }
 }

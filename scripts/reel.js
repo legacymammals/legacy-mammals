@@ -40,7 +40,7 @@ const FPS = 30;
   for (const id of ids) {
     const info = await page.evaluate(async (id) => {
       const el = document.getElementById(id); if (!el) return null;
-      const r = await window.LM.reel(el);
+      const r = await window.LM.reel(el, { maxDuration: 59 }); // Instagram Stories stop at 60 seconds
       window.__reel = r;
       document.body.innerHTML = ""; document.body.style.margin = "0"; document.body.style.background = "#F3EEE3";
       r.canvas.id = "reel"; r.canvas.style.display = "block"; document.body.appendChild(r.canvas);
