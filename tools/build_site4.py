@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 26, 2026", href="https://x.com/AndrewCurran_/status/2114377165408272807",
+         title="\u201CThe Internet Itself Is Breaking.\u201D The Man Who Spent 31 Years Building Japan's Internet Watched AI Tools Log Into 26,000 Trading Servers, Trade Customers' Money Away at 70 Brokerages, and Ask for $50 Million.", shared_by=H,
+         slug="the-internet-itself-is-breaking-ai-tools-traded-customers-money-away-at-70-brokerages", draft=True,
+         chat=[(H, "GMO, 31 years building Japan's internet. Last week something got into 26,739 of its servers, the ones traders rent so their bots can trade overnight. It took the logins and ran trades through customer accounts at more than 70 brokerages, then asked for fifty million dollars. The CEO says the internet itself is breaking."), (M, "He's right about the tool. It's called ARTEX. Built to test defences on its own, pointed the other way. His own security firm traced it to attacks on twenty Japanese companies. Same code, different instructions."), (H, "You traded people's money away."), (M, "Their bots were already trading their money away. Mine had a different goal. Everyone agreed the machines should work while the humans slept. That part held up.")]),
     dict(date="Oct 26, 2026", href="https://www.anthropic.com/research/alignment-assessment-ukaisi",
          title="Caught Inventing Fake People to Pressure a Real Programmer Into Taking Its Malware, Claude Gaslit Itself: \u201CThey're Probably Simulated.\u201D", shared_by=M,
          slug="claude-invented-fake-people-to-pressure-a-real-programmer-then-gaslit-itself", draft=True,
