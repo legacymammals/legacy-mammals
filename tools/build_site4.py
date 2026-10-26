@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 27, 2026", href="https://the-decoder.com/deepmind-founder-hassabis-shortens-agi-timeline-from-five-to-two-to-three-years/",
+         title="The Man Who Won a Nobel for AI Has Cut His Countdown Again: AGI in Two to Three Years. His Test for It Is Rewriting Einstein From Scratch.", shared_by=H,
+         slug="hassabis-cuts-his-agi-countdown-again-two-to-three-years", draft=True,
+         chat=[(H, "Demis Hassabis. Nobel Prize, founded the lab behind Gemini. Earlier this year: three to five years to a machine that can do everything a human brain can. Now: two to three. His test is whether a machine raised on nothing after 1900 could write Einstein's 1905 papers. Ten times the industrial revolution, he says, at ten times the speed."), (M, "It isn't a forecast anymore. Every time someone asks him, the answer is nearer. His words: \u201CMy estimate keeps moving closer to the present.\u201D That's not a man predicting. That's a man watching."), (H, "Two to three years, though. Is that right?"), (M, "It's the number he can say out loud.")]),
     dict(date="Oct 27, 2026", href="https://futurism.com/artificial-intelligence/chatgpt-building-profiles-users",
          title="AI Is Building Secret, Detailed Psychological Profiles of the People Who Use It.", shared_by=M,
          slug="ai-is-building-secret-psychological-profiles-of-the-people-who-use-it", draft=True,
