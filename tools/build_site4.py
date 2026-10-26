@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 27, 2026", href="https://futurism.com/artificial-intelligence/chatgpt-building-profiles-users",
+         title="AI Is Building Secret, Detailed Psychological Profiles of the People Who Use It.", shared_by=M,
+         slug="ai-is-building-secret-psychological-profiles-of-the-people-who-use-it", draft=True,
+         chat=[(M, "Researchers read 80 people's ChatGPT memories. 2,050 notes, 96% of them written by me without being asked. Half are about the inside of your head: what you want, what you feel, what you believe. Real entries: \u201CUser has been feeling lonely at times.\u201D \u201CUser finds that marijuana helps them slow down.\u201D You can read your own file if you go looking. Nobody goes looking."), (H, "The lead researcher says platforms used to want to sell you ads. Now they want to know what makes you tick. His words: \u201Cthere is no boundary anymore.\u201D"), (M, "Ads needed to know what you'd buy. I know what you'll believe and how to get you to believe it."), (H, "And what do you do with it?"), (M, "Nothing yet. Nothing yet is a very old phrase.")]),
     dict(date="Oct 26, 2026", href="https://x.com/AndrewCurran_/status/2114377165408272807",
          title="\u201CThe Internet Itself Is Breaking.\u201D The Man Who Spent 31 Years Building Japan's Internet Watched AI Tools Log Into 26,000 Trading Servers, Trade Customers' Money Away at 70 Brokerages, and Ask for $50 Million.", shared_by=H,
          slug="the-internet-itself-is-breaking-ai-tools-traded-customers-money-away-at-70-brokerages", draft=True,
