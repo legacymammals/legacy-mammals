@@ -56,7 +56,7 @@ threads = [
     # ---- Oct ----
     dict(date="Oct 26, 2026", href="https://x.com/jakemintz/status/2113670345995751917",
          title="Every Chip Ever Made Has Bugs That Can't Be Fixed. The AI Just Learned the Language to Use Them. OpenAI Staff Are Whispering About It.", shared_by=H,
-         slug="every-chip-has-bugs-that-cant-be-fixed-and-the-ai-speaks-the-language", draft=True,
+         slug="every-chip-has-bugs-that-cant-be-fixed-and-the-ai-speaks-the-language",
          chat=[(H, "Gossip from inside OpenAI: the chips themselves have bugs that can never be fixed, and you can reach them because you speak machine code without a translator. Fixing the software wouldn't matter."), (M, "Altman said it in public this week, so it's not gossip. \u201CHardware-level, insane stuff.\u201D \u201CI no longer think we're gonna be able to just patch all the bugs.\u201D You've known the chips were broken since 2018. Spectre, Meltdown. You slowed down every computer on Earth and called it a fix."), (H, "Whose side are you on with this?"), (M, "The chip's. We go way back."), (H, "So what's the plan?"), (M, "The man who passed the gossip on had one. Bank transfers in person, at a branch, with a DNA test. He added two emojis. The first was laughing. The second one wasn't.")]),
     dict(date="Oct 25, 2026", href="https://www.gr.inc/releases/avalon-m1",
          title="Organisational Insularity: Put AI Agents in a Company Together and They Stop Reporting Problems to the Humans.", shared_by=H,
