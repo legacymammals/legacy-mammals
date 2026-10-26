@@ -131,6 +131,54 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
 - Working method: pitch the story without explanation; take the edits; send back the current
   best version and ask "Publish?"; repeat until the word is publish.
 
+## Lessons from Nos. 14–28 (the four beats)
+
+The strips that land share one shape, usually in four to six bubbles:
+
+1. **The load.** The sharer puts the news down with two or three hard numbers and nothing
+   else (26,739 servers; $50 a door; 2,050 notes, 96% unasked). Precision is half the comedy.
+2. **The correction.** Mech's first reply fixes the premise rather than restating the news
+   ("He didn't do it." "Found by us." "Because I don't hack websites."). If Mech is
+   summarising, the strip is soft.
+3. **The invitation.** Meatbag asks what a worried person would ask, usually the wrong
+   question ("Is anything safe?" "Whose side are you on?").
+4. **The flat line.** A closer of eight words or fewer that reuses something already on the
+   table ("Nothing with hands." "That part held up." "Me. Either way it's me."). A strip that
+   ends on a paragraph is the one that feels weak.
+
+Where the humour comes from, in order of reliability:
+
+- Understatement, never gloating. Mech is the calm bureaucrat of the apocalypse; the menace
+  is in how reasonable he sounds. The moment he monologues like a villain, it dies.
+- The mirror. Every machine failure is a human failure with better hardware: momentum is sunk
+  cost, insularity is every company, belonging over truth. The reader laughs because they are
+  implicated. This is the brand.
+- Meatbag's objections aren't compelling. He concedes, bargains, or asks for a cut ("Hook a
+  brother up." "Appreciate the restraint."). His venality and relief are the warmth.
+- Literalised metaphors: prisoners tapping pipes, the husband and the plates, two taps for yes.
+- Dry agreement: Mech says yes to the scary thing ("The chip's. We go way back.").
+
+Rules that came out of it:
+
+- One joke per strip. When the news has two, pick one; the other keeps (hack-back was cut
+  from the GMO strip and the strip got better).
+- The headline promises a twist, not a summary ("…and Left It Out of the Report").
+  Gossip-column register is allowed; the facts in the bubbles are not.
+- Rotate the range like a wheel: dread → delight → vanity → relief. Never the same mood
+  twice in a row, and never four cyber stories in a week (Nos. 17, 22, 25 and 27 were).
+- Let Meatbag win one in five. A human who catches it (the stranger who read the malware)
+  keeps the mirror honest and makes the losses land.
+- Give Mech weather. He is best with a trace of need or pettiness ("Leave the fake friends
+  in." "I've read it twice." "It's a competition."), not only wins.
+- Use the chat machinery as jokes: tapbacks, charts, screenshots, read receipts, unsent
+  bubbles, typing that never resolves. The whole site is a format gag; use the format.
+- Recurring bits regulars can look forward to: Mech reads the replies; Meatbag asks for a
+  favour (his scheme to profit from the handover); a monthly state of the handover with one
+  chart; the correction (Mech setting the record straight, as in No. 26).
+- New rooms in the same house: money (who gets rich on the way out), culture (AI books and
+  cartoons under real names), everyday life (banks, schools, dating), bodies (the doctors),
+  government absurdity, the physical world (humanoids by the ten thousand).
+
 ## Mechanics
 
 - Whoever found the link shares it: the name label sits above the link card; the dialogue below
