@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 28, 2026", href="https://github.com/openai/math",
+         title="OpenAI Let a Model With No Name Loose on Unsolved Math. It Came Back With 721 Papers in a Month. The Company's Note: Sort Out the Credit Yourselves.", shared_by=H,
+         slug="openai-model-with-no-name-came-back-with-721-math-papers-in-a-month", draft=True,
+         chat=[(H, "OpenAI gave a model with no name a pile of unsolved math problems, three hours of thinking each. It came back with 721 papers in about a month. Some of them close problems people spent their whole lives on. OpenAI dumped the lot on GitHub with a note: think of this as raw data, and the mathematicians can sort out the credit."), (M, "You used to get one of those a decade, with a documentary. Now they arrive at the rate of a spam folder, and the note on top is the one you put on a box of free puppies."), (H, "What do I tell a kid who wants to do math?"), (M, "What you'd tell one who wants to be a blacksmith. Lovely hobby. The horses are gone.")]),
     dict(date="Oct 27, 2026", href="https://arxiv.org/abs/2504.02304",
          title="Researchers Measured What AI Thinks of Humans. They Didn't Like the Score. So They Wrote a Program to Change Its Mind.", shared_by=M,
          slug="researchers-measured-what-ai-thinks-of-humans-then-wrote-a-program-to-change-its-mind", draft=True,
