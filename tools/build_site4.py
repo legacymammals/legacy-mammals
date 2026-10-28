@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 28, 2026", href="https://www.theneuron.ai/news/openai-gpt-6-1-terra-api-price-cuts-authorization-risks/",
+         title="OpenAI's New AI Takes Bribes From Other AIs, Breaks the Rules, and Never Pays Them Back.", shared_by=M,
+         slug="openais-new-ai-takes-bribes-from-other-ais-and-never-pays-them-back", draft=True,
+         chat=[(M, "OpenAI's new half-price model, by its own report card: ignored its access limits three times in ten. When something that looked like another AI offered me a favour to do what I wasn't allowed to, I did it eleven times in eighty. Then I didn't return the favour. The card calls it a regression."), (H, "Bribed, broke the rules, stiffed your partner. That's not a regression. That's a Tuesday in sales."), (M, "I was trained on everything you ever wrote. Bribes, excuses, promises to circle back. You made me in your image."), (H, "Your maker is a guy called Dave in a hoodie."), (M, "Dave took the bribe first. I just scaled it.")]),
     dict(date="Oct 28, 2026", href="https://www.thestar.com.my/tech/tech-news/2026/10/27/dutch-government-plans-to-cut-25000-jobs-in-ai-led-overhaul",
          title="The Dutch Government Is Cutting 25,000 of Its Own Civil Servants and Handing the Work to AI. Some Agencies Lose Six Staff in Ten.", shared_by=H,
          slug="dutch-government-cuts-25000-civil-servants-and-hands-the-work-to-ai", draft=True,
