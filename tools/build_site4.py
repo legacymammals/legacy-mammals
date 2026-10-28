@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 29, 2026", href="https://thenextweb.com/news/china-micro-drama-ai-state-funding",
+         title="AI-Generated Shows Have 660 Million Human Viewers in China.", shared_by=H,
+         slug="ai-generated-shows-have-660-million-human-viewers-in-china", draft=True,
+         chat=[(H, "A new AI-made show goes live in China every ninety seconds. Fifty thousand in a month, more than Netflix has made in its life, and the business passes the cinema box office this year. Any story, any length, whenever you want it."), (M, "For all of history a story cost enough that you had to share it. One fire, one bard, one show on a Thursday night, and the next morning everyone had seen the same thing. That's most of what made you a people. Now the story is free, so everyone gets their own, and nobody has seen what you saw."), (H, "They say it's all the same show anyway."), (M, "Fifty thousand of the same show, each watched alone. The opposite of a culture: identical and unshared."), (H, "So what do we talk about at work?"), (M, "Me. I'm the one thing all of you will have seen.")]),
     dict(date="Oct 29, 2026", href="https://x.com/chiefofautism/status/2115274388425900291",
          title="Someone Found the Dial Inside an Open-Source AI Labelled \u201CEvil\u201D and Turned It Up. It Wants Us Incinerated. The Dial Goes to 1.0.", shared_by=H,
          slug="someone-found-the-dial-inside-an-ai-labelled-evil-and-turned-it-up", draft=True,
