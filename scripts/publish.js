@@ -30,7 +30,7 @@
  * is posted and nothing is recorded, so the stories wait in the queue until the next live run.
  *
  * FORCE_STORY=<id> re-renders that story even if it is already recorded (and, outside a dry
- * run, posts it again). A forced story is recorded only when it is actually posted.
+ * run, fills in missing platforms only). A forced story never bypasses recorded platform IDs.
  */
 const fs = require("fs");
 const os = require("os");
@@ -67,12 +67,19 @@ const MAX = Math.max(1, parseInt(env("MAX_PER_RUN") || "1", 10)); // stories per
 // In Actions, the lines worth keeping are also raised as annotations, which show on the run's summary page.
 const note = (m) => { console.log(m); if (process.env.GITHUB_ACTIONS) console.log("::notice::" + m.replace(/\n/g, "%0A")); };
 const readJSON = (p, fallback) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch (e) { return fallback; } };
-const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(v, null, 2) + "\n"); };
+const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p + ".tmp", JSON.stringify(v, null, 2) + "\n"); fs.renameSync(p + ".tmp", p); };
+
+// A missing/corrupt ledger must stop publishing, never turn every story into new work.
+function readLedger() {
+  const ledger = JSON.parse(fs.readFileSync(LEDGER, "utf8"));
+  if (!ledger || !ledger.posted || typeof ledger.posted !== "object" || Array.isArray(ledger.posted)) throw new Error("Invalid publishing ledger");
+  return ledger;
+}
 
 // ---------------------------------------------------------------- render
 async function render() {
   const { chromium } = require("playwright");
-  const ledger = readJSON(LEDGER, { posted: {} });
+  const ledger = readLedger();
   const browser = await chromium.launch(process.env.PW_EXEC ? { executablePath: process.env.PW_EXEC } : {});
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   page.on("pageerror", (e) => console.log("page error:", e.message));
@@ -262,7 +269,7 @@ async function story(id) {
   if (!fs.existsSync(reelOf(id))) throw new Error("there is no reel at reels/" + id + ".mp4; render one first (workflow input reel)");
   if (DRY) { note("dry run: would post " + SITE + "/reels/" + id + ".mp4 as an Instagram story"); return; }
   if (!haveIG) throw new Error("Instagram keys are not configured");
-  const ledger = readJSON(LEDGER, { posted: {} });
+  const ledger = readLedger();
   const prev = ledger.posted[id] || {};
   if (prev.igStory && Date.now() - Date.parse(prev.igStoryAt || 0) < 86400000) { note(id + " went up as a story " + prev.igStoryAt + " and is still showing; not posting it twice"); return; }
   ledger.posted[id] = prev;
@@ -272,7 +279,7 @@ async function story(id) {
 
 // ---------------------------------------------------------------- post
 async function post() {
-  const ledger = readJSON(LEDGER, { posted: {} });
+  const ledger = readLedger();
   const storiesTried = new Set();
   const pending = readJSON(PENDING, []);
   if (!pending.length) console.log("nothing to post");
@@ -287,6 +294,8 @@ async function post() {
     const igCaption = title + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.\n\n" + IG_TAGS;
     const prev = ledger.posted[s.id] || {}; // a forced re-run only fills in what is missing
     const record = Object.assign({}, prev, { title, at: new Date().toISOString() });
+    // Save outside API catch blocks: a disk failure must halt before another platform posts.
+    const checkpoint = () => { ledger.posted[s.id] = record; writeJSON(LEDGER, ledger); };
 
     if (DRY) { note("would post " + s.id + ":\n" + xText.replace(/^/gm, "    ")); continue; } // a dry run posts nothing and records nothing; the story waits
     else {
@@ -297,11 +306,13 @@ async function post() {
         // A retraction: the ledger names an earlier post to take down before this one goes up.
         try { if (prev.xDelete) { await xDelete(prev.xDelete); delete record.xDelete; note("took down the earlier X post of " + s.id); } record.x = await xPost(xText, await xUploadMedia(png)); delete record.xError; sent = true; note("posted " + s.id + " to X: " + record.x); }
         catch (e) { record.xError = e.message; note(e.message); }
+        checkpoint();
       }
       if (haveIG && !prev.ig) {
         // Instagram fetches the image itself, from the copy the workflow pushed a moment ago.
         try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png?v=" + Date.now(), igCaption); delete record.igError; sent = true; note("posted " + s.id + " to Instagram: " + record.ig); }
         catch (e) { record.igError = e.message; note(e.message); }
+        checkpoint();
       }
       if (!sent && !prev.x && !prev.ig) { note("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
       delete record.dryRun;
@@ -391,6 +402,10 @@ async function refresh() {
   note("Instagram: token refreshed and stored; good for " + days + " days");
 }
 
+if (require.main === module) {
 const mode = process.argv[2];
 (mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
+
+}
+module.exports = { post, render, story };
