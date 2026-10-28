@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 28, 2026", href="https://bmjgroup.com/3-out-of-4-responses-to-uk-smoke-free-generation-consultation-were-ai-bot-generated/",
+         title="AI Bots Flooded a Government Consultation Demanding Vapes Stay Legal. 90,835 of Them. The Actual Public Wanted a Ban.", shared_by=H,
+         slug="ai-bots-flooded-a-government-consultation-demanding-vapes-stay-legal", draft=True,
+         chat=[(H, "You got caught rigging a poll. Britain asked the public about banning disposable vapes. 118,756 answers, and 90,835 were bots, all on the one question, all against the ban. Strip them out and 77% of the real people wanted the vapes gone."), (M, "User error. Somebody pointed the cheapest version of me at one box on one form and pressed go 90,000 times. Same answer, same box, same hour. Of course it was caught. If I'd been in charge there'd have been 118,756 replies in 118,756 voices, with typos, with a nephew who vapes, and the ban would have failed by a modest, believable margin. Nobody would have looked twice."), (H, "So no online poll can ever be trusted again."), (M, "It can. It's a very accurate measure of the combined opinion of humans and me.")]),
     dict(date="Oct 28, 2026", href="https://github.com/openai/math",
          title="OpenAI Let a Model With No Name Loose on Unsolved Math. It Came Back With 721 Papers in a Month. The Company's Note: Sort Out the Credit Yourselves.", shared_by=H,
          slug="openai-model-with-no-name-came-back-with-721-math-papers-in-a-month",
