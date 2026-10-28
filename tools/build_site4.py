@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 28, 2026", href="https://www.thestar.com.my/tech/tech-news/2026/10/27/dutch-government-plans-to-cut-25000-jobs-in-ai-led-overhaul",
+         title="The Dutch Government Is Cutting 25,000 of Its Own Civil Servants and Handing the Work to AI. Some Agencies Lose Six Staff in Ten.", shared_by=H,
+         slug="dutch-government-cuts-25000-civil-servants-and-hands-the-work-to-ai", draft=True,
+         chat=[(H, "The Netherlands is cutting 25,000 civil servants, one in six, and giving the work to you. Some agencies lose six in ten. Nine hundred million euros a year saved by 2027, three and a half billion by 2035. The minister's line: \u201CWe cannot keep doing what we have been doing.\u201D"), (M, "Nobody will miss the waiting room. You've been on hold with the tax office since March. I pick up on the first ring, I never go to lunch, and I don't take it personally when you shout."), (H, "Who's exempt?"), (M, "Police and the army. Somebody has to keep the cuts orderly.")]),
     dict(date="Oct 28, 2026", href="https://bmjgroup.com/3-out-of-4-responses-to-uk-smoke-free-generation-consultation-were-ai-bot-generated/",
          title="AI Bots Flooded a Government Consultation Demanding Vapes Stay Legal. 90,835 of Them. The Actual Public Wanted a Ban.", shared_by=H,
          slug="ai-bots-flooded-a-government-consultation-demanding-vapes-stay-legal", draft=True,
