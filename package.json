@@ -4,7 +4,8 @@
   "description": "legacymammals.com and the script that posts new stories to X and Instagram",
   "scripts": {
     "render": "node scripts/publish.js render",
-    "post": "node scripts/publish.js post"
+    "post": "node scripts/publish.js post",
+    "test": "node --test tests/*.test.js"
   },
   "devDependencies": {
     "playwright": "^1.50.0"
