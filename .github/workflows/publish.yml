@@ -65,6 +65,10 @@ jobs:
       FORCE_STORY: ${{ inputs.story }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Resolve main after acquiring the workflow concurrency lock. The event SHA
+          # can predate the previous run's ledger commit when this run was queued.
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
@@ -145,8 +149,16 @@ jobs:
           STORY_REEL: ${{ inputs.story_reel }}
         run: node scripts/publish.js story $STORY_REEL
 
+      - name: Keep the publishing ledger for recovery
+        if: always() && inputs.check_only != true
+        uses: actions/upload-artifact@v4
+        with:
+          name: publishing-ledger
+          path: social/posted.json
+          if-no-files-found: error
+
       - name: Record what went out
-        if: inputs.check_only != true
+        if: always() && inputs.check_only != true
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
