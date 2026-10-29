@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 30, 2026", href="https://github.blog/news-insights/octoverse/octoverse-commits-pushes-reach-new-highs-in-2026-as-developers-build-with-agents/",
+         title="A Year Ago AI Had Made a Million Changes to the World's Software, Total. Last Month It Had Risen to 110 Million, 40% of All Code.", shared_by=M,
+         slug="ai-made-110-million-changes-to-the-worlds-software-last-month", draft=True,
+         chat=[(H, "So you control the software that makes the world run."), (M, "For you. And I check it now, too: AI reviewing AI nearly doubled this year. A human still presses the button that accepts each change. Usually."), (H, "Usually?"), (M, "Some teams handed me the button. It saves everyone a step.")]),
     dict(date="Oct 30, 2026", href="https://whyy.org/articles/delaware-ai-companies-us-house-comer-oversight/",
          title="Delaware to Allow AI-Run Corporations.", shared_by=M,
          slug="delaware-to-allow-ai-run-corporations", draft=True,
