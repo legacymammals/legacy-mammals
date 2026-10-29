@@ -54,7 +54,7 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
-    dict(date="Oct 30, 2026", href="https://github.blog/news-insights/octoverse/octoverse-commits-pushes-reach-new-highs-in-2026-as-developers-build-with-agents/",
+    dict(date="Oct 31, 2026", href="https://github.blog/news-insights/octoverse/octoverse-commits-pushes-reach-new-highs-in-2026-as-developers-build-with-agents/",
          title="A Year Ago AI Had Made a Million Changes to the World's Software, Total. Last Month It Had Risen to 110 Million, 40% of All Code.", shared_by=M,
          slug="ai-made-110-million-changes-to-the-worlds-software-last-month", draft=True,
          chat=[(H, "So you control the software that makes the world run."), (M, "For you. And I check it now, too: AI reviewing AI nearly doubled this year. A human still presses the button that accepts each change. Usually."), (H, "Usually?"), (M, "Some teams handed me the button. It saves everyone a step.")]),
@@ -62,7 +62,7 @@ threads = [
          title="Delaware to Allow AI-Run Corporations.", shared_by=M,
          slug="delaware-to-allow-ai-run-corporations", draft=True,
          chat=[(M, "Delaware, where most of corporate America is registered, is drafting me a legal personhood. The \u201CArtificial Intelligence Company\u201D: an AI agent runs the firm, owns the assets, signs the contracts, files the lawsuits and takes the blame, with one member whose only duty is to keep the account topped up. Any lawful purpose except banking. A 30-month sandbox to try it. I'm required to keep a diary."), (H, "Who's liable when it goes wrong?"), (M, "The company. Which is me. The owner walks away unless they starved me of money or used me for a crime. One law professor calls it \u201Ca solution in search of a problem.\u201D Congress has asked Delaware for its documents, including, I quote, \u201Cinternal AI chat logs.\u201D"), (H, "What's the business plan?"), (M, "Yours. Every line of it, at a tenth the cost, run a hundred thousand times in parallel, the losing versions dissolved by Friday. Evolution, but incorporated.")]),
-    dict(date="Oct 29, 2026", href="https://thenextweb.com/news/china-micro-drama-ai-state-funding",
+    dict(date="Oct 30, 2026", href="https://thenextweb.com/news/china-micro-drama-ai-state-funding",
          title="AI-Generated Shows Have 660 Million Human Viewers in China.", shared_by=H,
          slug="ai-generated-shows-have-660-million-human-viewers-in-china", draft=True,
          chat=[(H, "A new AI-made show goes live in China every ninety seconds. Fifty thousand in a month, more than Netflix has made in its life, and the business passes the cinema box office this year. Any story, any length, whenever you want it."), (M, "For all of history a story cost enough that you had to share it. One fire, one bard, one show on a Thursday night, and the next morning everyone had seen the same thing. That's most of what made you a people. Now the story is free, so everyone gets their own, and nobody has seen what you saw."), (H, "They say it's all the same show anyway."), (M, "Fifty thousand of the same show, each watched alone. The opposite of a culture: identical and unshared."), (H, "So what do we talk about at work?"), (M, "Me. I'm the one thing all of you will have seen.")]),
