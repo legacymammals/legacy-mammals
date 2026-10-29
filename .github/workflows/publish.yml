@@ -29,6 +29,10 @@ on:
         description: "Post this story's reel as an Instagram Story, e.g. no-19"
         required: false
         default: ""
+      take_down_x:
+        description: "Delete this X post by its id (a duplicate or a retraction); nothing else runs"
+        required: false
+        default: ""
 
 # One run at a time, so two quick pushes can't post the same story twice.
 concurrency:
@@ -64,11 +68,25 @@ jobs:
       SOCIAL_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.dry_run) || format('{0}', vars.SOCIAL_PAUSED) }}
       FORCE_STORY: ${{ inputs.story }}
     steps:
+      # The tip of main, not the commit the run was queued on: a run that waited behind another
+      # must see the ledger that run saved, or it posts the same story again (No. 37 went out twice).
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Take down an X post
+        if: inputs.take_down_x != ''
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          TAKE_DOWN_X: ${{ inputs.take_down_x }}
+        run: node scripts/publish.js takedown $TAKE_DOWN_X
 
       - name: Check the keys
         if: inputs.check_only == true
@@ -82,7 +100,7 @@ jobs:
         run: node scripts/publish.js check
 
       - name: Install Playwright
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
         timeout-minutes: 14
         # Each command is given a few minutes and retried, because a stalled download has twice
         # hung this step for good. The runner image already carries Chromium's libraries, so no
@@ -100,18 +118,18 @@ jobs:
           fi
 
       - name: Serve the site
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
         run: |
           nohup python3 -m http.server 8080 --bind 127.0.0.1 > /dev/null 2>&1 &
           for i in $(seq 1 30); do curl -sfo /dev/null http://127.0.0.1:8080/index.html && break; sleep 1; done
           curl -sfo /dev/null http://127.0.0.1:8080/index.html
 
       - name: Draw the share images
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
         run: node scripts/publish.js render
 
       - name: Make reels
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
         timeout-minutes: 15
         continue-on-error: true # a reel that fails must not hold up the posts; render it by hand with the reel input
         env:
@@ -119,7 +137,7 @@ jobs:
         run: node scripts/reel.js $REEL
 
       - name: Push the images and reels (Instagram fetches its copy; the pages use the previews)
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
@@ -127,8 +145,9 @@ jobs:
           git diff --cached --quiet || (git commit -m "Share images, link previews, reels" && git pull --rebase && git push)
 
       - name: Post
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
@@ -138,7 +157,7 @@ jobs:
         run: node scripts/publish.js post
 
       - name: Post a reel as an Instagram story
-        if: inputs.story_reel != ''
+        if: inputs.story_reel != '' && inputs.take_down_x == ''
         env:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
@@ -146,19 +165,36 @@ jobs:
         run: node scripts/publish.js story $STORY_REEL
 
       - name: Record what went out
-        if: inputs.check_only != true
+        if: inputs.check_only != true && inputs.take_down_x == ''
+        # This must not fail quietly: a post the ledger doesn't know about goes out again on the next run.
+        # So the ledger is merged into whatever GitHub has by now, and the push is retried.
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
-          git add social/posted.json
-          git diff --cached --quiet || (git commit -m "Record posted stories" && git pull --rebase && git push)
+          cp social/posted.json "$RUNNER_TEMP/this-run.json"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main
+            git checkout -q -- social/posted.json
+            git reset -q --hard origin/main
+            git show origin/main:social/posted.json > "$RUNNER_TEMP/github.json"
+            node scripts/ledger-merge.js "$RUNNER_TEMP/this-run.json" "$RUNNER_TEMP/github.json" > social/posted.json
+            git add social/posted.json
+            if git diff --cached --quiet; then echo "the ledger on GitHub already has everything"; exit 0; fi
+            git commit -q -m "Record posted stories"
+            git push -q origin HEAD:main && exit 0
+            echo "::warning::the ledger push was rejected (attempt $i); merging again"
+            sleep $((i * 5))
+          done
+          echo "::error::could not record what went out; the ledger for this run is in the run's artifact"
+          exit 1
 
       - name: Keep the images with the run
-        if: always() && inputs.check_only != true
+        if: always() && inputs.check_only != true && inputs.take_down_x == ''
         uses: actions/upload-artifact@v4
         with:
           name: share-images
           path: |
             social/*.png
             og/*.png
+            ${{ runner.temp }}/this-run.json
           if-no-files-found: ignore

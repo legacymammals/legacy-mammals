@@ -184,6 +184,24 @@ async function xUploadMedia(png) {
   if (!r.ok) throw new Error("X media upload failed: " + r.status + " " + JSON.stringify(j));
   return (j.data && j.data.id) || j.media_id_string || j.id;
 }
+// A second look at the ledger as GitHub has it right now: a run that checked out an older commit
+// must not post a story the run before it already posted.
+async function mergeRemoteLedger(ledger) {
+  const repo = process.env.GITHUB_REPOSITORY, token = process.env.GITHUB_TOKEN;
+  if (!repo || !token) return;
+  try {
+    const r = await fetch("https://api.github.com/repos/" + repo + "/contents/social/posted.json?ref=main", { headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github.raw+json", "User-Agent": "legacymammals" } });
+    if (!r.ok) { note("warning: could not read the ledger on GitHub (" + r.status + ")"); return; }
+    const remote = await r.json();
+    let merged = 0;
+    for (const [id, rec] of Object.entries((remote && remote.posted) || {})) {
+      const local = ledger.posted[id] || {};
+      for (const k of ["x", "ig", "igStory", "igStoryAt", "at", "title"]) if (rec[k] && !local[k]) { local[k] = rec[k]; merged++; }
+      ledger.posted[id] = local;
+    }
+    if (merged) { writeJSON(LEDGER, ledger); note("took " + merged + " newer entries from the ledger on GitHub"); }
+  } catch (e) { note("warning: could not read the ledger on GitHub: " + e.message); }
+}
 async function xDelete(id) {
   const url = "https://api.x.com/2/tweets/" + id;
   const r = await fetch(url, { method: "DELETE", headers: { Authorization: oauthHeader("DELETE", url) } });
@@ -278,7 +296,9 @@ async function post() {
   if (!pending.length) console.log("nothing to post");
   else note(DRY ? "dry run: nothing will be posted" + (haveX || haveIG ? " (SOCIAL_DRY_RUN is true)" : " (no keys configured)") : "posting to " + [haveX && "X", haveIG && "Instagram"].filter(Boolean).join(" and "));
 
+  await mergeRemoteLedger(ledger);
   for (const s of pending) {
+    if (ledger.posted[s.id] && ledger.posted[s.id].x && ledger.posted[s.id].ig && !FORCE) { note(s.id + " is already up (per the ledger on GitHub); skipping"); continue; }
     const permalink = SITE + "/" + (s.slug || s.id) + "/";
     const title = s.title || "Legacy Mammals";
     // X counts any link as 23 characters; keep the whole post inside 280
@@ -391,6 +411,13 @@ async function refresh() {
   note("Instagram: token refreshed and stored; good for " + days + " days");
 }
 
+async function takedown(id) {
+  if (!/^\d{5,}$/.test(id || "")) throw new Error("takedown needs the numeric id of an X post");
+  if (!haveX) throw new Error("the X keys are not set");
+  await xDelete(id);
+  note("took down X post " + id);
+}
+
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
