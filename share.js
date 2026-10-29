@@ -465,5 +465,54 @@
     Array.prototype.forEach.call(document.querySelectorAll(".sharebar"), function (b) { io.observe(b); });
   }
 
-  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome, reel: reel };
+  // The story as a carousel: 1080 x 1350 slides, the bubbles split at bubble boundaries. Every
+  // slide carries the date line at the top and the sign-off at the bottom; the headline card leads.
+  async function slides(thread) {
+    var d = parse(thread);
+    try { await Promise.all([document.fonts.load(font("800", 50)), document.fonts.load(font("500", 24)), document.fonts.load(font("400", 33))]); } catch (e) {}
+    var srcs = []; d.items.forEach(function (it) { if (it.img) srcs.push(it.img); if (it.src) srcs.push(it.src); });
+    var loaded = await Promise.all(srcs.map(loadImg)), imgs = {};
+    srcs.forEach(function (s, i) { imgs[s] = loaded[i]; });
+    var SW = 1080, SH = 1350, HEAD = 88, FOOT = 96, GAPTOP = 20, GAPBOT = 40;
+    var room = SH - HEAD - GAPTOP - FOOT - GAPBOT - 26; // vertical room for bubbles on a slide
+    // where each item sits on the full strip: the strip after k items is heightOf(k)
+    var tops = [], n = d.items.length;
+    for (var k = 0; k <= n; k++) tops.push(paint(null, d, imgs, { limit: k, noFooter: true }));
+    var full = document.createElement("canvas"); full.width = W; full.height = Math.max(tops[n], 10);
+    paint(full.getContext("2d"), d, imgs, { noFooter: true });
+    // group items into slides, never splitting a bubble; a spoken item never opens a slide alone with its "who" label left behind
+    var groups = [], cur = [], used = 0;
+    var label = { who: 1, status: 1 };
+    for (var i = 0; i < n; i++) {
+      var h = tops[i + 1] - tops[i];
+      if (cur.length && used + h > room) {
+        var carry = []; // a "who" label at the end of a slide belongs with the bubble that follows it
+        while (cur.length > 1 && label[d.items[cur[cur.length - 1]].t]) carry.unshift(cur.pop());
+        groups.push(cur); cur = carry; used = 0;
+        for (var q = 0; q < carry.length; q++) used += tops[carry[q] + 1] - tops[carry[q]];
+      }
+      cur.push(i); used += h;
+    }
+    if (cur.length) groups.push(cur);
+    var out = [];
+    for (var g = 0; g < groups.length; g++) {
+      var first = groups[g][0], last = groups[g][groups[g].length - 1];
+      var y0 = tops[first], y1 = tops[last + 1], ch = y1 - y0;
+      var c = document.createElement("canvas"); c.width = SW; c.height = SH;
+      var ctx = c.getContext("2d");
+      ctx.fillStyle = TINT; ctx.fillRect(0, 0, SW, SH);
+      ctx.textBaseline = "alphabetic";
+      ctx.font = font("800", 22); ctx.fillStyle = META; ctx.textAlign = "left"; ctx.fillText(d.folio, PAD, 52);
+      ctx.font = font("500", 22); ctx.textAlign = "center"; ctx.fillText(d.date.toUpperCase(), SW / 2, 52);
+      if (groups.length > 1) { ctx.font = font("800", 22); ctx.textAlign = "right"; ctx.fillText((g + 1) + " / " + groups.length, SW - PAD, 52); }
+      var scale = Math.min(1, room / ch), dh = Math.round(ch * scale), dw = Math.round(SW * scale);
+      var dy = HEAD + GAPTOP + Math.round((room - dh) / 2), dx = Math.round((SW - dw) / 2);
+      ctx.drawImage(full, 0, y0, W, ch, dx, dy, dw, dh);
+      signoff(ctx, SH - FOOT - GAPBOT, d.slug || d.id);
+      out.push(c);
+    }
+    return out;
+  }
+
+  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome, reel: reel, slides: slides };
 })();

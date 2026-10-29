@@ -12,6 +12,10 @@
  *       social/<id>-ig.png   the Instagram version: the same image, and if the story is
  *                            taller than Instagram's 4:5 limit, shrunk to fit 1080 x 1350
  *                            with black bars at the sides
+ *       social/<id>-ig-1.png, -2.png, ...
+ *                            for a story taller than 4:5: the strip cut into 1080 x 1350
+ *                            slides at bubble boundaries, posted as a carousel instead of
+ *                            the barred image
  *     The workflow then pushes the images, so Instagram can fetch them from a public URL.
  *
  *   node scripts/publish.js check
@@ -62,11 +66,15 @@ const haveX = !!(X.key && X.secret && X.token && X.tokenSecret);
 const haveIG = !!(IG.user && IG.token);
 const DRY = env("SOCIAL_DRY_RUN").toLowerCase() === "true" || (!haveX && !haveIG);
 const FORCE = env("FORCE_STORY");
+const CAROUSEL = env("CAROUSEL_STORY"); // a story to put up again as an Instagram carousel (workflow input carousel)
 const MAX = Math.max(1, parseInt(env("MAX_PER_RUN") || "1", 10)); // stories per run; the rest wait for the next hourly run
 
 // In Actions, the lines worth keeping are also raised as annotations, which show on the run's summary page.
 const note = (m) => { console.log(m); if (process.env.GITHUB_ACTIONS) console.log("::notice::" + m.replace(/\n/g, "%0A")); };
 const readJSON = (p, fallback) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch (e) { return fallback; } };
+const pngHeight = (p) => { try { return fs.readFileSync(p).readUInt32BE(20); } catch (e) { return 0; } };
+// The story's slides, in order: social/<id>-ig-1.png, -2.png, ... (none for a story that fits one frame)
+const slidesOf = (id) => { let n = 0; while (fs.existsSync(path.join(OUT, id + "-ig-" + (n + 1) + ".png"))) n++; return Array.from({ length: n }, (_, i) => path.join(OUT, id + "-ig-" + (i + 1) + ".png")); };
 const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(v, null, 2) + "\n"); };
 
 // ---------------------------------------------------------------- render
@@ -106,8 +114,22 @@ async function render() {
   note((queue.length ? "next up: " + fresh.filter((s) => !s.retry).map((s) => s.id).join(", ") + (queue.length > MAX ? " (" + (queue.length - MAX) + " more waiting, one per hour)" : "") : "nothing new") + (retries.length ? "; retrying " + retries.map((s) => s.id).join(", ") : ""));
 
   fs.mkdirSync(OUT, { recursive: true });
+  // The slides of a story taller than one Instagram frame: cut at bubble boundaries by share.js.
+  async function drawSlides(id) {
+    const urls = await page.evaluate(async (id) => (await window.LM.slides(document.getElementById(id))).map((c) => c.toDataURL("image/png")), id);
+    for (const f of slidesOf(id)) fs.unlinkSync(f);
+    if (urls.length < 2) { console.log(id + " fits one frame; no slides"); return 0; }
+    urls.forEach((u, i) => fs.writeFileSync(path.join(OUT, id + "-ig-" + (i + 1) + ".png"), Buffer.from(u.split(",")[1], "base64")));
+    note("cut " + id + " into " + urls.length + " slides for an Instagram carousel");
+    return urls.length;
+  }
+  if (CAROUSEL) {
+    if (!stories.some((s) => s.id === CAROUSEL)) throw new Error("CAROUSEL_STORY " + CAROUSEL + " is not on the page");
+    await drawSlides(CAROUSEL);
+  }
   for (const s of fresh) {
-    if (!s.forced && fs.existsSync(path.join(OUT, s.id + ".png")) && fs.existsSync(path.join(OUT, s.id + "-ig.png"))) { console.log("images for " + s.id + " already drawn"); continue; }
+    const drawn = fs.existsSync(path.join(OUT, s.id + ".png")) && fs.existsSync(path.join(OUT, s.id + "-ig.png"));
+    if (!s.forced && drawn && (pngHeight(path.join(OUT, s.id + ".png")) <= IG_H || slidesOf(s.id).length)) { console.log("images for " + s.id + " already drawn"); continue; }
     const pngB64 = await page.evaluate(async (id) => {
       const r = await window.LM.render(document.getElementById(id));
       return await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result.split(",")[1]); fr.readAsDataURL(r.png); });
@@ -127,6 +149,7 @@ async function render() {
     }, { b64: pngB64, W: IG_W, H: IG_H });
     fs.writeFileSync(path.join(OUT, s.id + "-ig.png"), Buffer.from(ig.b64, "base64"));
     note("drew " + s.id + ": 1080 x " + ig.srcH + (ig.boxed ? " -> Instagram " + ig.w + " x " + ig.h + " with side bars" : " (fits Instagram as is)"));
+    if (ig.boxed) await drawSlides(s.id); else for (const f of slidesOf(s.id)) fs.unlinkSync(f);
   }
   // Link previews (og:image) for the story pages: drawn once per story, and one for the home page.
   fs.mkdirSync(OG, { recursive: true });
@@ -235,6 +258,36 @@ async function igPost(imageUrl, caption) {
   return j.id;
 }
 
+// A carousel: one container per slide, then a parent container that lists them, then publish.
+async function igCarousel(imageUrls, caption) {
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  const wait = async (id, what) => {
+    for (let i = 0; i < 40; i++) {
+      const s = await (await fetch(base + id + "?fields=status_code&access_token=" + enc(IG.token))).json().catch(() => ({}));
+      if (s.status_code === "FINISHED") return;
+      if (s.status_code === "ERROR" || s.status_code === "EXPIRED") throw new Error("Instagram " + what + " " + s.status_code + ": " + JSON.stringify(s));
+      await new Promise((res) => setTimeout(res, 3000));
+    }
+  };
+  const children = [];
+  for (const url of imageUrls) {
+    const r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ image_url: url, is_carousel_item: "true", access_token: IG.token }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.id) throw new Error("Instagram slide container failed: " + r.status + " " + JSON.stringify(j));
+    await wait(j.id, "slide container");
+    children.push(j.id);
+  }
+  let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "CAROUSEL", children: children.join(","), caption, access_token: IG.token }) });
+  let j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram carousel container failed: " + r.status + " " + JSON.stringify(j));
+  await wait(j.id, "carousel container");
+  r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: j.id, access_token: IG.token }) });
+  j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram carousel publish failed: " + r.status + " " + JSON.stringify(j));
+  return j.id;
+}
+const slideUrls = (id) => slidesOf(id).map((f) => RAW + "/social/" + path.basename(f) + "?v=" + Date.now());
+
 // ---------------------------------------------------------------- stories
 // Puts a story's reel up as an Instagram Story: Instagram fetches the reel from the site, so the
 // reel must be live there first. Silent: the API has no way to attach music; that is only in the app.
@@ -319,8 +372,14 @@ async function post() {
         catch (e) { record.xError = e.message; note(e.message); }
       }
       if (haveIG && !prev.ig) {
-        // Instagram fetches the image itself, from the copy the workflow pushed a moment ago.
-        try { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png?v=" + Date.now(), igCaption); delete record.igError; sent = true; note("posted " + s.id + " to Instagram: " + record.ig); }
+        // Instagram fetches the images itself, from the copies the workflow pushed a moment ago.
+        // A story taller than one frame goes up as a carousel of its slides, not as a barred image.
+        const slides = slidesOf(s.id);
+        try {
+          if (slides.length >= 2) { record.ig = await igCarousel(slideUrls(s.id), igCaption); record.igSlides = slides.length; note("posted " + s.id + " to Instagram as a carousel of " + slides.length + " slides: " + record.ig); }
+          else { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png?v=" + Date.now(), igCaption); note("posted " + s.id + " to Instagram: " + record.ig); }
+          delete record.igError; sent = true;
+        }
         catch (e) { record.igError = e.message; note(e.message); }
       }
       if (!sent && !prev.x && !prev.ig) { note("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
@@ -330,6 +389,20 @@ async function post() {
     writeJSON(LEDGER, ledger);
     // The story's reel goes up as an Instagram Story too, once the feed post is up and the reel is live on the site.
     if (!DRY && haveIG && record.ig && !record.igStory && !record.igStoryError && fs.existsSync(reelOf(s.id))) { storiesTried.add(s.id); await tryStory(ledger, s.id); }
+  }
+
+  // Workflow input carousel: a story that is already up goes up once more, as a carousel of its slides.
+  if (CAROUSEL) {
+    const slides = slidesOf(CAROUSEL), prev = ledger.posted[CAROUSEL] || {};
+    const caption = (prev.title || "Legacy Mammals") + "\n\nThe whole exchange, and the link to the story, at legacymammals.com — link in bio.\n\n" + IG_TAGS;
+    if (slides.length < 2) note(CAROUSEL + " fits one frame, so there is no carousel to post");
+    else if (DRY) note("dry run: would post " + CAROUSEL + " as a carousel of " + slides.length + " slides");
+    else if (!haveIG) note("no Instagram keys; not posting the carousel");
+    else {
+      try { prev.igCarousel = await igCarousel(slideUrls(CAROUSEL), caption); prev.igCarouselAt = new Date().toISOString(); prev.igSlides = slides.length; delete prev.igCarouselError; note("posted " + CAROUSEL + " to Instagram as a carousel of " + slides.length + " slides: " + prev.igCarousel); }
+      catch (e) { prev.igCarouselError = e.message; note(e.message); }
+      ledger.posted[CAROUSEL] = prev; writeJSON(LEDGER, ledger);
+    }
   }
 
   // A reel that failed to go up as a Story gets another try on the next run, three tries in all.

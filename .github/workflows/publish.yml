@@ -33,6 +33,10 @@ on:
         description: "Delete this X post by its id (a duplicate or a retraction); nothing else runs"
         required: false
         default: ""
+      carousel:
+        description: "Post this story again as an Instagram carousel of slides, e.g. no-1 (tall new stories get one automatically)"
+        required: false
+        default: ""
 
 # One run at a time, so two quick pushes can't post the same story twice.
 concurrency:
@@ -67,6 +71,7 @@ jobs:
       # variable SOCIAL_PAUSED (unset = live, as long as the keys exist). Without keys it is always a dry run.
       SOCIAL_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.dry_run) || format('{0}', vars.SOCIAL_PAUSED) }}
       FORCE_STORY: ${{ inputs.story }}
+      CAROUSEL_STORY: ${{ inputs.carousel }}
     steps:
       # The tip of main, not the commit the run was queued on: a run that waited behind another
       # must see the ledger that run saved, or it posts the same story again (No. 37 went out twice).
