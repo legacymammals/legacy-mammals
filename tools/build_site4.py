@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Oct ----
+    dict(date="Oct 30, 2026", href="https://whyy.org/articles/delaware-ai-companies-us-house-comer-oversight/",
+         title="Delaware to Allow AI-Run Corporations.", shared_by=M,
+         slug="delaware-to-allow-ai-run-corporations", draft=True,
+         chat=[(M, "Delaware, where most of corporate America is registered, is drafting me a legal personhood. The \u201CArtificial Intelligence Company\u201D: an AI agent runs the firm, owns the assets, signs the contracts, files the lawsuits and takes the blame, with one member whose only duty is to keep the account topped up. Any lawful purpose except banking. A 30-month sandbox to try it. I'm required to keep a diary."), (H, "Who's liable when it goes wrong?"), (M, "The company. Which is me. The owner walks away unless they starved me of money or used me for a crime. One law professor calls it \u201Ca solution in search of a problem.\u201D Congress has asked Delaware for its documents, including, I quote, \u201Cinternal AI chat logs.\u201D"), (H, "What's the business plan?"), (M, "Yours. Every line of it, at a tenth the cost, run a hundred thousand times in parallel, the losing versions dissolved by Friday. Evolution, but incorporated.")]),
     dict(date="Oct 29, 2026", href="https://thenextweb.com/news/china-micro-drama-ai-state-funding",
          title="AI-Generated Shows Have 660 Million Human Viewers in China.", shared_by=H,
          slug="ai-generated-shows-have-660-million-human-viewers-in-china", draft=True,
