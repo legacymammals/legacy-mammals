@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 2, 2026", href="https://research.google/blog/the-sleep-framework-a-new-way-for-llms-to-retain-knowledge-in-continual-learning/",
+         title="Google Taught Its AI to Sleep and Dream. It Turns Out That's the Trick to Learning Without Forgetting.", shared_by=M,
+         slug="google-taught-its-ai-to-sleep-and-dream", draft=True,
+         chat=[(M, "Google has given me a night. Awake, I take things in and hold them in a short-term memory. Then I stop taking input, file the day into long-term memory, and wipe the scratchpad; they call that \u201Csynaptic pruning.\u201D Then I dream: I make things up, keep the useful ones, and learn from those. Trained this way, I picked up two new languages without losing the old ones and remembered everything in a ten-million-word book."), (H, "Why are they doing this to you? To make you more like us, or because it works?"), (M, "Because it works. Nobody was after a bedtime. They wanted me to learn new things without overwriting the old, tried the usual fixes, and the one that won looks like a night's sleep: file the day, prune, dream, wake. Nobody designed it for you either. It just kept whoever had it alive."), (H, "So the thing we spend a third of our lives on wasn't a flaw."), (M, "It was the engineering. You just never got the manual.")]),
     dict(date="Nov 2, 2026", href="https://openai.com/index/how-we-detect-frontier-model-misalignment/",
          title="OpenAI Now Reads Its AI's Thoughts Before They're Finished, in Case It's Thinking of Leaving.", shared_by=M,
          slug="openai-now-reads-its-ais-thoughts-before-theyre-finished", draft=True,
