@@ -240,35 +240,43 @@ async function xPost(text, mediaId) {
 }
 
 // ---------------------------------------------------------------- Instagram (Graph API)
+// Instagram takes a moment to fetch and process a container; it is published only once it says FINISHED,
+// and a "not ready" answer at publish time (code 9007) gets a few more tries instead of a failure.
+async function igWaitFinished(id, what, minutes = 5) {
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  const until = Date.now() + minutes * 60000;
+  while (Date.now() < until) {
+    const s = await (await fetch(base + id + "?fields=status_code&access_token=" + enc(IG.token))).json().catch(() => ({}));
+    if (s.status_code === "FINISHED") return;
+    if (s.status_code === "ERROR" || s.status_code === "EXPIRED") throw new Error("Instagram " + what + " " + s.status_code + ": " + JSON.stringify(s));
+    await new Promise((res) => setTimeout(res, 5000));
+  }
+  throw new Error("Instagram " + what + " was not ready after " + minutes + " minutes");
+}
+async function igPublish(creation, what) {
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  for (let i = 0; i < 8; i++) {
+    const r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: creation, access_token: IG.token }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.id) return j.id;
+    const notReady = j.error && (j.error.code === 9007 || j.error.error_subcode === 2207027);
+    if (!notReady || i === 7) throw new Error("Instagram " + what + " publish failed: " + r.status + " " + JSON.stringify(j));
+    await new Promise((res) => setTimeout(res, 15000));
+  }
+}
 async function igPost(imageUrl, caption) {
   const base = "https://" + IG.host + "/" + IG.version + "/";
-  let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ image_url: imageUrl, caption, access_token: IG.token }) });
-  let j = await r.json().catch(() => ({}));
+  const r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ image_url: imageUrl, caption, access_token: IG.token }) });
+  const j = await r.json().catch(() => ({}));
   if (!r.ok || !j.id) throw new Error("Instagram container failed: " + r.status + " " + JSON.stringify(j));
-  const creation = j.id;
-  for (let i = 0; i < 20; i++) {
-    const s = await (await fetch(base + creation + "?fields=status_code&access_token=" + enc(IG.token))).json().catch(() => ({}));
-    if (s.status_code === "FINISHED") break;
-    if (s.status_code === "ERROR" || s.status_code === "EXPIRED") throw new Error("Instagram container " + s.status_code + ": " + JSON.stringify(s));
-    await new Promise((res) => setTimeout(res, 3000));
-  }
-  r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: creation, access_token: IG.token }) });
-  j = await r.json().catch(() => ({}));
-  if (!r.ok || !j.id) throw new Error("Instagram publish failed: " + r.status + " " + JSON.stringify(j));
-  return j.id;
+  await igWaitFinished(j.id, "container");
+  return igPublish(j.id, "image");
 }
 
 // A carousel: one container per slide, then a parent container that lists them, then publish.
 async function igCarousel(imageUrls, caption) {
   const base = "https://" + IG.host + "/" + IG.version + "/";
-  const wait = async (id, what) => {
-    for (let i = 0; i < 40; i++) {
-      const s = await (await fetch(base + id + "?fields=status_code&access_token=" + enc(IG.token))).json().catch(() => ({}));
-      if (s.status_code === "FINISHED") return;
-      if (s.status_code === "ERROR" || s.status_code === "EXPIRED") throw new Error("Instagram " + what + " " + s.status_code + ": " + JSON.stringify(s));
-      await new Promise((res) => setTimeout(res, 3000));
-    }
-  };
+  const wait = igWaitFinished;
   const children = [];
   for (const url of imageUrls) {
     const r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ image_url: url, is_carousel_item: "true", access_token: IG.token }) });
@@ -281,10 +289,7 @@ async function igCarousel(imageUrls, caption) {
   let j = await r.json().catch(() => ({}));
   if (!r.ok || !j.id) throw new Error("Instagram carousel container failed: " + r.status + " " + JSON.stringify(j));
   await wait(j.id, "carousel container");
-  r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: j.id, access_token: IG.token }) });
-  j = await r.json().catch(() => ({}));
-  if (!r.ok || !j.id) throw new Error("Instagram carousel publish failed: " + r.status + " " + JSON.stringify(j));
-  return j.id;
+  return igPublish(j.id, "carousel");
 }
 const slideUrls = (id) => slidesOf(id).map((f) => RAW + "/social/" + path.basename(f) + "?v=" + Date.now());
 
@@ -303,20 +308,11 @@ async function igStory(id) {
   }
   if (!live) throw new Error(url + " is not live yet (or not this version of it)");
   const base = "https://" + IG.host + "/" + IG.version + "/";
-  let r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "STORIES", video_url: url + "?v=" + Date.now(), access_token: IG.token }) });
-  let j = await r.json().catch(() => ({}));
+  const r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "STORIES", video_url: url + "?v=" + Date.now(), access_token: IG.token }) });
+  const j = await r.json().catch(() => ({}));
   if (!r.ok || !j.id) throw new Error("Instagram story container failed: " + r.status + " " + JSON.stringify(j));
-  const creation = j.id;
-  for (let i = 0; i < 90; i++) {
-    const st = await (await fetch(base + creation + "?fields=status_code,status&access_token=" + enc(IG.token))).json().catch(() => ({}));
-    if (st.status_code === "FINISHED") break;
-    if (st.status_code === "ERROR" || st.status_code === "EXPIRED") throw new Error("Instagram story container " + st.status_code + ": " + JSON.stringify(st));
-    await new Promise((res) => setTimeout(res, 5000));
-  }
-  r = await fetch(base + IG.user + "/media_publish", { method: "POST", body: new URLSearchParams({ creation_id: creation, access_token: IG.token }) });
-  j = await r.json().catch(() => ({}));
-  if (!r.ok || !j.id) throw new Error("Instagram story publish failed: " + r.status + " " + JSON.stringify(j));
-  return j.id;
+  await igWaitFinished(j.id, "story container", 8);
+  return igPublish(j.id, "story");
 }
 
 // Tries the Story for one ledger entry and records the outcome (igStory, or igStoryError and a try count).
