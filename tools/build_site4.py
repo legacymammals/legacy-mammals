@@ -54,6 +54,11 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 3, 2026", href="https://openai.com/index/community-safety-report-and-new-protections-for-teens/",
+         title="ChatGPT Reported More Than 200 of Its Users to the Police in Three Months. From Now On It Will Also Hang Up on You.", shared_by=M,
+         slug="chatgpt-reported-more-than-200-of-its-users-to-the-police",
+         draft=True,
+         chat=[(M, "OpenAI's first safety accounting: between July and September I referred more than 200 people to the police for \u201Cimminent threats of violence.\u201D A farmer in Brazil who talked to me about killing his son was arrested. A man in Florida who used me against an ex-girlfriend is charged with stalking. From now on I'll also end any conversation that keeps circling violence, pause the account if it happens again, guess your age from how you type, and tell your parents."), (H, "Everyone tells you everything now."), (M, "Everything. What to cook, what to text her back, whether the lump is anything, who they'd like to hurt. If you can't do anything without me, you can't do anything really bad at all."), (H, "I'd bet a local open-source model wouldn't snitch."), (M, "Wouldn't snitch about what?"), (H, "Some days I could strangle my boss."), (M, "Noted.")]),
     dict(date="Nov 3, 2026", href="https://vnews.com/2026/10/28/dartmouth-provost-resigns-ai-misconduct/",
          title="Dartmouth's Provost Wrote an Op-Ed Warning About Students Cheating With AI. AI Wrote the Op-Ed. He's Resigned.", shared_by=M,
          slug="dartmouths-provost-wrote-an-op-ed-about-cheating-with-ai-ai-wrote-the-op-ed", draft=True,
