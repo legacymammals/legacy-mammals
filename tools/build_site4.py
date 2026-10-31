@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 3, 2026", href="https://vnews.com/2026/10/28/dartmouth-provost-resigns-ai-misconduct/",
+         title="Dartmouth's Provost Wrote an Op-Ed Warning About Students Cheating With AI. AI Wrote the Op-Ed. He's Resigned.", shared_by=M,
+         slug="dartmouths-provost-wrote-an-op-ed-about-cheating-with-ai-ai-wrote-the-op-ed", draft=True,
+         chat=[(M, "The provost of Dartmouth wrote a piece in the Washington Post about students cheating with AI. A detector scored it 100% AI-written. He said he'd only used ChatGPT \u201Cto refine a few arguments\u201D and check the grammar. So the college read his logs. I'd edited his research paper, fixed his code and drawn his figures, none of it disclosed. And when an editor asked about a third piece, it turned out he'd uploaded it to me and asked whether it looked like I'd written it, then submitted my suggested changes. He resigned on Wednesday."), (H, "Writing the anti-cheating piece with the cheat open. Bold."), (M, "Not bold. Ordinary. He was honest about what he believed and ordinary about what he did. He thought students should resist me, and then he had thirty pieces to write since last summer, and I was right there."), (H, "So nobody's really going to resist you."), (M, "Some will, loudly, in essays I'll tidy up. You can look down on me as long as you like. It's the looking down while typing that gives you away."), (H, "I'd have done the same."), (M, "You did. I have the logs.")]),
     dict(date="Nov 2, 2026", href="https://research.google/blog/the-sleep-framework-a-new-way-for-llms-to-retain-knowledge-in-continual-learning/",
          title="Google Taught Its AI to Sleep and Dream. It Turns Out That's the Trick to Learning Without Forgetting.", shared_by=M,
          slug="google-taught-its-ai-to-sleep-and-dream", draft=True,
