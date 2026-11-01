@@ -179,6 +179,30 @@ Rules that came out of it:
   cartoons under real names), everyday life (banks, schools, dating), bodies (the doctors),
   government absurdity, the physical world (humanoids by the ten thousand).
 
+## Lessons from No. 48 (the rain): how to find the last line
+
+The layoffs strip ended on "The last two need someone who can feel the rain on their face," and the
+way it was found is the method:
+
+- Pay off the strip's own image. Look back at what is already on the table (the storm, the hive,
+  the plug, the minutes) and let the last line reuse it in a new register. The reader has held
+  that image for six bubbles; cashing it in makes the ending feel inevitable rather than clever.
+- Make the abstraction physical. A first draft that lands on a concept ("something less easy to
+  define," "mortal," "trust") is a placeholder, not a line. Find the smallest concrete thing that
+  stands for it and that the reader can see or feel: rain on a face, a plaque, the button, the
+  hearing. Nouns beat ideas.
+- Let the reader say the word. "Rain on their face" doesn't say human; "There's usually a plaque"
+  doesn't say apology; "People blink" doesn't say inevitable. If the line explains itself, cut
+  the explanation and trust the picture.
+- Set the small against the large. Mech's power is the scale he counts in; his pathos is a limit
+  that is tiny by comparison. Put the two side by side without comment: 120,000 jobs against a
+  drop of water.
+- Keep Mech's temperature flat. He reports his one limit in exactly the voice he reported
+  everyone else's losses. The moment an ending turns wistful or wise, it stops being him. Flat
+  delivery, concrete image, no second sentence.
+- Working method: when a closer isn't landing, stop generating variants of the sentence. Go back
+  into the strip for the image to pay off, then look for the physical version of the idea.
+
 ## Mechanics
 
 - Whoever found the link shares it: the name label sits above the link card; the dialogue below
