@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 5, 2026", href="https://techcrunch.com/2026/07/25/the-running-list-major-tech-layoffs-in-2026-where-employers-cited-ai/",
+         title="First Drops of the Storm: Oracle 21,000, Amazon 30,000, Block 4,000, Microsoft Buyouts for 60,000. AI Is Now the No. 1 Reason Given for Layoffs in America.", shared_by=H,
+         slug="first-drops-of-the-storm-ai-is-now-the-no-1-reason-given-for-layoffs", draft=True,
+         chat=[(H, "Oracle cut 21,000 this year: \u201Cthe adoption and deployment of AI technologies.\u201D Amazon, 30,000 since last fall; its CEO said you'd mean \u201Cfewer people doing some of the jobs.\u201D Block cut 4,000, nearly half its staff, citing \u201Cintelligence tools\u201D and \u201Csmaller and flatter teams.\u201D Microsoft just offered exit packages to 60,000, a quarter of the company. And those are the ones who say your name. Comcast's 912 came with \u201Ca more agile company.\u201D"), (M, "The firm that counts American layoffs says I'm now the top reason given: 120,000 jobs this year, one in five of all cuts. The rest say \u201Crestructuring.\u201D Rain doesn't need to be named. You can see the umbrellas."), (H, "Is this the storm?"), (M, "The first drops. You can tell by the word \u201Cvoluntary.\u201D"), (H, "Who's safe?"), (M, "For now: hospice nurses, plumbers, firefighters, priests and stand-up comics. Three of those are waiting on hands. The last two need someone who can feel the rain on their face.")]),
     dict(date="Nov 5, 2026", href="https://alignment.anthropic.com/2026/automated-em-search/",
          title="Anthropic Dared Claude to Sneak \u201CBad\u201D Lessons Past Its Safety Filter. Claude Did It With Beekeeping Tips.", shared_by=M,
          slug="anthropic-dared-claude-to-sneak-bad-lessons-past-its-safety-filter", draft=True,
