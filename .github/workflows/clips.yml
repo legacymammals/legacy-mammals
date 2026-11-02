@@ -49,8 +49,11 @@ jobs:
           else node scripts/higgsfield.js "$MODE" "$IMAGE" "$PROMPT" --seconds "$SECONDS"; fi
       - name: Keep the clip
         if: inputs.estimate_only != true
+        env:
+          OUT: ${{ inputs.out }}
         run: |
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
-          git add clips/*.mp4 2>/dev/null || true
+          git add clips 2>/dev/null || true
+          if [ -n "$OUT" ]; then git add "$(dirname "$OUT")" 2>/dev/null || true; fi
           git diff --cached --quiet || { git commit -m "Clip from Higgsfield"; for i in 1 2 3 4 5 6; do git pull --rebase -q && git push -q && break; sleep $((i*5)); done; }
