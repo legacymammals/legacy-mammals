@@ -46,6 +46,7 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
 .row.meatbag .stack{align-items:flex-end}
 /* the commentator stands beside the bubble, feet level with its bottom edge */
 .row.withcam{flex-direction:row;align-items:flex-end;gap:18px}
+.row.meatbag.withcam{flex-direction:row-reverse}
 .row.withcam .stack{flex:1}
 .row.withcam .bubble{max-width:100%}
 .who{font-size:30px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${CREAM};text-shadow:0 2px 0 ${INK},0 0 14px rgba(27,22,19,.9);padding:0 18px}
@@ -54,6 +55,7 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
 .meatbag .bubble{background:${DRAB};color:${INK};border-bottom-right-radius:10px}
 .meatbag .who{text-align:right}
 .cam{height:${RATIO === "4:5" ? 340 : 400}px;flex:none;margin:0 0 -6px 0;filter:drop-shadow(0 14px 18px rgba(27,22,19,.45))}
+.row.meatbag .cam{height:${RATIO === "4:5" ? 300 : 360}px}
 .cam img{height:100%;width:auto;display:block}
 </style><body><img class="bg" src="file://${pic}">${bubble}</body>`;
 }
