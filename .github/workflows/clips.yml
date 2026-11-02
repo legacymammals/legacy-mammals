@@ -1,0 +1,60 @@
+name: Make a clip with Higgsfield
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Image in the repo to animate, e.g. storyboard/no37/frame-10.png"
+        required: true
+      prompt:
+        description: "Motion prompt"
+        required: true
+      seconds:
+        description: "Length in seconds (3 to 15)"
+        required: false
+        default: "5"
+      out:
+        description: "Where to write the clip, e.g. clips/no37-10.mp4 (blank = clips/<image name>.mp4)"
+        required: false
+        default: ""
+      estimate_only:
+        description: "Only price the job; generate nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: clips
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  clip:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate
+        env:
+          HIGGSFIELD_API_KEY: ${{ secrets.HIGGSFIELD_API_KEY }}
+          HIGGSFIELD_API_SECRET: ${{ secrets.HIGGSFIELD_API_SECRET }}
+          IMAGE: ${{ inputs.image }}
+          PROMPT: ${{ inputs.prompt }}
+          SECONDS: ${{ inputs.seconds }}
+          OUT: ${{ inputs.out }}
+          MODE: ${{ inputs.estimate_only == true && 'estimate' || 'clip' }}
+        run: |
+          if [ -n "$OUT" ]; then node scripts/higgsfield.js "$MODE" "$IMAGE" "$PROMPT" --seconds "$SECONDS" --out "$OUT";
+          else node scripts/higgsfield.js "$MODE" "$IMAGE" "$PROMPT" --seconds "$SECONDS"; fi
+      - name: Keep the clip
+        if: inputs.estimate_only != true
+        run: |
+          git config user.name "legacymammals"
+          git config user.email "legacymammals@users.noreply.github.com"
+          git add clips/*.mp4 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Clip from Higgsfield" && git pull --rebase && git push)
