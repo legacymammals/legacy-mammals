@@ -23,10 +23,12 @@ const box = { x: Math.round(W * opt.left), y: Math.round(H * opt.top), w: Math.r
 
 const face = `@font-face{font-family:Jost;font-weight:800;src:url(file://${fonts}/Jost-800-Heavy.ttf)}
 @font-face{font-family:Jost;font-weight:700;src:url(file://${fonts}/Jost-700-Bold.ttf)}
-@font-face{font-family:Jost;font-weight:500;src:url(file://${fonts}/Jost-500-Medium.ttf)}`;
+@font-face{font-family:Jost;font-weight:500;src:url(file://${fonts}/Jost-500-Medium.ttf)}
+@font-face{font-family:Cinzel;font-weight:900;src:url(file://${fonts}/Cinzel-Black.ttf)}
+@font-face{font-family:Cinzel;font-weight:700;src:url(file://${fonts}/Cinzel-Bold.ttf)}`;
 
 // engraved: letters a shade darker than the stone, a light bevel below-right, a dark cut above-left
-const cut = `color:#3b3e45;text-shadow:-2px -2px 0 #23252a, 2px 2px 0 #b9bcc3, 0 0 6px rgba(0,0,0,.25)`;
+const cut = `color:#2b2d33;text-shadow:-1px -1px 0 #1a1b1f, 3px 3px 0 #c3c6cc, 1px 1px 0 #9ea1a8, 0 0 10px rgba(0,0,0,.35)`;
 const lines = opt.variant === "name"
   ? `<div class="small">A DAILY OBITUARY FROM THE</div><div class="huge">LEGACY</div><div class="huge">MAMMALS</div><div class="tiny">legacymammals.com &nbsp;·&nbsp; @legacymammals</div>`
   : `<div class="small">A DAILY OBITUARY FROM THE</div><div class="big">LEGACYMAMMALS.COM</div><div class="mid">@legacymammals</div>`;
@@ -35,11 +37,11 @@ const html = `<!doctype html><meta charset="utf-8"><style>${face}
 *{box-sizing:border-box;margin:0}body{width:${W}px;height:${H}px;overflow:hidden;font-family:Jost,sans-serif;background:#000}
 img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover}
 .box{position:absolute;left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:0;transform:perspective(1400px) rotateX(2deg)}
-.small{font-size:${Math.round(box.w * 0.052)}px;font-weight:700;letter-spacing:.12em;${cut};margin-bottom:${Math.round(box.h * 0.04)}px}
-.big{font-size:${Math.round(box.w * 0.112)}px;line-height:1;font-weight:800;letter-spacing:-.005em;${cut}}
-.mid{font-size:${Math.round(box.w * 0.07)}px;font-weight:800;letter-spacing:.02em;${cut};margin-top:${Math.round(box.h * 0.06)}px}
-.huge{font-size:${Math.round(box.w * 0.215)}px;line-height:.98;font-weight:800;letter-spacing:.01em;${cut}}
-.tiny{font-size:${Math.round(box.w * 0.055)}px;font-weight:700;letter-spacing:.02em;${cut};margin-top:${Math.round(box.h * 0.05)}px}
+.small{font-family:Cinzel;font-size:${Math.round(box.w * 0.056)}px;font-weight:700;letter-spacing:.1em;${cut};margin-bottom:${Math.round(box.h * 0.05)}px}
+.big{font-family:Cinzel;font-size:${Math.round(box.w * 0.108)}px;line-height:1;font-weight:900;letter-spacing:0;${cut}}
+.mid{font-family:Cinzel;font-size:${Math.round(box.w * 0.075)}px;font-weight:700;letter-spacing:.02em;${cut};margin-top:${Math.round(box.h * 0.07)}px}
+.huge{font-family:Cinzel;font-size:${Math.round(box.w * 0.168)}px;line-height:1;font-weight:900;letter-spacing:.02em;${cut}}
+.tiny{font-family:Cinzel;font-size:${Math.round(box.w * 0.062)}px;font-weight:700;letter-spacing:.01em;${cut};margin-top:${Math.round(box.h * 0.07)}px}
 </style><body><img class="bg" src="file://${path.resolve(scene)}"><div class="box">${lines}</div></body>`;
 
 (async () => {
