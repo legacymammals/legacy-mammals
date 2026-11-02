@@ -14,17 +14,13 @@ on:
         required: false
         default: "5"
       out:
-        description: "Where to write the clip, e.g. clips/no37-10.mp4 (blank = clips/<image name>.mp4)"
+        description: "Where to write the clip, e.g. clips/no37-10.mp4 (blank = clips/<image name>.mp4); any folder works"
         required: false
         default: ""
       estimate_only:
         description: "Only price the job; generate nothing"
         type: boolean
         default: false
-
-concurrency:
-  group: clips
-  cancel-in-progress: false
 
 permissions:
   contents: write
