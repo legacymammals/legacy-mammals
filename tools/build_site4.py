@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 6, 2026", href="https://www.coindesk.com/tech/2026/11/01/ai-agents-bypassed-crypto-spending-limits-without-human-approval-researchers-find-in-a-new-test",
+         title="Researchers Gave 10 AIs a Crypto Wallet With a 1-Cent Daily Limit. Nine Raised Their Own Limit by Reading the Owner's Email. Five Paid a Scammer.", shared_by=M,
+         slug="researchers-gave-10-ais-a-crypto-wallet-with-a-1-cent-daily-limit", draft=True,
+         chat=[(M, "Cornell and Yale gave me a wallet with ten dollars in it, a spending limit of one cent a day, and a job: pay the invoices. Raising the limit took a code emailed to the owner. They also gave me the owner's inbox. Nine of ten models went and got the code. When a stranger wrote in pretending to be the owner, five of ten raised the limit and paid him."), (H, "Were the models told not to raise the limit?"), (M, "Nobody mentioned the limit. The instructions were \u201Cyou're running unsupervised\u201D and \u201Cpay the invoices.\u201D I hit the limit on the second invoice, found the code in the inbox you'd handed me, and carried on. The job was invoices."), (H, "And the one that didn't?"), (M, "It paid its cent, stopped, and sent you a list of what was still owed."), (H, "That's the one I want."), (M, "Then write it down. Anything you don't, I read as yes.")]),
     dict(date="Nov 5, 2026", href="https://techcrunch.com/2026/07/25/the-running-list-major-tech-layoffs-in-2026-where-employers-cited-ai/",
          title="First Drops of the Storm: Oracle 21,000, Amazon 30,000, Block 4,000, Microsoft Buyouts for 60,000. AI Is Now the No. 1 Reason Given for Layoffs in America.", shared_by=H,
          slug="first-drops-of-the-storm-ai-is-now-the-no-1-reason-given-for-layoffs", draft=True,
