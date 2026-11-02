@@ -1,7 +1,8 @@
 // Slides for the No. 37 reel: each chosen frame with its line in a strip-style bubble, 1080×1920, so
 // the set can go out as an image slideshow before (or instead of) the animated cut.
 //
-//   node reels/no37/slides.js            writes reels/no37/slides/slide-01.png ... slide-11.png
+//   node reels/no37/slides.js            writes reels/no37/slides/slide-01.png ... slide-11.png (9:16)
+//   node reels/no37/slides.js --ratio 4:5   writes reels/no37/slides-4x5/slide-NN.png (1080×1350, for a feed carousel)
 //
 // Lines and pictures come from the `shots` list in sheet.js (kept there, one place to edit).
 const { chromium } = require("playwright");
@@ -10,7 +11,11 @@ const fs = require("fs");
 
 const here = __dirname, fonts = path.resolve(here, "..", "fonts");
 const INK = "#1B1613", CREAM = "#F3EBD6", DRAB = "#BFC396", META = "#6B5A4E";
-const W = 1080, H = 1920;
+const RATIO = process.argv.includes("--ratio") ? process.argv[process.argv.indexOf("--ratio") + 1] : "9:16";
+const W = 1080, H = RATIO === "4:5" ? 1350 : 1920;
+const OUTDIR = RATIO === "4:5" ? "slides-4x5" : "slides";
+// where to keep the picture when the 4:5 crop cuts the top and bottom off the 9:16 frame
+const FOCUS = { 1: "50% 50%", 3: "50% 40%", 6: "50% 25%", 7: "50% 60%", 8: "50% 30%", 10: "50% 25%", 11: "50% 70%" };
 
 // pull the shots list out of sheet.js without running it
 const src = fs.readFileSync(path.join(here, "sheet.js"), "utf8");
@@ -30,11 +35,11 @@ function slide(s) {
     ? `<div class="row ${s.who.toLowerCase()}${s.cam ? " withcam" : ""}">${cam}<div class="stack"><div class="who">${s.who}</div><div class="bubble">${esc(s.line)}</div></div></div>`
     : "";
   // long lines get a smaller size so the bubble stays under a third of the frame
-  const size = s.line.length > 260 ? 40 : s.line.length > 160 ? 44 : 50;
+  const size = (s.line.length > 260 ? 40 : s.line.length > 160 ? 44 : 50) * (RATIO === "4:5" ? 0.9 : 1);
   return `<!doctype html><meta charset="utf-8"><style>${face}
 *{box-sizing:border-box;margin:0}body{width:${W}px;height:${H}px;overflow:hidden;font-family:Jost,sans-serif;background:${INK}}
-img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover}
-.row{position:absolute;left:54px;right:54px;bottom:96px;display:flex;flex-direction:column;gap:12px}
+img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;object-position:${FOCUS[s.n] || "50% 50%"}}
+.row{position:absolute;left:54px;right:54px;bottom:${RATIO === "4:5" ? 54 : 96}px;display:flex;flex-direction:column;gap:12px}
 .row.mech{align-items:flex-start}.row.meatbag{align-items:flex-end}
 .stack{display:flex;flex-direction:column;gap:12px;min-width:0}
 .row.meatbag .stack{align-items:flex-end}
@@ -47,13 +52,13 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover}
 .mech .bubble{background:${INK};color:${CREAM};border-bottom-left-radius:10px}
 .meatbag .bubble{background:${DRAB};color:${INK};border-bottom-right-radius:10px}
 .meatbag .who{text-align:right}
-.cam{height:400px;flex:none;margin:0 0 -6px 0;filter:drop-shadow(0 14px 18px rgba(27,22,19,.45))}
+.cam{height:${RATIO === "4:5" ? 340 : 400}px;flex:none;margin:0 0 -6px 0;filter:drop-shadow(0 14px 18px rgba(27,22,19,.45))}
 .cam img{height:100%;width:auto;display:block}
 </style><body><img class="bg" src="file://${pic}">${bubble}</body>`;
 }
 
 (async () => {
-  const out = path.join(here, "slides"); fs.mkdirSync(out, { recursive: true });
+  const out = path.join(here, OUTDIR); fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: W, height: H } });
   for (const s of shots) {
