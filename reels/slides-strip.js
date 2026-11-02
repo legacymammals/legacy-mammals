@@ -1,25 +1,26 @@
-// Slides for the No. 37 reel: each chosen frame with its line in a strip-style bubble, 1080×1920, so
-// the set can go out as an image slideshow before (or instead of) the animated cut.
+// Slides in the strip's own style, the way the No. 37 carousel went out on Nov 2: each frame with its
+// line in an iMessage-style bubble (Mech ink on cream, Meatbag green, the speaker named above), and
+// when the speaker is not in the picture, Mech cut out beside his bubble like a commentator.
 //
-//   node reels/no37/slides.js            writes reels/no37/slides/slide-01.png ... slide-11.png (9:16)
-//   node reels/no37/slides.js --ratio 4:5   writes reels/no37/slides-4x5/slide-NN.png (1080×1350, for a feed carousel)
+//   node reels/slides-strip.js reels/no46                writes reels/no46/slides/slide-NN.png (1080×1920)
+//   node reels/slides-strip.js reels/no46 --ratio 4:5    writes reels/no46/slides-4x5/slide-NN.png (1080×1350)
 //
-// Lines and pictures come from the `shots` list in sheet.js (kept there, one place to edit).
+// The story folder holds shots.js: `module.exports = { shots: [...], focus: {...} }`, each shot
+// { n, pic, who, line, cam? } with pic relative to the folder and cam a cut-out from characters/;
+// focus maps a shot number to the CSS object-position used when the 4:5 crop trims the frame.
 const { chromium } = require("playwright");
 const path = require("path");
 const fs = require("fs");
 
-const here = __dirname, fonts = path.resolve(here, "..", "fonts");
+const dirArg = process.argv.slice(2).find((a) => !a.startsWith("--") && a !== process.argv[process.argv.indexOf("--ratio") + 1]);
+if (!dirArg) { console.log("usage: slides-strip.js <story folder> [--ratio 4:5]"); process.exit(2); }
+const here = path.resolve(dirArg), fonts = path.resolve(__dirname, "fonts");
 const INK = "#1B1613", CREAM = "#F3EBD6", DRAB = "#BFC396", META = "#6B5A4E";
 const RATIO = process.argv.includes("--ratio") ? process.argv[process.argv.indexOf("--ratio") + 1] : "9:16";
 const W = 1080, H = RATIO === "4:5" ? 1350 : 1920;
 const OUTDIR = RATIO === "4:5" ? "slides-4x5" : "slides";
-// where to keep the picture when the 4:5 crop cuts the top and bottom off the 9:16 frame
-const FOCUS = { 1: "50% 50%", 3: "50% 40%", 6: "50% 25%", 7: "50% 60%", 8: "50% 30%", 10: "50% 25%", 11: "50% 70%" };
-
-// pull the shots list out of sheet.js without running it
-const src = fs.readFileSync(path.join(here, "sheet.js"), "utf8");
-const shots = eval(src.slice(src.indexOf("const shots = ") + "const shots = ".length, src.indexOf("];", src.indexOf("const shots = ")) + 1));
+const { shots, focus } = require(path.join(here, "shots.js"));
+const FOCUS = focus || {}; // where to keep the picture when the 4:5 crop cuts the top and bottom off the 9:16 frame
 
 const face = `@font-face{font-family:Jost;font-weight:800;src:url(file://${fonts}/Jost-800-Heavy.ttf)}
 @font-face{font-family:Jost;font-weight:700;src:url(file://${fonts}/Jost-700-Bold.ttf)}
