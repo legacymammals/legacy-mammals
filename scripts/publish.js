@@ -487,6 +487,25 @@ async function takedown(id) {
   note("took down X post " + id);
 }
 
+// A carousel of pictures already in the repo (an illustrated version of a story, say), from a manifest:
+//   { "caption": "...", "images": ["reels/no37/slides-4x5/slide-01.png", ...], "record": { "id": "no-37", "key": "igSlideshow" } }
+// The pictures are fetched by Instagram from GitHub, so the manifest's files must be committed on main.
+async function carouselFiles(manifest) {
+  const m = readJSON(manifest, null);
+  if (!m || !Array.isArray(m.images) || m.images.length < 2 || !m.caption) throw new Error("the manifest needs a caption and at least two images: " + manifest);
+  for (const f of m.images) if (!fs.existsSync(f)) throw new Error("no such image in the repo: " + f);
+  const urls = m.images.map((f) => RAW + "/" + f.split(path.sep).join("/") + "?v=" + Date.now());
+  if (DRY || !haveIG) { note("dry run: would post a carousel of " + urls.length + " slides from " + manifest); return; }
+  const id = await igCarousel(urls, m.caption);
+  note("posted a carousel of " + urls.length + " slides from " + manifest + ": " + id);
+  if (m.record && m.record.id && m.record.key) {
+    const ledger = readJSON(LEDGER, { posted: {} }); ledger.posted = ledger.posted || {};
+    const prev = ledger.posted[m.record.id] || {};
+    prev[m.record.key] = id; prev[m.record.key + "At"] = new Date().toISOString();
+    ledger.posted[m.record.id] = prev; writeJSON(LEDGER, ledger);
+  }
+}
+
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : mode === "carousel-files" ? carouselFiles(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>|carousel-files <manifest.json>")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
