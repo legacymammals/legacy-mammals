@@ -8,8 +8,8 @@ frame it draws stays on model.
   are her expression sheet (deadpan, worried, delighted, smug, side-eye, startled, nervous,
   shocked, alarmed, angry, glare, content, laugh-cry, heart-eyes, frightened), reduced to
   1024 px for the repo. `looks-1`–`looks-3.jpg` are her outfit sheets, nine looks each, numbered
-  01–09 on the sheet. She is Meatbag: long wavy brown hair, green beanie, grey tee, dark
-  jacket, phone in hand.
+  01–09 on the sheet. She is Meatbag: long wavy brown hair, green beanie, phone in hand. She
+  wears something different every story: each reel picks a look from the sheets.
 - `mech/` — Mech, generated with Higgsfield from the site's header robot (an old CRT monitor
   for a head, blue screen face, suit). `take-*` files are candidates; the chosen sheet gets
   named by expression the same way.
