@@ -42,7 +42,8 @@ function slide(s) {
   if (s.who && s.mouth && s.bubble) {
     // the speaker is in the picture
     const mx = s.mouth[0] * W, my = s.mouth[1] * 1920 - dy;
-    const bx = s.bubble[0] * W, by = Math.max(40, s.bubble[1] * 1920 - dy), bw = s.bubble[2] * W;
+    // keep the balloon (which reaches beyond its text box) inside the frame after the 4:5 crop
+    const bx = Math.max(70, s.bubble[0] * W), by = Math.max(RATIO === "4:5" ? 120 : 60, s.bubble[1] * 1920 - dy), bw = s.bubble[2] * W;
     body = `<div class="txt ${who}" id="txt" style="left:${bx}px;top:${by}px;width:${bw}px">${esc(s.line)}</div>`;
     script = `balloon(document.getElementById("txt"), ${mx}, ${my}, "${who}");`;
   } else if (s.who) {
