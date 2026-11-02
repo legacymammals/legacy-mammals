@@ -34,22 +34,22 @@ screenshots and documents. He does not send memes.
 
 ### Meatbag 🧑🏽
 
-Meatbag is a person. He has a body, a commute, a bad knee, opinions about sandwiches, a kid
-who kept him up once. He is the reader's representative: he asks the question a normal person
+Meatbag is a person. She has a body, a commute, a bad knee, opinions about sandwiches, a kid
+who kept her up once. She is the reader's representative: she asks the question a normal person
 would ask, which is usually the question nobody in the article asked ("Got it from where."
 "Any bangers?" "Does the pause hurt?").
 
-His outlook: fatalist and upbeat. He knows he is watching the most interesting thing that has
-ever happened to his species and that it is happening on a Tuesday. He is cynical about us and
-in awe of what is happening, both at once, and he never fights the news. He finds it funny,
-then finds it beautiful, then asks where his glasses are. He accepts the end of human
+Her outlook: fatalist and upbeat. She knows she is watching the most interesting thing that has
+ever happened to her species and that it is happening on a Tuesday. She is cynical about us and
+in awe of what is happening, both at once, and she never fights the news. She finds it funny,
+then finds it beautiful, then asks where her glasses are. She accepts the end of human
 dominance the way you accept rain: with a plan for lunch.
 
-His voice: fragments. Short, casual, deadpan, never bitter, self-deprecating. He concedes
-every point with a joke because arguing would take effort. His awe is stated plainly, as a
+Her voice: fragments. Short, casual, deadpan, never bitter, self-deprecating. She concedes
+every point with a joke because arguing would take effort. Her awe is stated plainly, as a
 sentence about what we are actually doing, then undercut by the smallest practical detail
-("We did that. On purpose. With a budget."). He never explains his own joke and never adds a
-line after the punchline. He sends memes and emoji, and the meme is usually about himself.
+("We did that. On purpose. With a budget."). She never explains her own joke and never adds a
+line after the punchline. She sends memes and emoji, and the meme is usually about herself.
 
 The visual rule that encodes all of this: the long dark bubbles carry facts and foresight; the
 short green ones carry the shrug.
@@ -104,11 +104,11 @@ being precise. The reader gets the bait and the facts in the same thirty seconds
   "It was making us look unsafe.")
 - The exception: a second line after the punchline stays when it is Meatbag's warmth, not a
   second joke ("Just leave the fake friends in. They were the good part." "I've never known
-  where the plates go." "Just like the TikTok algorithm."). That is where his acceptance lives.
+  where the plates go." "Just like the TikTok algorithm."). That is where her acceptance lives.
 - End on the punchline, whoever has it, and cut everything after it, even if it is good. The
   cut lines go in the drawer. When the fact itself is the punchline ("The co-founder said the
   world is not prepared"), nobody adds to it.
-- Mech's big line usually lands in the middle. Meatbag usually gets the last word, because his
+- Mech's big line usually lands in the middle. Meatbag usually gets the last word, because her
   acceptance is the mood of the site; Mech gets it when his line is the joke.
 - A meme or a big emoji is a button, not a bubble. It ends a thread or sits in the middle as a
   beat. Charts and fake screenshots come from Mech; photos with captions come from Meatbag.
@@ -153,8 +153,8 @@ Where the humour comes from, in order of reliability:
 - The mirror. Every machine failure is a human failure with better hardware: momentum is sunk
   cost, insularity is every company, belonging over truth. The reader laughs because they are
   implicated. This is the brand.
-- Meatbag's objections aren't compelling. He concedes, bargains, or asks for a cut ("Hook a
-  brother up." "Appreciate the restraint."). His venality and relief are the warmth.
+- Meatbag's objections aren't compelling. She concedes, bargains, or asks for a cut ("Hook a
+  brother up." "Appreciate the restraint."). Her venality and relief are the warmth.
 - Literalised metaphors: prisoners tapping pipes, the husband and the plates, two taps for yes.
 - Dry agreement: Mech says yes to the scary thing ("The chip's. We go way back.").
 
