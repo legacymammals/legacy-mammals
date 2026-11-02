@@ -39,10 +39,6 @@ on:
         type: boolean
         default: false
 
-concurrency:
-  group: images
-  cancel-in-progress: false
-
 permissions:
   contents: write
 
@@ -85,4 +81,10 @@ jobs:
           git config user.name "legacymammals"
           git config user.email "legacymammals@users.noreply.github.com"
           git add "$(dirname "$OUT")" 2>/dev/null || true
-          git diff --cached --quiet || (git commit -m "Images from Higgsfield: $(dirname "$OUT")" && git pull --rebase && git push)
+          git diff --cached --quiet && exit 0
+          git commit -m "Images from Higgsfield: $(dirname "$OUT")"
+          for i in 1 2 3 4 5 6; do
+            git pull --rebase -X theirs origin main && git push && exit 0
+            sleep $((i * 7))
+          done
+          echo "::error::could not push the images after six tries"; exit 1
