@@ -21,6 +21,9 @@ Rules so far:
 - **Lettering.** Any words in a frame are drawn by the generator, not typed over the picture;
   it spells a short headline reliably when the prompt gives the exact words and says nothing
   else may be written.
+- **End card at 4:5.** The carousel's last slide is `reels/endcard-4x5.png`, the end scene redrawn
+  by the generator for the squarer frame with the two of them fully in picture; the 9:16 reel
+  keeps `no37/final/11-end.png`.
 - **Motion.** Limited animation: the drawing holds, one thing moves at a time, no drifting
   camera, cut on the lines, clips 3–5 s. The less it moves, the less it looks generated.
 - **Lines.** The storyboard sheet (`no37/sheet.js`) carries every spoken line under its frame.
