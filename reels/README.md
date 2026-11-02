@@ -24,3 +24,9 @@ Rules so far:
 - **Motion.** Limited animation: the drawing holds, one thing moves at a time, no drifting
   camera, cut on the lines, clips 3–5 s. The less it moves, the less it looks generated.
 - **Lines.** The storyboard sheet (`no37/sheet.js`) carries every spoken line under its frame.
+- **Slides (the carousel / slideshow cut, `no37/slides.js`).** The line sits in the strip's own
+  bubble: Mech ink on cream, Meatbag green. When the speaker is in the picture, it is a comic
+  bubble with a tail to their mouth (the shot gives `mouth: [x, y]` and `bubble: [x, y, width]`
+  as fractions of the 9:16 frame). When they are not, they stand beside their bubble, cut out
+  from the expression sheet (`cam:` in the shot), like a commentator. 9:16 for a reel slideshow,
+  `--ratio 4:5` for a feed carousel.
