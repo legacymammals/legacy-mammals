@@ -24,7 +24,7 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 function slide(s) {
   const pic = path.join(here, s.pic);
-  // when the speaker is not in the picture, they appear in a little box above their bubble, like a commentator
+  // when the speaker is not in the picture, they float above their bubble, cut out, like a commentator
   const cam = s.cam ? `<div class="cam"><img src="file://${path.join(here, s.cam)}"></div>` : "";
   const bubble = s.who
     ? `<div class="row ${s.who.toLowerCase()}">${cam}<div class="who">${s.who}</div><div class="bubble">${esc(s.line)}</div></div>`
@@ -41,8 +41,8 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover}
 .mech .bubble{background:${INK};color:${CREAM};border-bottom-left-radius:10px}
 .meatbag .bubble{background:${DRAB};color:${INK};border-bottom-right-radius:10px}
 .meatbag .who{text-align:right}
-.cam{width:300px;height:300px;border-radius:40px;border:8px solid ${INK};overflow:hidden;background:#BFD6EC;box-shadow:0 10px 30px rgba(27,22,19,.35);margin:0 0 6px 10px}
-.cam img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;transform:scale(1.25);transform-origin:50% 30%}
+.cam{height:420px;margin:0 0 -8px 14px;filter:drop-shadow(0 14px 18px rgba(27,22,19,.45))}
+.cam img{height:100%;width:auto;display:block}
 </style><body><img class="bg" src="file://${pic}">${bubble}</body>`;
 }
 
