@@ -10,7 +10,7 @@ const fs = require("fs");
 
 const here = __dirname, fonts = path.resolve(here, "..", "fonts");
 const INK = "#1B1613", BEIGE = "#E8DEC6", META = "#6B5A4E", OLIVE = "#5E7A3A", CREAM = "#F3EBD6", BROWN = "#5C3E2A";
-const ROOM = path.join(here, "frame-11-empty-1.jpeg");
+const ROOM = path.join(here, "frame-11-cemetery-2.jpeg"); // the standing end card: the cemetery, the two of them in the back
 const MARK = path.resolve(here, "..", "..", "img", "mark.png"); // the shrugging headstone
 
 const face = `@font-face{font-family:Jost;font-weight:800;src:url(file://${fonts}/Jost-800-Heavy.ttf)}
@@ -39,10 +39,13 @@ h2{font-weight:700;font-size:54px;line-height:1.18;color:${OLIVE};margin-top:70p
 const end = `<!doctype html><meta charset="utf-8"><style>${face}
 body{background:${INK}}
 img.bg{position:absolute;inset:0;width:1080px;height:1920px;object-fit:cover}
-.band{position:absolute;left:0;right:0;bottom:0;height:620px;background:linear-gradient(to bottom, rgba(232,222,198,0) 0%, rgba(232,222,198,.96) 38%, rgba(232,222,198,1) 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:110px;gap:14px}
-.site{font-size:64px;font-weight:800;letter-spacing:-.01em}.at{font-size:40px;font-weight:500;color:${META}}
-.line{font-size:36px;font-weight:500;font-style:italic;color:${META};margin-bottom:26px}
-</style><body><img class="bg" src="file://${ROOM}"><div class="band"><div class="line">We had our turn.</div>${stone(1.2)}<div class="site">legacymammals.com</div><div class="at">@legacymammals</div></div></body>`;
+.stone{position:absolute;left:50%;bottom:345px;transform:translateX(-50%);width:960px;height:auto}
+.text{position:absolute;left:0;right:0;bottom:70px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.line{font-size:44px;font-weight:500;font-style:italic;color:${CREAM};text-shadow:0 2px 0 ${INK},0 0 18px rgba(27,22,19,.9)}
+.site{font-size:84px;font-weight:800;letter-spacing:-.01em;color:${CREAM};text-shadow:0 3px 0 ${INK},0 0 22px rgba(27,22,19,.9)}
+.at{font-size:48px;font-weight:500;color:${CREAM};text-shadow:0 2px 0 ${INK},0 0 18px rgba(27,22,19,.9)}
+</style><body><img class="bg" src="file://${ROOM}"><img class="stone" src="file://${MARK}">
+<div class="text"><div class="line">A daily obituary from the</div><div class="site">legacymammals.com</div><div class="at">@legacymammals</div></div></body>`;
 
 (async () => {
   const browser = await chromium.launch();
