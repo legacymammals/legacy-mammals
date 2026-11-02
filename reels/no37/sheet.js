@@ -19,7 +19,7 @@ const shots = [
   { cam: "../../characters/mech/cutout/04-smug.png", n: 6, t: "38–42 s", title: "Cutaway: the red flag, London 1865", pic: "final/06-london.jpg", who: "Mech", line: "In 1865 Britain made every car follow a man on foot with a red flag." },
   { cam: "../../characters/mech/cutout/05-side-eye.png", n: 7, t: "42–49 s", title: "Cutaway: the jukebox, 1942", pic: "final/07-jukebox.jpg", who: "Mech", line: "In 1942 every musician in America refused to make a record for two years because jukeboxes were taking their work; the public backed the jukeboxes three to one." },
   { mouth: [0.47, 0.44], bubble: [0.05, 0.60, 0.62], n: 8, t: "49–57 s", title: "Mech at the board: MINUTES", pic: "final/08-minutes.jpg", who: "Mech", line: "All of them right about the loss, all of them wrong about the remedy. A boycott is what you call it when you've lost the race and would like it minuted." },
-  { mouth: [0.46, 0.53], bubble: [0.40, 0.09, 0.55], n: 9, t: "57–60 s", title: "Close on Meatbag", pic: "final/09-meatbag.jpg", who: "Meatbag", line: "They just want to keep their jobs." },
+  { mouth: [0.44, 0.535], bubble: [0.04, 0.05, 0.46], n: 9, t: "57–60 s", title: "Close on Meatbag", pic: "final/09-meatbag.jpg", who: "Meatbag", line: "They just want to keep their jobs." },
   { cam: "../../characters/mech/cutout/04-smug.png", n: 10, t: "60–65 s", title: "The flag man, proud", pic: "final/10-flagman.jpg", who: "Mech", line: "So did the man with the red flag. He was very good at it." },
   { n: 11, t: "65–70 s", title: "End card (every reel)", pic: "final/11-end.png", who: "", line: "(no voice; birds, a leaf falls; hold on the stone)" },
 ];
