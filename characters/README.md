@@ -10,6 +10,9 @@ frame it draws stays on model.
   1024 px for the repo. `looks-1`–`looks-3.jpg` are her outfit sheets, nine looks each, numbered
   01–09 on the sheet. She is Meatbag: long wavy brown hair, green beanie, phone in hand. She
   wears something different every story: each reel picks a look from the sheets.
-- `mech/` — Mech, generated with Higgsfield from the site's header robot (an old CRT monitor
-  for a head, blue screen face, suit). `take-*` files are candidates; the chosen sheet gets
-  named by expression the same way.
+- `mech/` — Mech, generated with Higgsfield from the site's header robot. `mech.jpg` is the
+  locked design: an old beige CRT monitor for a head, a blue screen face, sleek white robot
+  arms and legs with dark joints, a rainbow striped tee under denim dungaree shorts, one
+  striped sock and one white, light-up velcro sneakers; he carries nothing. `01`–`15` are his
+  expression sheet, the same fifteen as Meatbag's. `take-*`, `outfit-*`, `kid-*` and `e-*` are
+  the candidates and alternate takes they were chosen from.
