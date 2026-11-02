@@ -94,7 +94,12 @@ async function render() {
     href: (t.querySelector(".card") || {}).getAttribute("href") || "",
   })));
   const rec = (id) => ledger.posted[id] || null;
-  const queue = stories.filter((s) => !rec(s.id)).reverse(); // oldest first, so a backlog posts in order
+  // social/hold.json holds a story back from X and Instagram until a time ({"no-46": "2026-11-03T03:00:00Z"}),
+  // so its page can be live (for a drawn carousel's link, say) before the strip itself goes out.
+  const hold = readJSON(path.join(OUT, "hold.json"), {});
+  const held = (id) => hold[id] && Date.parse(hold[id]) > Date.now();
+  for (const id of Object.keys(hold)) if (held(id)) note(id + " is held back until " + hold[id]);
+  const queue = stories.filter((s) => !rec(s.id) && !held(s.id)).reverse(); // oldest first, so a backlog posts in order
   // A push carries a story just added: that one goes out now. The hourly runs drain the backlog oldest first.
   let fresh = process.env.GITHUB_EVENT_NAME === "push" ? queue.slice(-MAX) : queue.slice(0, MAX);
   // Each platform catches up on its own: the oldest story that failed on X, and the oldest
