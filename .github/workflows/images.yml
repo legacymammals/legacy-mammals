@@ -1,0 +1,88 @@
+name: Make images with Higgsfield
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: "What to draw"
+        required: true
+      refs:
+        description: "Reference pictures, comma-separated: repo paths or https URLs, in order (image 1, image 2, ...)"
+        required: false
+        default: ""
+      model:
+        description: "Endpoint id"
+        required: false
+        default: "xai/grok-imagine-image-2.0"
+      aspect:
+        description: "Aspect ratio, e.g. 1:1, 3:4, 9:16"
+        required: false
+        default: "1:1"
+      resolution:
+        description: "Resolution the model understands (1k/2k for Grok and Qwen; blank = model default)"
+        required: false
+        default: ""
+      count:
+        description: "How many images to make with the same prompt"
+        required: false
+        default: "1"
+      out:
+        description: "Where to write them, e.g. characters/mech/take-1.png (count > 1 adds -1, -2, ...)"
+        required: false
+        default: "characters/image.png"
+      max_usd:
+        description: "Refuse any single image priced above this"
+        required: false
+        default: "1"
+      estimate_only:
+        description: "Only price the job; generate nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: images
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate
+        env:
+          HIGGSFIELD_API_KEY: ${{ secrets.HIGGSFIELD_API_KEY }}
+          HIGGSFIELD_API_SECRET: ${{ secrets.HIGGSFIELD_API_SECRET }}
+          PROMPT: ${{ inputs.prompt }}
+          REFS: ${{ inputs.refs }}
+          MODEL: ${{ inputs.model }}
+          ASPECT: ${{ inputs.aspect }}
+          RESOLUTION: ${{ inputs.resolution }}
+          COUNT: ${{ inputs.count }}
+          OUT: ${{ inputs.out }}
+          MAX_USD: ${{ inputs.max_usd }}
+          ESTIMATE_ONLY: ${{ inputs.estimate_only }}
+        run: |
+          set -e
+          args=(image "$PROMPT" --model "$MODEL" --aspect "$ASPECT" --count "$COUNT" --out "$OUT" --max-usd "$MAX_USD")
+          if [ -n "$RESOLUTION" ]; then args+=(--resolution "$RESOLUTION"); fi
+          if [ "$ESTIMATE_ONLY" = "true" ]; then args+=(--estimate-only); fi
+          IFS=',' read -ra refs <<< "$REFS"
+          for r in "${refs[@]}"; do r="$(echo "$r" | xargs)"; [ -n "$r" ] && args+=(--ref "$r"); done
+          node scripts/higgsfield.js "${args[@]}"
+      - name: Keep the images
+        if: inputs.estimate_only != true
+        env:
+          OUT: ${{ inputs.out }}
+        run: |
+          git config user.name "legacymammals"
+          git config user.email "legacymammals@users.noreply.github.com"
+          git add "$(dirname "$OUT")" 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Images from Higgsfield: $(dirname "$OUT")" && git pull --rebase && git push)
