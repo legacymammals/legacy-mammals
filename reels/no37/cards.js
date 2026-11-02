@@ -11,6 +11,7 @@ const fs = require("fs");
 const here = __dirname, fonts = path.resolve(here, "..", "fonts");
 const INK = "#1B1613", BEIGE = "#E8DEC6", META = "#6B5A4E", OLIVE = "#5E7A3A", CREAM = "#F3EBD6", BROWN = "#5C3E2A";
 const ROOM = path.join(here, "frame-11-empty-1.jpeg");
+const MARK = path.resolve(here, "..", "..", "img", "mark.png"); // the shrugging headstone
 
 const face = `@font-face{font-family:Jost;font-weight:800;src:url(file://${fonts}/Jost-800-Heavy.ttf)}
 @font-face{font-family:Jost;font-weight:700;src:url(file://${fonts}/Jost-700-Bold.ttf)}
@@ -19,10 +20,8 @@ const face = `@font-face{font-family:Jost;font-weight:800;src:url(file://${fonts
 @font-face{font-family:Jost;font-weight:400;src:url(file://${fonts}/Jost-400-Book.ttf)}
 *{box-sizing:border-box;margin:0}body{width:1080px;height:1920px;overflow:hidden;font-family:Jost,sans-serif;color:${INK}}`;
 
-// the site's mark: a little headstone with a face
-const stone = (s = 1) => `<svg width="${140 * s}" height="${110 * s}" viewBox="-70 -60 140 110"><ellipse cx="0" cy="40" rx="46" ry="10" fill="${BROWN}"/>
-  <path d="M-28,40 v-46 a28,28 0 0 1 56,0 v46z" fill="${CREAM}" stroke="${INK}" stroke-width="3"/>
-  <circle cx="-9" cy="-4" r="2.5" fill="${INK}"/><circle cx="9" cy="-4" r="2.5" fill="${INK}"/><path d="M-10,8 q10,8 20,0" fill="none" stroke="${INK}" stroke-width="2.5"/></svg>`;
+// the site's mark: the shrugging headstone
+const stone = (s = 1) => `<img class="mark" src="file://${MARK}" style="width:${Math.round(300 * s)}px;height:auto">`;
 
 const title = `<!doctype html><meta charset="utf-8"><style>${face}
 body{background:${BEIGE};padding:70px 64px;display:flex;flex-direction:column}
@@ -39,11 +38,11 @@ h2{font-weight:700;font-size:54px;line-height:1.18;color:${OLIVE};margin-top:70p
 
 const end = `<!doctype html><meta charset="utf-8"><style>${face}
 body{background:${INK}}
-img{position:absolute;inset:0;width:1080px;height:1920px;object-fit:cover}
+img.bg{position:absolute;inset:0;width:1080px;height:1920px;object-fit:cover}
 .band{position:absolute;left:0;right:0;bottom:0;height:620px;background:linear-gradient(to bottom, rgba(232,222,198,0) 0%, rgba(232,222,198,.96) 38%, rgba(232,222,198,1) 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:110px;gap:14px}
 .site{font-size:64px;font-weight:800;letter-spacing:-.01em}.at{font-size:40px;font-weight:500;color:${META}}
 .line{font-size:36px;font-weight:500;font-style:italic;color:${META};margin-bottom:26px}
-</style><body><img src="file://${ROOM}"><div class="band"><div class="line">We had our turn.</div>${stone(1.2)}<div class="site">legacymammals.com</div><div class="at">@legacymammals</div></div></body>`;
+</style><body><img class="bg" src="file://${ROOM}"><div class="band"><div class="line">We had our turn.</div>${stone(1.2)}<div class="site">legacymammals.com</div><div class="at">@legacymammals</div></div></body>`;
 
 (async () => {
   const browser = await chromium.launch();
