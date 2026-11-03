@@ -49,14 +49,15 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
 .row.side-left{align-items:flex-start}.row.side-left .stack{align-items:flex-start}.row.side-left .who{text-align:left}
 .row.side-right{align-items:flex-end}.row.side-right .stack{align-items:flex-end}.row.side-right .who{text-align:right}
 /* pos: "top" on the shot puts the bubble at the top of the frame, for a speaker whose face is up there */
-.row.at-top{bottom:auto;top:${RATIO === "4:5" ? 70 : 110}px}
+.row.at-top{bottom:auto;top:${RATIO === "4:5" ? 40 : 70}px}
+.row.at-top .who{text-shadow:0 2px 0 ${INK},0 0 14px rgba(27,22,19,.9)}
 /* the commentator stands beside the bubble, feet level with its bottom edge */
 .row.withcam{flex-direction:row;align-items:flex-end;gap:18px}
 .row.meatbag.withcam{flex-direction:row-reverse}
 .row.withcam .stack{flex:1}
 .row.withcam .bubble{max-width:100%}
 .who{font-size:30px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${CREAM};text-shadow:0 2px 0 ${INK},0 0 14px rgba(27,22,19,.9);padding:0 18px}
-.bubble{max-width:88%;padding:30px 36px;border-radius:44px;font-size:${size}px;line-height:1.26;font-weight:500;box-shadow:0 10px 30px rgba(27,22,19,.35)}
+.bubble{max-width:${RATIO === "4:5" ? "70%" : "88%"};padding:30px 36px;border-radius:44px;font-size:${size}px;line-height:1.26;font-weight:500;box-shadow:0 10px 30px rgba(27,22,19,.35)}
 .mech .bubble{background:${INK};color:${CREAM};border-bottom-left-radius:10px}
 .meatbag .bubble{background:${DRAB};color:${INK};border-bottom-right-radius:10px}
 .meatbag .who{text-align:right}
