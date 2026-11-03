@@ -35,3 +35,6 @@ Rules so far:
   of the 9:16 frame); when they are not, `cam:` names a cut-out from the expression sheet and
   they stand at the bottom beside their balloon, like a commentator. 9:16 for a reel slideshow,
   `--ratio 4:5` for a feed carousel.
+- **On the site.** `slides-strip.js --ratio 4:5` also writes `web/slide-NN.jpg` (every slide but the
+  end card). When a story folder has one, `tools/build_site7.py` shows the story as a carousel: the
+  comic first, the text strip as the last slide, pictures fetched as you swipe.

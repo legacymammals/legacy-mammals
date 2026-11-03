@@ -78,6 +78,11 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
     await page.evaluate(() => document.fonts.ready);
     const file = path.join(out, `slide-${String(s.n).padStart(2, "0")}.png`);
     await page.screenshot({ path: file });
+    if (RATIO === "4:5" && s !== shots[shots.length - 1]) {
+      // the same slide as a JPEG for the website (every slide but the standing end card: on the site the strip is the last slide)
+      const web = path.join(here, "web"); fs.mkdirSync(web, { recursive: true });
+      await page.screenshot({ path: path.join(web, `slide-${String(s.n).padStart(2, "0")}.jpg`), type: "jpeg", quality: 82 });
+    }
     fs.unlinkSync(tmp);
     console.log("wrote", path.relative(here, file));
   }

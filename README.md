@@ -19,6 +19,12 @@ character sheets and the strip's lines; otherwise the strip itself, as slides if
 (`reels/<id>.mp4`, drawn by `scripts/reel.js`). Nothing goes to the Reels tab. The ledger
 records `ig` (with `igDrawn: true` when it was the drawing) and `igStory`.
 
+On the website a story with a drawn comic is a carousel inside its card: the comic's slides
+first, then the strip itself (live text, so search and the share buttons still work) as the last
+slide; the standing end card is left off. The site builder looks for `reels/no<N>/web/slide-NN.jpg`,
+which `reels/slides-strip.js --ratio 4:5` writes beside the PNGs. Only the first slide loads with
+the page; the rest are fetched as you swipe.
+
 ## Holding a story back
 
 `social/hold.json` maps a story id to a time: `{"no-46": "2026-11-03T03:00:00Z"}`. Until then the

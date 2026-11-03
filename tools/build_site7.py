@@ -70,6 +70,23 @@ def render_item(who, item, tap=None):
         return row(who, meme, " imgrow"), ""
     raise ValueError(item)
 
+def comic_slides(folio):
+    """The story's drawn comic for the site, if it has one: reels/noNN/web/slide-NN.jpg, written by
+    reels/slides-strip.js at 4:5 (every slide but the standing end card; on the site the strip is the last slide)."""
+    d = os.path.join(ROOT, "reels", f"no{folio}", "web")
+    if not os.path.isdir(d): return []
+    return [f"/reels/no{folio}/web/{f}" for f in sorted(os.listdir(d)) if re.match(r"slide-\d+\.jpg$", f)]
+
+def carousel(slides, inner):
+    """A story with a drawn comic: the pictures first, the strip (live text) as the last slide.
+    Only the first picture is fetched with the page; the script loads the rest as you swipe."""
+    n = len(slides) + 1
+    pics = "".join(f'<li class="slide"><img {"src" if k == 0 else "data-src"}="{s}" alt="" width="1080" height="1350" loading="lazy"></li>' for k, s in enumerate(slides))
+    return (f'<div class="comic" data-n="{n}">\n<ul class="track">{pics}<li class="slide strip">\n{inner}\n</li></ul>\n'
+            f'<div class="dots" aria-hidden="true">{"<i></i>" * n}</div>\n'
+            '<button class="arrow prev" type="button" aria-label="Previous slide">&larr;</button><button class="arrow next" type="button" aria-label="Next slide">&rarr;</button>\n'
+            f'<span class="pos" aria-live="polite">1 / {n}</span>\n</div>')
+
 def thread(i, t, folio):
     sharer = t["shared_by"]
     accent = "#1B1613" if sharer == M else "#4E6B2E"   # headline colour follows who shared it: ink for Mech, green for Meatbag
@@ -109,6 +126,10 @@ def thread(i, t, folio):
             parts.append(row(M, '<div class="bubble typing" aria-label="Mech is typing"><i></i><i></i><i></i></div>'))
     else:
         parts.append('<div class="status">Delivered</div>')
+    slides = comic_slides(folio)
+    if slides:
+        # the folio, # and date stay on the card; everything from the first "who" to the status becomes the last slide
+        parts = parts[:2] + [carousel(slides, "\n".join(parts[2:]))]
     parts.append('<div class="sharebar" aria-label="Share this story">'
                  '<button type="button" data-act="shareimg">Share image</button>'
                  '<button type="button" data-act="sharelink">Share link</button>'
@@ -289,6 +310,22 @@ input:focus{outline:3px solid var(--amber);outline-offset:3px}
 .sharebar button[disabled]{opacity:.75;cursor:default}
 .sharebar [hidden]{display:none}
 .empty{padding:40px 0;font-weight:500;font-size:20px;color:var(--meta)}
+/* a story with a drawn comic: the comic first, the strip last, inside the story card */
+.comic{position:relative;width:min(100%,64vh);align-self:center;margin:2px 0 4px;overflow:hidden;border-radius:16px;background:var(--beige);transition:height .35s ease}
+.comic .track{list-style:none;margin:0;padding:0;display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.comic .track::-webkit-scrollbar{display:none}
+.comic .slide{flex:0 0 100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always}
+.comic .slide img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;background:var(--beige)}
+.comic .slide.strip{display:flex;flex-direction:column;gap:7px;padding:34px 0 36px;background:var(--tint);min-height:100%}
+.comic .dots{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.comic .dots i{width:6px;height:6px;border-radius:50%;background:rgba(27,22,19,.25)}
+.comic .dots i.on{background:var(--ink)}
+.comic .arrow{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(243,238,227,.94);color:var(--ink);font-size:19px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(27,22,19,.22);display:none}
+.comic .arrow.prev{left:10px}.comic .arrow.next{right:10px}
+.comic .arrow:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.comic .pos{position:absolute;top:12px;right:12px;font-weight:800;font-size:11px;letter-spacing:.12em;color:var(--cream);background:rgba(27,22,19,.6);padding:4px 9px;border-radius:999px}
+@media (hover:hover){.comic:hover .arrow,.comic:focus-within .arrow{display:block}}
+@media (prefers-reduced-motion:reduce){.comic{transition:none}}
 footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--amber)}
 .foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:36px 0}
 .foot svg{width:64px;height:54px;display:block}
@@ -344,6 +381,25 @@ HEADER = f'''<body>
 </header>
 '''
 
+CAROUSEL_JS = '''<script>
+// a story with a drawn comic is a carousel: the pictures first, the strip last.
+// only the first picture comes with the page; the rest are fetched as you swipe, two ahead.
+document.querySelectorAll(".comic").forEach(function (c) {
+  var track = c.querySelector(".track"), slides = c.querySelectorAll(".slide"), dots = c.querySelectorAll(".dots i"), pos = c.querySelector(".pos"), n = slides.length, cur = 0;
+  function at() { return Math.max(0, Math.min(n - 1, Math.round(track.scrollLeft / track.clientWidth))); }
+  function load(i) { for (var k = Math.max(0, i - 1); k <= Math.min(n - 1, i + 2); k++) { var im = slides[k].querySelector("img[data-src]"); if (im) { im.src = im.getAttribute("data-src"); im.removeAttribute("data-src"); } } }
+  function fit() { c.style.height = slides[cur].offsetHeight + "px"; }
+  function paint() { dots.forEach(function (d, k) { d.classList.toggle("on", k === cur); }); pos.textContent = (cur + 1) + " / " + n; fit(); }
+  track.addEventListener("scroll", function () { cur = at(); load(cur); paint(); }, { passive: true });
+  ["pointerdown", "touchstart", "wheel"].forEach(function (ev) { track.addEventListener(ev, function () { load(0); }, { passive: true, once: true }); });
+  c.querySelector(".prev").onclick = function () { track.scrollBy({ left: -track.clientWidth, behavior: "smooth" }); };
+  c.querySelector(".next").onclick = function () { load(cur + 1); track.scrollBy({ left: track.clientWidth, behavior: "smooth" }); };
+  window.addEventListener("resize", function () { track.scrollTo({ left: cur * track.clientWidth, behavior: "instant" }); fit(); });
+  slides[0].querySelector("img").addEventListener("load", fit); paint();
+});
+</script>
+'''
+
 FOOTER = f'''<footer>
 <div class="wrap foot">
 <svg viewBox="0 40 300 250" aria-hidden="true">{stone2("#F3EBD6", "#1B1613", "#1B1613", "#F3EBD6", "#7A5438", "#7FA86A", arms="#F3EBD6")}</svg>
@@ -354,7 +410,7 @@ FOOTER = f'''<footer>
 </div>
 </footer>
 <script src="/share.js" defer></script>
-'''
+{CAROUSEL_JS}'''
 
 PAGE = head("Legacy Mammals — We had our turn.", "Blessed are the mech: for they shall inherit the earth. True stories from the handover, discussed by Mech and Meatbag.", ORIGIN + "/", ORIGIN + "/og/home.png") + HEADER + f'''<main id="top">
 <div class="wrap col search">

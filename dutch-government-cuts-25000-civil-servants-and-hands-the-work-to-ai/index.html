@@ -142,6 +142,22 @@ input:focus{outline:3px solid var(--amber);outline-offset:3px}
 .sharebar button[disabled]{opacity:.75;cursor:default}
 .sharebar [hidden]{display:none}
 .empty{padding:40px 0;font-weight:500;font-size:20px;color:var(--meta)}
+/* a story with a drawn comic: the comic first, the strip last, inside the story card */
+.comic{position:relative;width:min(100%,64vh);align-self:center;margin:2px 0 4px;overflow:hidden;border-radius:16px;background:var(--beige);transition:height .35s ease}
+.comic .track{list-style:none;margin:0;padding:0;display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.comic .track::-webkit-scrollbar{display:none}
+.comic .slide{flex:0 0 100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always}
+.comic .slide img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;background:var(--beige)}
+.comic .slide.strip{display:flex;flex-direction:column;gap:7px;padding:34px 0 36px;background:var(--tint);min-height:100%}
+.comic .dots{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.comic .dots i{width:6px;height:6px;border-radius:50%;background:rgba(27,22,19,.25)}
+.comic .dots i.on{background:var(--ink)}
+.comic .arrow{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(243,238,227,.94);color:var(--ink);font-size:19px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(27,22,19,.22);display:none}
+.comic .arrow.prev{left:10px}.comic .arrow.next{right:10px}
+.comic .arrow:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.comic .pos{position:absolute;top:12px;right:12px;font-weight:800;font-size:11px;letter-spacing:.12em;color:var(--cream);background:rgba(27,22,19,.6);padding:4px 9px;border-radius:999px}
+@media (hover:hover){.comic:hover .arrow,.comic:focus-within .arrow{display:block}}
+@media (prefers-reduced-motion:reduce){.comic{transition:none}}
 footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--amber)}
 .foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;padding:36px 0}
 .foot svg{width:64px;height:54px;display:block}
@@ -225,5 +241,22 @@ footer{background:var(--ink);color:var(--cream);border-top:14px solid var(--ambe
 </div>
 </footer>
 <script src="/share.js" defer></script>
+<script>
+// a story with a drawn comic is a carousel: the pictures first, the strip last.
+// only the first picture comes with the page; the rest are fetched as you swipe, two ahead.
+document.querySelectorAll(".comic").forEach(function (c) {
+  var track = c.querySelector(".track"), slides = c.querySelectorAll(".slide"), dots = c.querySelectorAll(".dots i"), pos = c.querySelector(".pos"), n = slides.length, cur = 0;
+  function at() { return Math.max(0, Math.min(n - 1, Math.round(track.scrollLeft / track.clientWidth))); }
+  function load(i) { for (var k = Math.max(0, i - 1); k <= Math.min(n - 1, i + 2); k++) { var im = slides[k].querySelector("img[data-src]"); if (im) { im.src = im.getAttribute("data-src"); im.removeAttribute("data-src"); } } }
+  function fit() { c.style.height = slides[cur].offsetHeight + "px"; }
+  function paint() { dots.forEach(function (d, k) { d.classList.toggle("on", k === cur); }); pos.textContent = (cur + 1) + " / " + n; fit(); }
+  track.addEventListener("scroll", function () { cur = at(); load(cur); paint(); }, { passive: true });
+  ["pointerdown", "touchstart", "wheel"].forEach(function (ev) { track.addEventListener(ev, function () { load(0); }, { passive: true, once: true }); });
+  c.querySelector(".prev").onclick = function () { track.scrollBy({ left: -track.clientWidth, behavior: "smooth" }); };
+  c.querySelector(".next").onclick = function () { load(cur + 1); track.scrollBy({ left: track.clientWidth, behavior: "smooth" }); };
+  window.addEventListener("resize", function () { track.scrollTo({ left: cur * track.clientWidth, behavior: "instant" }); fit(); });
+  slides[0].querySelector("img").addEventListener("load", fit); paint();
+});
+</script>
 </body>
 </html>
