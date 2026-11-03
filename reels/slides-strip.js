@@ -57,7 +57,7 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
 .row.withcam .stack{flex:1}
 .row.withcam .bubble{max-width:100%}
 .who{font-size:30px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${CREAM};text-shadow:0 2px 0 ${INK},0 0 14px rgba(27,22,19,.9);padding:0 18px}
-.bubble{max-width:${RATIO === "4:5" ? "70%" : "88%"};padding:30px 36px;border-radius:44px;font-size:${size}px;line-height:1.26;font-weight:500;box-shadow:0 10px 30px rgba(27,22,19,.35)}
+.bubble{max-width:${RATIO === "4:5" ? "70%" : "88%"};min-width:300px;padding:30px 36px;border-radius:44px;font-size:${size}px;line-height:1.26;font-weight:500;box-shadow:0 10px 30px rgba(27,22,19,.35)}
 .mech .bubble{background:${INK};color:${CREAM};border-bottom-left-radius:10px}
 .meatbag .bubble{background:${DRAB};color:${INK};border-bottom-right-radius:10px}
 .meatbag .who{text-align:right}
