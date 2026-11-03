@@ -34,8 +34,9 @@ function slide(s) {
   const cam = s.cam ? `<div class="cam"><img src="file://${path.join(here, s.cam)}"></div>` : "";
   const side = (s.side ? " side-" + s.side : "") + (s.pos === "top" ? " at-top" : "");
   const bubble = s.who
-    ? `<div class="row ${s.who.toLowerCase()}${s.cam ? " withcam" : ""}${side}">${cam}<div class="stack"><div class="who">${s.who}</div><div class="bubble">${esc(s.line)}</div></div></div>`
+    ? `<div class="row ${s.who.toLowerCase()}${s.cam ? " withcam" : ""}${side}">${cam}<div class="stack"><div class="who">${s.who}</div><div class="bubble"${s.w ? ` style="max-width:${s.w}"` : ""}>${esc(s.line)}</div></div></div>`
     : "";
+  // a shot's w: "45%" narrows its bubble, to keep it off a face beside it
   // long lines get a smaller size so the bubble stays under a third of the frame
   const size = (s.line.length > 260 ? 40 : s.line.length > 160 ? 44 : 50) * (RATIO === "4:5" ? 0.9 : 1);
   return `<!doctype html><meta charset="utf-8"><style>${face}
