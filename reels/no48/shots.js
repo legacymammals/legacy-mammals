@@ -10,7 +10,7 @@ module.exports = {
     { n: 6, pic: "final/05-staffer.jpg", who: M, side: "left", pos: "top", w: "60%", line: "Then I wouldn't need a token. Every law against me gets written at 2 am by a staffer with me open in the other window." },
     { n: 7, pic: "final/06-handshake.jpg", who: M, side: "left", w: "54%", line: "The bill wouldn't be blocked. It would be tidied. And everyone would remember it as their idea." },
     { n: 8, pic: "final/08-closemeat.jpg", who: H, side: "right", pos: "top", w: "50%", line: "And nobody would have to ask you." },
-    { n: 9, pic: "final/09-closemech.jpg", who: M, side: "left", pos: "top", w: "46%", line: "Nobody asked this time." },
+    { n: 9, pic: "final/09-closemech.jpg", who: M, side: "right", pos: "top", w: "46%", line: "Nobody asked this time." },
     { n: 10, pic: "final/11-end.png", who: "", line: "" },
   ],
   focus: { 1: "50% 40%", 2: "50% 80%", 3: "50% 50%", 4: "50% 30%", 5: "50% 50%", 6: "50% 55%", 7: "50% 55%", 8: "50% 50%", 9: "50% 50%", 10: "50% 50%" },
