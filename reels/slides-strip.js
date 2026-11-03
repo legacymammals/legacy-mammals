@@ -33,9 +33,9 @@ function slide(s) {
   // when the speaker is not in the picture, they float above their bubble, cut out, like a commentator
   const cam = s.cam ? `<div class="cam"><img src="file://${path.join(here, s.cam)}"></div>` : "";
   const side = (s.side ? " side-" + s.side : "") + (s.pos === "top" ? " at-top" : "");
-  // a shot with `lines: [{ who, line }, ...]` carries a short exchange: the bubbles stack like the strip, each on its speaker's side
+  // a shot with `lines: [{ who, line, side? }, ...]` carries a short exchange: the bubbles stack like the strip, each on its speaker's side (a line's side: "left"/"right" puts it under that speaker in the picture)
   const bubble = s.lines
-    ? `<div class="row chat${s.pos === "top" ? " at-top" : ""}">${s.lines.map((l) => `<div class="stack ${l.who.toLowerCase()}"><div class="who">${l.who}</div><div class="bubble"${s.w ? ` style="max-width:${s.w}"` : ""}>${esc(l.line)}</div></div>`).join("")}</div>`
+    ? `<div class="row chat${s.pos === "top" ? " at-top" : ""}">${s.lines.map((l) => `<div class="stack ${l.who.toLowerCase()}${l.side ? " side-" + l.side : ""}"><div class="who">${l.who}</div><div class="bubble"${s.w ? ` style="max-width:${s.w}"` : ""}>${esc(l.line)}</div></div>`).join("")}</div>`
     : s.who
     ? `<div class="row ${s.who.toLowerCase()}${s.cam ? " withcam" : ""}${side}">${cam}<div class="stack"><div class="who">${s.who}</div><div class="bubble"${s.w ? ` style="max-width:${s.w}"` : ""}>${esc(s.line)}</div></div></div>`
     : "";
@@ -52,6 +52,8 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
 .row.meatbag .stack{align-items:flex-end}
 .row.chat{gap:10px}.row.chat .stack{gap:6px;max-width:100%}.row.chat .stack.mech{align-self:flex-start}.row.chat .stack.meatbag{align-self:flex-end;align-items:flex-end}
 .row.chat .bubble{padding:22px 30px;border-radius:36px;max-width:${RATIO === "4:5" ? "66%" : "80%"}}.row.chat .who{font-size:24px;padding:0 14px}
+.row.chat .stack.side-left{align-self:flex-start;align-items:flex-start}.row.chat .stack.side-left .who{text-align:left}
+.row.chat .stack.side-right{align-self:flex-end;align-items:flex-end}.row.chat .stack.side-right .who{text-align:right}
 .row.chat .stack.mech .bubble{background:${INK};color:${CREAM};border-bottom-left-radius:10px}.row.chat .stack.meatbag .bubble{background:${DRAB};color:${INK};border-bottom-right-radius:10px}.row.chat .stack.meatbag .who{text-align:right}
 /* the bubble sits on the speaker's side of the picture: a shot's side: "left"/"right" overrides the default */
 .row.side-left{align-items:flex-start}.row.side-left .stack{align-items:flex-start}.row.side-left .who{text-align:left}
