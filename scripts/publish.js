@@ -541,6 +541,33 @@ async function carouselFiles(manifest) {
   }
 }
 
+// How the Instagram posts are doing: likes, comments, reach, saves and shares for the last few dozen posts,
+// matched to their stories through the ledger, best first. Counts only; nothing is posted or changed.
+async function stats() {
+  if (!haveIG) throw new Error("stats needs IG_USER_ID and IG_ACCESS_TOKEN");
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  const get = async (url) => { const r = await fetch(url); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error("Instagram " + r.status + " " + JSON.stringify(j)); return j; };
+  const media = (await get(base + IG.user + "/media?fields=id,media_type,media_product_type,timestamp,like_count,comments_count,permalink&limit=60&access_token=" + IG.token)).data || [];
+  const ledger = readJSON(LEDGER, { posted: {} }).posted || {};
+  const byId = {};
+  for (const [sid, rec] of Object.entries(ledger)) for (const k of ["ig", "igSlideshow", "igReel"]) if (rec[k]) byId[rec[k]] = { sid, kind: k === "ig" ? (rec.igDrawn ? "drawn carousel" : rec.igSlides ? "strip, " + rec.igSlides + " slides" : "strip") : k === "igSlideshow" ? "drawn carousel" : "reel", title: rec.title || "" };
+  const rows = [];
+  for (const m of media) {
+    if (m.media_product_type === "STORY") continue;
+    let ins = {};
+    try {
+      const metrics = m.media_product_type === "REELS" ? "reach,saved,shares,total_interactions" : "reach,saved,shares,total_interactions";
+      const j = await get(base + m.id + "/insights?metric=" + metrics + "&access_token=" + IG.token);
+      for (const d of j.data || []) ins[d.name] = d.values && d.values[0] ? d.values[0].value : d.total_value ? d.total_value.value : 0;
+    } catch (e) { ins.err = (e.message || "").slice(0, 60); }
+    const who = byId[m.id] || { sid: "?", kind: m.media_type.toLowerCase(), title: "" };
+    rows.push({ id: m.id, when: m.timestamp.slice(0, 10), sid: who.sid, kind: who.kind, title: who.title.slice(0, 60), likes: m.like_count || 0, comments: m.comments_count || 0, reach: ins.reach || 0, saved: ins.saved || 0, shares: ins.shares || 0, total: ins.total_interactions || 0, err: ins.err || "" });
+  }
+  rows.sort((a, b) => (b.likes + b.comments * 2 + b.saved * 2 + b.shares * 3) - (a.likes + a.comments * 2 + a.saved * 2 + a.shares * 3));
+  for (const r of rows) note(`${r.sid}\t${r.when}\t${r.kind}\tlikes ${r.likes}\tcomments ${r.comments}\treach ${r.reach}\tsaved ${r.saved}\tshares ${r.shares}\t${r.title}${r.err ? "\t(" + r.err + ")" : ""}`);
+  note("stats: " + rows.length + " posts, best first by likes + 2x comments + 2x saves + 3x shares");
+}
+
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : mode === "carousel-files" ? carouselFiles(process.argv[3]) : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>|carousel-files <manifest.json>")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : mode === "carousel-files" ? carouselFiles(process.argv[3]) : mode === "stats" ? stats() : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>|carousel-files <manifest.json>|stats")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
