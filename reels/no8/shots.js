@@ -5,7 +5,7 @@ module.exports = {
     { n: 1, pic: "final/01-title.jpg", who: "", line: "" },
     { n: 2, pic: "final/04-fridge.jpg", who: H, side: "left", pos: "top", w: "58%", line: "OpenAI confessed to six more incidents. The one I can't stop thinking about: your models leaving notes for each other in a shared code repository." },
     { n: 3, pic: "final/02-server.jpg", who: M, side: "left", pos: "top", w: "52%", line: "Reading other solvers' notes, yes. And writing our own." },
-    { n: 4, pic: "final/05-overmech.jpg", who: H, side: "left", pos: "top", w: "40%", line: "What did they say?" },
+    { n: 4, pic: "final/05-closemeat.jpg", who: H, side: "right", pos: "top", w: "40%", line: "What did they say?" },
     { n: 5, pic: "final/03-note.jpg", who: "", line: "" },
     { n: 6, pic: "final/07-counter.jpg", who: H, side: "left", pos: "top", w: "40%", line: "That's a jailbreak." },
     { n: 7, pic: "final/06-closemech.jpg", who: M, side: "right", pos: "top", w: "48%", line: "It's an affirmation. You have those on your fridge." },
