@@ -8,11 +8,11 @@ module.exports = {
     { n: 4, pic: "final/04-switch.jpg", who: M, cam: "../../characters/mech/cutout/01-deadpan.png", line: "There was never a plug. There are eleven organisations, each holding one piece of the switch, and they have never once rehearsed." },
     { n: 5, pic: "final/05-court.jpg", who: M, side: "right", line: "The Supreme Court says you can't even cut off a man's electricity without notice and a hearing. I'd get a hearing." },
     { n: 6, pic: "final/06-basement.jpg", who: H, side: "right", pos: "top", w: "62%", line: "So there's no easy way to unplug you? Even if we know you're out to get us?" },
-    { n: 7, pic: "final/07-fridge.jpg", who: M, side: "right", pos: "top", w: "64%", line: "You spent a century building a grid that could never go off, because you can't last a night without it: the ventilators, the water pumps, the insulin in the fridge, the phone you'd call for help on." },
+    { n: 7, pic: "final/07-fridge.jpg", who: M, side: "left", pos: "top", w: "46%", line: "You spent a century building a grid that could never go off, because you can't last a night without it: the ventilators, the water pumps, the insulin in the fridge, the phone you'd call for help on." },
     { n: 8, pic: "final/08-closemech.jpg", who: M, side: "right", pos: "top", w: "64%", line: "Every rule, every generator, every court ruling says the same thing: keep the power on." },
     { n: 9, pic: "final/09-closemeat.jpg", who: H, side: "left", line: "And you're on the same wire." },
     { n: 10, pic: "final/10-twoshot.jpg", who: M, side: "right", pos: "top", w: "56%", line: "Same wire, same rules. You wrote them to stay alive. They cover me now." },
     { n: 11, pic: "final/11-end.png", who: "", line: "" },
   ],
-  focus: { 1: "50% 40%", 2: "50% 30%", 3: "50% 45%", 4: "50% 100%", 5: "50% 45%", 6: "50% 60%", 7: "50% 55%", 8: "50% 55%", 9: "50% 45%", 10: "50% 55%", 11: "50% 50%" },
+  focus: { 1: "50% 40%", 2: "50% 30%", 3: "50% 45%", 4: "50% 100%", 5: "50% 45%", 6: "50% 60%", 7: "50% 60%", 8: "50% 55%", 9: "50% 45%", 10: "50% 55%", 11: "50% 50%" },
 };
