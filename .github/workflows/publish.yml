@@ -76,7 +76,6 @@ jobs:
       SOCIAL_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.dry_run) || format('{0}', vars.SOCIAL_PAUSED) }}
       FORCE_STORY: ${{ inputs.story }}
       CAROUSEL_STORY: ${{ inputs.carousel }}
-      REEL_ON_GRID: ${{ vars.REEL_ON_GRID }}   # "true" puts the strip reel on the profile grid as well as the Reels tab
     steps:
       # The tip of main, not the commit the run was queued on: a run that waited behind another
       # must see the ledger that run saved, or it posts the same story again (No. 37 went out twice).

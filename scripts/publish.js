@@ -300,13 +300,14 @@ const slideUrls = (id) => slidesOf(id).map((f) => RAW + "/social/" + path.basena
 // A story's drawn carousel, when one has been made: reels/no<N>/carousel.json for story no-N
 // ({ caption, images: [repo paths], record: { id, key } }). The feed post is then the drawing, not the strip.
 const drawnOf = (id) => { const m = /^no-(\d+)$/.exec(id); const f = m && path.join(ROOT, "reels", "no" + m[1], "carousel.json"); return f && fs.existsSync(f) ? readJSON(f, null) : null; };
-const REEL_ON_GRID = env("REEL_ON_GRID").toLowerCase() === "true"; // whether the strip reel also sits on the profile grid
+
 
 // ---------------------------------------------------------------- stories
 // Puts a story's reel up as an Instagram Story: Instagram fetches the reel from the site, so the
 // reel must be live there first. Silent: the API has no way to attach music; that is only in the app.
 const reelOf = (id) => path.join(REELS, id + ".mp4");
 // The story's reel as an Instagram Reel (the Reels tab; share_to_feed decides whether it also sits on the grid).
+// Not used by post(): the strip goes up as a Story (the circles at the top), not a Reel. Kept for a day it is wanted.
 async function igReel(id, caption, shareToFeed) {
   const url = SITE + "/reels/" + id + ".mp4";
   const bytes = fs.statSync(reelOf(id)).size, until = Date.now() + 6 * 60000;
@@ -373,7 +374,7 @@ async function post() {
 
   await mergeRemoteLedger(ledger);
   for (const s of pending) {
-    if (ledger.posted[s.id] && ledger.posted[s.id].x && ledger.posted[s.id].ig && (ledger.posted[s.id].igReel || !fs.existsSync(reelOf(s.id))) && !FORCE) { note(s.id + " is already up (per the ledger on GitHub); skipping"); continue; }
+    if (ledger.posted[s.id] && ledger.posted[s.id].x && ledger.posted[s.id].ig && !FORCE) { note(s.id + " is already up (per the ledger on GitHub); skipping"); continue; }
     const permalink = SITE + "/" + (s.slug || s.id) + "/";
     const title = s.title || "Legacy Mammals";
     // X counts any link as 23 characters; keep the whole post inside 280
@@ -411,11 +412,7 @@ async function post() {
         }
         catch (e) { record.igError = e.message; note(e.message); }
       }
-      if (haveIG && !prev.igReel && fs.existsSync(reelOf(s.id))) {
-        // The strip itself goes to the Reels tab: the whole strip held for 15 seconds.
-        try { record.igReel = await igReel(s.id, igCaption, REEL_ON_GRID); record.igReelAt = new Date().toISOString(); delete record.igReelError; sent = true; note("posted the " + s.id + " strip as an Instagram reel: " + record.igReel); }
-        catch (e) { record.igReelError = e.message; note("the " + s.id + " strip did not go up as a reel: " + e.message); }
-      }
+
       if (!sent && !prev.x && !prev.ig) { note("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
       delete record.dryRun;
     }

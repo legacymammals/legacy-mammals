@@ -14,11 +14,10 @@ A single-feed site of true stories from the handover. Served by GitHub Pages at 
 
 For each story the push run posts: the strip image to X; to Instagram, the story's **drawn
 carousel** as the feed post when one exists (`reels/no<N>/carousel.json`, made with the
-character sheets and the strip's lines; otherwise the strip itself, as slides if tall); the
-**strip as a Reel** (the whole strip held still for 15 seconds, `reels/<id>.mp4`); and the same
-reel as a Story. The reel stays off the profile grid unless the repository variable
-`REEL_ON_GRID` is `true`. The ledger records `ig` (with `igDrawn: true` when it was the drawing),
-`igReel` and `igStory`.
+character sheets and the strip's lines; otherwise the strip itself, as slides if tall); and the
+**strip as a Story** (the circles at the top): the whole strip held still for 15 seconds
+(`reels/<id>.mp4`, drawn by `scripts/reel.js`). Nothing goes to the Reels tab. The ledger
+records `ig` (with `igDrawn: true` when it was the drawing) and `igStory`.
 
 ## Holding a story back
 
