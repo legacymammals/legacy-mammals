@@ -23,7 +23,9 @@ On the website a story with a drawn comic is a carousel inside its card: the com
 first, then the strip itself (live text, so search and the share buttons still work) as the last
 slide; the standing end card is left off. The site builder looks for `reels/no<N>/web/slide-NN.jpg`,
 which `reels/slides-strip.js --ratio 4:5` writes beside the PNGs. Only the first slide loads with
-the page; the rest are fetched as you swipe.
+the page; the rest are fetched as you swipe. A **View** switch above the feed (and on every story
+page) picks Comics (pictures first, the strip last) or Texts (the strip first, swipe for the
+pictures); the choice is remembered in the browser.
 
 ## Holding a story back
 
