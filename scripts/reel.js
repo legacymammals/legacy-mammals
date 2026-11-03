@@ -3,11 +3,13 @@
  *
  *   node scripts/reel.js no-19 [no-18 ...]   render these stories to reels/<id>.mp4
  *   node scripts/reel.js                     render the stories the poster just handled (its pending list)
+ *   node scripts/reel.js --animated no-19    the older animated cut (bubbles arriving one by one)
  *
- * The frames come from share.js (window.LM.reel): the headline first, then each bubble after a
- * typing pause, held for about one and a half times the time it takes to read, then three
- * seconds on the last one. Music is added in the Instagram app when posting; the file is silent
- * (with an empty audio track, which Instagram prefers to none).
+ * Since Nov 2 the reel is the whole strip, held still for 15 seconds (share.js, window.LM.still):
+ * the strip fitted into the frame with the signoff beneath it. The animated cut (window.LM.reel:
+ * the headline first, then each bubble after a typing pause) is kept behind --animated. Music is
+ * added in the Instagram app when posting; the file is silent (with an empty audio track, which
+ * Instagram prefers to none).
  */
 const fs = require("fs");
 const os = require("os");
@@ -23,9 +25,11 @@ const OUT = path.join(ROOT, "reels");
 const LOCAL = process.env.LOCAL_URL || "http://127.0.0.1:8080/";
 const PENDING = path.join(process.env.LM_TMP || process.env.RUNNER_TEMP || os.tmpdir(), "legacymammals-pending.json");
 const FPS = 30;
+const STILL_SECONDS = 15;
+const ANIMATED = process.argv.includes("--animated");
 
 (async () => {
-  let ids = process.argv.slice(2);
+  let ids = process.argv.slice(2).filter((a) => a !== "--animated");
   if (!ids.length) { try { ids = JSON.parse(fs.readFileSync(PENDING, "utf8")).map((s) => s.id); } catch (e) { ids = []; } }
   ids = ids.filter((id) => !fs.existsSync(path.join(OUT, id + ".mp4")) || process.argv.length > 2);
   if (!ids.length) { console.log("no reels to make"); return; }
@@ -38,6 +42,27 @@ const FPS = 30;
   await page.waitForFunction(() => window.LM && window.LM.reel, null, { timeout: 30000 });
 
   for (const id of ids) {
+    if (!ANIMATED) {
+      // the still: one frame of the whole strip, held for STILL_SECONDS
+      const b64 = await page.evaluate(async (id) => {
+        const el = document.getElementById(id); if (!el) return null;
+        const c = await window.LM.still(el);
+        return c.toDataURL("image/png").split(",")[1];
+      }, id);
+      if (!b64) { console.log(id + ": not on the page"); continue; }
+      const frame = path.join(os.tmpdir(), "lm-still-" + id + ".png");
+      fs.writeFileSync(frame, Buffer.from(b64, "base64"));
+      const out = path.join(OUT, id + ".mp4");
+      const ff = spawnSync(FFMPEG, ["-y", "-loglevel", "error", "-loop", "1", "-framerate", String(FPS), "-i", frame,
+        "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100", "-t", String(STILL_SECONDS),
+        "-c:v", "libx264", "-tune", "stillimage", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", String(FPS),
+        "-c:a", "aac", "-b:a", "64k", "-movflags", "+faststart", out], { encoding: "utf8" });
+      fs.rmSync(frame, { force: true });
+      if (ff.status !== 0) { const m = id + ": ffmpeg failed: " + (ff.error ? ff.error.message : ff.stderr); console.log(m); if (process.env.GITHUB_ACTIONS) console.log("::warning::" + m.replace(/\n/g, " ")); continue; }
+      const msg = "reel " + id + ": the whole strip, held " + STILL_SECONDS + " s, " + Math.round(fs.statSync(out).size / 1024) + " KB";
+      console.log(msg); if (process.env.GITHUB_ACTIONS) console.log("::notice::" + msg);
+      continue;
+    }
     const info = await page.evaluate(async (id) => {
       const el = document.getElementById(id); if (!el) return null;
       const r = await window.LM.reel(el, { maxDuration: 59 }); // Instagram Stories stop at 60 seconds

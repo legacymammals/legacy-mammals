@@ -391,6 +391,30 @@
     return { duration: duration, events: events, frame: frame, canvas: frameC };
   }
 
+  // The whole strip as one 1080 x 1920 frame, for a reel that holds still: the strip fitted into the
+  // frame (shrunk to fit when it is taller than the frame), the signoff beneath it.
+  async function still(thread) {
+    var d = parse(thread);
+    try { await Promise.all([document.fonts.load(font("800", 50)), document.fonts.load(font("500", 24)), document.fonts.load(font("400", 33))]); } catch (e) {}
+    var srcs = []; d.items.forEach(function (it) { if (it.img) srcs.push(it.img); if (it.src) srcs.push(it.src); });
+    var loaded = await Promise.all(srcs.map(loadImg)), imgs = {};
+    srcs.forEach(function (s, i) { imgs[s] = loaded[i]; });
+    var RW = 1080, RH = 1920, MARGIN = 80, SIGN = 100, GAP = 36;
+    var H = paint(null, d, imgs, { noFooter: true });
+    var content = document.createElement("canvas"); content.width = W; content.height = H;
+    paint(content.getContext("2d"), d, imgs, { noFooter: true });
+    var room = RH - MARGIN * 2 - SIGN - GAP;
+    var scale = Math.min(1, room / H), w = W * scale, h = H * scale;
+    var top = (RH - (h + GAP + SIGN)) / 2; // the strip and its signoff centred as one block
+    var c = document.createElement("canvas"); c.width = RW; c.height = RH;
+    var fx = c.getContext("2d");
+    fx.fillStyle = TINT; fx.fillRect(0, 0, RW, RH);
+    fx.imageSmoothingQuality = "high";
+    fx.drawImage(content, (RW - w) / 2, top, w, h);
+    signoff(fx, top + h + GAP, d.slug);
+    return c;
+  }
+
   var cache = {};
   async function render(thread) {
     var d = parse(thread);
@@ -514,5 +538,5 @@
     return out;
   }
 
-  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome, reel: reel, slides: slides };
+  window.LM = { render: render, prepare: prepare, preview: previewThread, previewHome: previewHome, reel: reel, still: still, slides: slides };
 })();

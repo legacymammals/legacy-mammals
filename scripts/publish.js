@@ -224,7 +224,7 @@ async function mergeRemoteLedger(ledger) {
     let merged = 0;
     for (const [id, rec] of Object.entries((remote && remote.posted) || {})) {
       const local = ledger.posted[id] || {};
-      for (const k of ["x", "ig", "igStory", "igStoryAt", "at", "title"]) if (rec[k] && !local[k]) { local[k] = rec[k]; merged++; }
+      for (const k of ["x", "ig", "igSlides", "igDrawn", "igReel", "igReelAt", "igStory", "igStoryAt", "at", "title"]) if (rec[k] && !local[k]) { local[k] = rec[k]; merged++; }
       ledger.posted[id] = local;
     }
     if (merged) { writeJSON(LEDGER, ledger); note("took " + merged + " newer entries from the ledger on GitHub"); }
@@ -297,11 +297,32 @@ async function igCarousel(imageUrls, caption) {
   return igPublish(j.id, "carousel");
 }
 const slideUrls = (id) => slidesOf(id).map((f) => RAW + "/social/" + path.basename(f) + "?v=" + Date.now());
+// A story's drawn carousel, when one has been made: reels/no<N>/carousel.json for story no-N
+// ({ caption, images: [repo paths], record: { id, key } }). The feed post is then the drawing, not the strip.
+const drawnOf = (id) => { const m = /^no-(\d+)$/.exec(id); const f = m && path.join(ROOT, "reels", "no" + m[1], "carousel.json"); return f && fs.existsSync(f) ? readJSON(f, null) : null; };
+const REEL_ON_GRID = env("REEL_ON_GRID").toLowerCase() === "true"; // whether the strip reel also sits on the profile grid
 
 // ---------------------------------------------------------------- stories
 // Puts a story's reel up as an Instagram Story: Instagram fetches the reel from the site, so the
 // reel must be live there first. Silent: the API has no way to attach music; that is only in the app.
 const reelOf = (id) => path.join(REELS, id + ".mp4");
+// The story's reel as an Instagram Reel (the Reels tab; share_to_feed decides whether it also sits on the grid).
+async function igReel(id, caption, shareToFeed) {
+  const url = SITE + "/reels/" + id + ".mp4";
+  const bytes = fs.statSync(reelOf(id)).size, until = Date.now() + 6 * 60000;
+  let live = false;
+  while (Date.now() < until && !live) {
+    try { const r = await fetch(url, { method: "HEAD", cache: "no-store" }); live = r.ok && String(r.headers.get("content-length")) === String(bytes); } catch (e) {}
+    if (!live) await new Promise((res) => setTimeout(res, 10000));
+  }
+  if (!live) throw new Error(url + " is not live yet (or not this version of it)");
+  const base = "https://" + IG.host + "/" + IG.version + "/";
+  const r = await fetch(base + IG.user + "/media", { method: "POST", body: new URLSearchParams({ media_type: "REELS", video_url: url + "?v=" + Date.now(), caption, share_to_feed: shareToFeed ? "true" : "false", access_token: IG.token }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.id) throw new Error("Instagram reel container failed: " + r.status + " " + JSON.stringify(j));
+  await igWaitFinished(j.id, "reel container", 8);
+  return igPublish(j.id, "reel");
+}
 async function igStory(id) {
   const url = SITE + "/reels/" + id + ".mp4";
   // The site must be serving this very file (a re-rendered reel keeps its address), so the size has to match.
@@ -352,7 +373,7 @@ async function post() {
 
   await mergeRemoteLedger(ledger);
   for (const s of pending) {
-    if (ledger.posted[s.id] && ledger.posted[s.id].x && ledger.posted[s.id].ig && !FORCE) { note(s.id + " is already up (per the ledger on GitHub); skipping"); continue; }
+    if (ledger.posted[s.id] && ledger.posted[s.id].x && ledger.posted[s.id].ig && (ledger.posted[s.id].igReel || !fs.existsSync(reelOf(s.id))) && !FORCE) { note(s.id + " is already up (per the ledger on GitHub); skipping"); continue; }
     const permalink = SITE + "/" + (s.slug || s.id) + "/";
     const title = s.title || "Legacy Mammals";
     // X counts any link as 23 characters; keep the whole post inside 280
@@ -374,14 +395,26 @@ async function post() {
       }
       if (haveIG && !prev.ig) {
         // Instagram fetches the images itself, from the copies the workflow pushed a moment ago.
-        // A story taller than one frame goes up as a carousel of its slides, not as a barred image.
-        const slides = slidesOf(s.id);
+        // The feed post is the story's drawn carousel when one has been made (reels/no<N>/carousel.json);
+        // otherwise the strip: a story taller than one frame goes up as a carousel of its slides, not as a barred image.
+        const drawn = drawnOf(s.id), slides = slidesOf(s.id);
         try {
-          if (slides.length >= 2) { record.ig = await igCarousel(slideUrls(s.id), igCaption); record.igSlides = slides.length; note("posted " + s.id + " to Instagram as a carousel of " + slides.length + " slides: " + record.ig); }
+          if (drawn && drawn.images && drawn.images.length >= 2) {
+            for (const f of drawn.images) if (!fs.existsSync(path.join(ROOT, f))) throw new Error("the drawn carousel names a missing file: " + f);
+            record.ig = await igCarousel(drawn.images.map((f) => RAW + "/" + f.split(path.sep).join("/") + "?v=" + Date.now()), drawn.caption || igCaption);
+            record.igSlides = drawn.images.length; record.igDrawn = true;
+            note("posted " + s.id + " to Instagram as its drawn carousel of " + drawn.images.length + " slides: " + record.ig);
+          }
+          else if (slides.length >= 2) { record.ig = await igCarousel(slideUrls(s.id), igCaption); record.igSlides = slides.length; note("posted " + s.id + " to Instagram as a carousel of " + slides.length + " slides: " + record.ig); }
           else { record.ig = await igPost(RAW + "/social/" + s.id + "-ig.png?v=" + Date.now(), igCaption); note("posted " + s.id + " to Instagram: " + record.ig); }
           delete record.igError; sent = true;
         }
         catch (e) { record.igError = e.message; note(e.message); }
+      }
+      if (haveIG && !prev.igReel && fs.existsSync(reelOf(s.id))) {
+        // The strip itself goes to the Reels tab: the whole strip held for 15 seconds.
+        try { record.igReel = await igReel(s.id, igCaption, REEL_ON_GRID); record.igReelAt = new Date().toISOString(); delete record.igReelError; sent = true; note("posted the " + s.id + " strip as an Instagram reel: " + record.igReel); }
+        catch (e) { record.igReelError = e.message; note("the " + s.id + " strip did not go up as a reel: " + e.message); }
       }
       if (!sent && !prev.x && !prev.ig) { note("nothing went out for " + s.id + "; it stays pending for the next run"); continue; }
       delete record.dryRun;
