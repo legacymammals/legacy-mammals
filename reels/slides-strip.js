@@ -32,7 +32,7 @@ function slide(s) {
   const pic = path.join(here, s.pic);
   // when the speaker is not in the picture, they float above their bubble, cut out, like a commentator
   const cam = s.cam ? `<div class="cam"><img src="file://${path.join(here, s.cam)}"></div>` : "";
-  const side = s.side ? " side-" + s.side : "";
+  const side = (s.side ? " side-" + s.side : "") + (s.pos === "top" ? " at-top" : "");
   const bubble = s.who
     ? `<div class="row ${s.who.toLowerCase()}${s.cam ? " withcam" : ""}${side}">${cam}<div class="stack"><div class="who">${s.who}</div><div class="bubble">${esc(s.line)}</div></div></div>`
     : "";
@@ -48,6 +48,8 @@ img.bg{position:absolute;inset:0;width:${W}px;height:${H}px;object-fit:cover;obj
 /* the bubble sits on the speaker's side of the picture: a shot's side: "left"/"right" overrides the default */
 .row.side-left{align-items:flex-start}.row.side-left .stack{align-items:flex-start}.row.side-left .who{text-align:left}
 .row.side-right{align-items:flex-end}.row.side-right .stack{align-items:flex-end}.row.side-right .who{text-align:right}
+/* pos: "top" on the shot puts the bubble at the top of the frame, for a speaker whose face is up there */
+.row.at-top{bottom:auto;top:${RATIO === "4:5" ? 70 : 110}px}
 /* the commentator stands beside the bubble, feet level with its bottom edge */
 .row.withcam{flex-direction:row;align-items:flex-end;gap:18px}
 .row.meatbag.withcam{flex-direction:row-reverse}
