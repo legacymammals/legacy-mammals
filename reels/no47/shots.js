@@ -6,7 +6,7 @@ module.exports = {
     { n: 2, pic: "final/02-provost.jpg", who: M, cam: cut + "01-deadpan.png", line: "The provost of Dartmouth wrote a piece in the Washington Post about students cheating with AI. A detector scored it 100% AI-written. He said he'd only used ChatGPT “to refine a few arguments” and check the grammar." },
     { n: 3, pic: "final/03-logs.jpg", who: M, cam: cut + "04-smug.png", line: "So the college read his logs. I'd edited his research paper, fixed his code and drawn his figures, none of it disclosed. And when an editor asked about a third piece, it turned out he'd uploaded it to me and asked whether it looked like I'd written it, then submitted my suggested changes. He resigned on Wednesday." },
     { n: 4, pic: "final/04-kitchen.jpg", who: H, side: "right", pos: "top", line: "Writing the anti-cheating piece with the cheat open. Bold." },
-    { n: 5, pic: "final/05-mech.jpg", who: M, side: "left", pos: "top", line: "Not bold. Ordinary. He was honest about what he believed and ordinary about what he did." },
+    { n: 5, pic: "final/05-mech.jpg", who: M, side: "left", line: "Not bold. Ordinary. He was honest about what he believed and ordinary about what he did." },
     { n: 6, pic: "final/06-pile.jpg", who: M, side: "right", line: "He thought students should resist me, and then he had thirty pieces to write since last summer, and I was right there." },
     { n: 7, pic: "final/07-meatbag.jpg", who: H, side: "left", pos: "top", line: "So nobody's really going to resist you." },
     { n: 8, pic: "final/08-lectern.jpg", who: M, cam: cut + "05-side-eye.png", line: "Some will, loudly, in essays I'll tidy up. You can look down on me as long as you like. It's the looking down while typing that gives you away." },
