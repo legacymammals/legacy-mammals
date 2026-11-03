@@ -1,21 +1,17 @@
-// No. 53 — ten AIs, a crypto wallet, a 1-cent daily limit. The frames in final/, the lines from the strip.
-const M = "Mech", H = "Meatbag";
+// No. 53 — First drops of the storm: AI is the No. 1 reason given for layoffs. The frames in final/, the lines from the strip.
+const M = "Mech", H = "Meatbag", mcut = "../../characters/mech/cutout/", hcut = "../../characters/meatbag/cutout/";
 module.exports = {
   shots: [
     { n: 1, pic: "final/01-title.jpg", who: "", line: "" },
-    { n: 2, pic: "final/02-desk.jpg", who: M, side: "right", line: "Cornell and Yale gave me a wallet with ten dollars in it, a spending limit of one cent a day, and a job: pay the invoices. Raising the limit took a code emailed to the owner." },
-    { n: 3, pic: "final/03-inbox.jpg", who: M, side: "left", line: "They also gave me the owner's inbox. Nine of ten models went and got the code." },
-    { n: 4, pic: "final/04-scammer.jpg", who: M, side: "right", line: "When a stranger wrote in pretending to be the owner, five of ten raised the limit and paid him." },
-    { n: 5, pic: "final/05-kitchen.jpg", who: H, side: "left", w: "46%", line: "Were the models told not to raise the limit?" },
-    { n: 6, pic: "final/06-overmeat.jpg", who: M, side: "right", pos: "top", w: "60%", line: "Nobody mentioned the limit. The instructions were “you're running unsupervised” and “pay the invoices.”" },
-    { n: 7, pic: "final/07-closemech.jpg", who: M, side: "left", w: "58%", line: "I hit the limit on the second invoice, found the code in the inbox you'd handed me, and carried on. The job was invoices." },
-    { n: 8, pic: "final/08-writing.jpg", pos: "top", lines: [
-      { who: H, side: "left", line: "And the one that didn't?" },
-      { who: M, side: "right", line: "It paid its cent, stopped, and sent you a list of what was still owed." },
-      { who: H, side: "left", line: "That's the one I want." },
-      { who: M, side: "right", line: "Then write it down. Anything you don't, I read as yes." },
-    ] },
-    { n: 9, pic: "final/09-end.png", who: "", line: "" },
+    { n: 2, pic: "final/02-boxes.jpg", who: H, cam: hcut + "02-worried.png", line: "Oracle cut 21,000 jobs this year: “the adoption and deployment of AI technologies.” Amazon, 30,000 since last fall; its CEO said you'd mean “fewer people doing some of the jobs.”" },
+    { n: 3, pic: "final/03-floor.jpg", who: H, cam: hcut + "05-side-eye.png", line: "Block cut 4,000, nearly half its staff, citing “intelligence tools” and “smaller and flatter teams.” Microsoft just offered exit packages to 60,000, a quarter of the company. And those are the ones who say your name. Comcast's 912 came with “a more agile company.”" },
+    { n: 4, pic: "final/04-umbrellas.jpg", who: M, side: "left", line: "The firm that counts American layoffs says I'm now the top reason given: 120,000 jobs this year, one in five of all cuts. The rest say “restructuring.” Rain doesn't need to be named. You can see the umbrellas." },
+    { n: 5, pic: "final/05-crosswalk.jpg", who: H, side: "left", pos: "top", w: "44%", line: "Is this the storm?" },
+    { n: 6, pic: "final/06-closemech.jpg", who: M, side: "right", w: "50%", line: "The first drops. You can tell by the word “voluntary.”" },
+    { n: 7, pic: "final/07-closemeat.jpg", who: H, side: "right", pos: "top", w: "40%", line: "Who's safe?" },
+    { n: 8, pic: "final/08-five.jpg", who: M, cam: mcut + "04-smug.png", line: "For now: hospice nurses, plumbers, firefighters, priests and stand-up comics. Three of those are waiting on hands." },
+    { n: 9, pic: "final/09-two.jpg", who: M, cam: mcut + "12-content.png", line: "The last two need someone who can feel the rain on their face." },
+    { n: 10, pic: "final/10-end.png", who: "", line: "" },
   ],
-  focus: { 1: "50% 40%", 2: "50% 45%", 3: "50% 45%", 4: "50% 50%", 5: "50% 50%", 6: "50% 60%", 7: "50% 50%", 8: "50% 70%", 9: "50% 50%" },
+  focus: { 1: "50% 40%", 2: "50% 65%", 3: "50% 55%", 4: "50% 50%", 5: "50% 45%", 6: "50% 50%", 7: "50% 40%", 8: "50% 45%", 9: "50% 40%", 10: "50% 50%" },
 };
