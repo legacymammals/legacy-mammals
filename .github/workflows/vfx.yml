@@ -13,6 +13,10 @@ on:
       pass:
         description: "Passphrase the job's archive was sealed with"
         required: true
+      also:
+        description: "Other inbox jobs whose inputs this job reuses, comma-separated (same passphrase)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -34,11 +38,17 @@ jobs:
         env:
           PASS: ${{ inputs.pass }}
           JOB: ${{ inputs.job }}
+          ALSO: ${{ inputs.also }}
         run: |
           set -e
           echo "::add-mask::$PASS"
           test -f "inbox/$JOB.tar.enc" || { echo "::error::no inbox/$JOB.tar.enc"; exit 1; }
           mkdir -p work
+          IFS=',' read -ra others <<< "$ALSO"
+          for o in "${others[@]}"; do o="$(echo "$o" | xargs)"; [ -n "$o" ] || continue
+            test -f "inbox/$o.tar.enc" || { echo "::error::no inbox/$o.tar.enc"; exit 1; }
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -pass env:PASS -in "inbox/$o.tar.enc" | tar xz -C work --exclude=plan.json
+          done
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -pass env:PASS -in "inbox/$JOB.tar.enc" | tar xz -C work
           test -f work/plan.json || { echo "::error::the archive has no plan.json"; exit 1; }
       - name: Run the plan
