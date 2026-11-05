@@ -1,0 +1,68 @@
+name: VFX job (private side-branch)
+
+# Runs a sealed job: inbox/<job>.tar.enc is opened with the passphrase, scripts/vfx.js talks to Higgsfield with the
+# repository's keys, and everything it produced is sealed into outbox/<job>.tar.enc and committed to this branch.
+# Nothing from the job (pictures, prompts, responses) is printed to the log.
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job name: inbox/<job>.tar.enc in, outbox/<job>.tar.enc out"
+        required: true
+      pass:
+        description: "Passphrase the job's archive was sealed with"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vfx-${{ inputs.job }}
+
+jobs:
+  vfx:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: vfx
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Open the job
+        env:
+          PASS: ${{ inputs.pass }}
+          JOB: ${{ inputs.job }}
+        run: |
+          set -e
+          echo "::add-mask::$PASS"
+          test -f "inbox/$JOB.tar.enc" || { echo "::error::no inbox/$JOB.tar.enc"; exit 1; }
+          mkdir -p work
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -pass env:PASS -in "inbox/$JOB.tar.enc" | tar xz -C work
+          test -f work/plan.json || { echo "::error::the archive has no plan.json"; exit 1; }
+      - name: Run the plan
+        env:
+          HIGGSFIELD_API_KEY: ${{ secrets.HIGGSFIELD_API_KEY }}
+          HIGGSFIELD_API_SECRET: ${{ secrets.HIGGSFIELD_API_SECRET }}
+        run: node scripts/vfx.js work/plan.json work/out
+      - name: Seal and keep the results
+        if: always()
+        env:
+          PASS: ${{ inputs.pass }}
+          JOB: ${{ inputs.job }}
+        run: |
+          set -e
+          mkdir -p work/out outbox
+          tar cz -C work/out . | openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt -pass env:PASS -out "outbox/$JOB.tar.enc"
+          rm -rf work
+          git config user.name "legacymammals"
+          git config user.email "legacymammals@users.noreply.github.com"
+          git add outbox
+          git diff --cached --quiet && exit 0
+          git commit -q -m "vfx: results for $JOB"
+          for i in 1 2 3 4 5 6; do
+            git pull --rebase -q origin vfx && git push -q origin HEAD:vfx && exit 0
+            sleep $((i * 7))
+          done
+          echo "::error::could not push the results after six tries"; exit 1
