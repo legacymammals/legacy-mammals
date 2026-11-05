@@ -19,6 +19,13 @@ character sheets and the strip's lines; otherwise the strip itself, as slides if
 (`reels/<id>.mp4`, drawn by `scripts/reel.js`). Nothing goes to the Reels tab. The ledger
 records `ig` (with `igDrawn: true` when it was the drawing) and `igStory`.
 
+The carousel's caption (since Nov 4) is the headline, the strip's first message, the link line,
+then hashtags for the story itself (what someone searching that story would type) and the
+standing five (`#AI #AInews #Satire #Comics #LegacyMammals`). It is written into the manifest by
+`python3 -I tools/carousel_caption.py <N> "#Tag #Tag …"`, which takes the headline and the first
+message from the thread so they always match the strip (`--first` prints them, to pick the tags
+from; `--show` prints the caption as it stands).
+
 On the website a story with a drawn comic is a carousel inside its card: the comic's slides
 first, then the strip itself (live text, so search and the share buttons still work) as the last
 slide; the standing end card is left off. The site builder looks for `reels/no<N>/web/slide-NN.jpg`,
