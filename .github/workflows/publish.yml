@@ -6,6 +6,7 @@ on:
     paths: [index.html]
   schedule:
     - cron: "23 * * * *"      # hourly: post the next waiting story, if any
+    - cron: "45 14 * * *"     # 6:45 am Pacific (standard time; 7:45 from March): a back-catalog drawing if nothing new went out today
     - cron: "17 9 1,15 * *"   # twice a month: renew the Instagram token before its 60 days run out
   workflow_dispatch:
     inputs:
@@ -69,6 +70,47 @@ jobs:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           SECRETS_TOKEN: ${{ secrets.SECRETS_TOKEN }}
         run: node scripts/publish.js refresh
+
+  # One post a day: when the morning slot had no new story (no draft dated today, nothing pending, nothing
+  # posted today), the next drawing in social/backups.json goes to Instagram as a carousel. Feed post only:
+  # those stories are on the site already and their strips went to X long ago.
+  backfill:
+    if: github.event.schedule == '45 14 * * *'
+    runs-on: ubuntu-24.04
+    env:
+      SOCIAL_DRY_RUN: ${{ format('{0}', vars.SOCIAL_PAUSED) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Post a back-catalog drawing if nothing new went out today
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node scripts/publish.js backfill
+      - name: Record what went out
+        run: |
+          git config user.name "legacymammals"
+          git config user.email "legacymammals@users.noreply.github.com"
+          cp social/posted.json "$RUNNER_TEMP/this-run.json"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main
+            git checkout -q -- social/posted.json
+            git reset -q --hard origin/main
+            git show origin/main:social/posted.json > "$RUNNER_TEMP/github.json"
+            node scripts/ledger-merge.js "$RUNNER_TEMP/this-run.json" "$RUNNER_TEMP/github.json" > social/posted.json
+            git add social/posted.json
+            if git diff --cached --quiet; then echo "the ledger on GitHub already has everything"; exit 0; fi
+            git commit -q -m "Record posted stories"
+            git push -q origin HEAD:main && exit 0
+            echo "::warning::the ledger push was rejected (attempt $i); merging again"
+            sleep $((i * 5))
+          done
+          echo "::error::could not record what went out"
+          exit 1
 
   publish:
     if: github.event_name != 'schedule' || github.event.schedule == '23 * * * *'

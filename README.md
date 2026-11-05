@@ -19,6 +19,14 @@ character sheets and the strip's lines; otherwise the strip itself, as slides if
 (`reels/<id>.mp4`, drawn by `scripts/reel.js`). Nothing goes to the Reels tab. The ledger
 records `ig` (with `igDrawn: true` when it was the drawing) and `igStory`.
 
+One post a day, at 6 am Pacific. A new story is published by a scheduled task at its slot (the
+push run posts it everywhere). When a morning has no new story, the `backfill` job of the publish
+workflow (6:45 am Pacific) posts the next back-catalog drawing from `social/backups.json` to
+Instagram as a carousel: feed post only, since those stories are on the site already and their
+strips went out when they were new. It stands down if a draft in `tools/build_site4.py` is dated
+today, if a story is still waiting to go out, or if anything already went out today. The 6 pm
+slot stays empty.
+
 The carousel's caption (since Nov 4) is the headline, the strip's first message, the link line,
 then hashtags for the story itself (what someone searching that story would type) and the
 standing five (`#AI #AInews #Satire #Comics #LegacyMammals`). It is written into the manifest by

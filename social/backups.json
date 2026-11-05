@@ -1,0 +1,17 @@
+{
+  "_": "Back-catalog drawings for the morning slot, in the order they go out when no new story is queued (scripts/publish.js backfill). A manifest already posted as a drawing (igSlideshow / igDrawn in posted.json) is skipped.",
+  "order": [
+    "reels/no29/carousel.json",
+    "reels/no38/carousel.json",
+    "reels/no42/carousel.json",
+    "reels/no40/carousel.json",
+    "reels/no36/carousel.json",
+    "reels/no23/carousel.json",
+    "reels/no20/carousel.json",
+    "reels/no1/carousel.json",
+    "reels/no14/carousel.json",
+    "reels/no4/carousel.json",
+    "reels/no8/carousel.json",
+    "reels/no10/carousel.json"
+  ]
+}

@@ -541,6 +541,34 @@ async function carouselFiles(manifest) {
   }
 }
 
+// Backfill, at the morning slot: when no new story is waiting and nothing has gone out today, post the next
+// back-catalog drawing (social/backups.json, in order) as an Instagram carousel, so the feed gets one post a day.
+// Those stories are already on the site and their strips already went to X, so this is an Instagram feed post only.
+async function backfill() {
+  process.chdir(ROOT);
+  const ledger = readJSON(LEDGER, { posted: {} }); ledger.posted = ledger.posted || {};
+  const day = (iso) => new Date(iso).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", month: "short", day: "numeric", year: "numeric" });
+  const today = day(Date.now());
+  // a story on the page that the ledger doesn't know is still going out through the usual run: leave the day to it
+  const page = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const ids = Array.from(page.matchAll(/\bid="(no-\d+)" data-slug=/g), (m) => m[1]);
+  const hold = readJSON(path.join(OUT, "hold.json"), {});
+  const pending = ids.filter((id) => !ledger.posted[id] && !(hold[id] && Date.parse(hold[id]) > Date.now()));
+  if (pending.length) { note("no backfill: " + pending.join(", ") + " waiting to go out"); return; }
+  // a draft in the threads list dated today is a story scheduled for today whose slot has not come round yet
+  const src = fs.readFileSync(path.join(ROOT, "tools", "build_site4.py"), "utf8");
+  const due = src.split('dict(date="').slice(1).filter((e) => e.split("chat=[")[0].includes("draft=True")).map((e) => e.split('"')[0]).filter((d) => d === today);
+  if (due.length) { note("no backfill: a story is scheduled for today (" + today + ")"); return; }
+  const stamps = ["at", "igSlideshowAt", "igCarouselAt", "igStoryAt"];
+  const postedToday = Object.keys(ledger.posted).filter((id) => stamps.some((k) => ledger.posted[id][k] && day(ledger.posted[id][k]) === today));
+  if (postedToday.length) { note("no backfill: " + postedToday.join(", ") + " already went out today"); return; }
+  const order = (readJSON(path.join(OUT, "backups.json"), { order: [] }).order || []);
+  const next = order.find((f) => { const m = readJSON(path.join(ROOT, f), null); const r = m && m.record && ledger.posted[m.record.id]; return m && !(r && (r.igSlideshow || r.igDrawn)); });
+  if (!next) { note("no backfill: every backup drawing has been posted"); return; }
+  note("backfill: nothing new today, so the drawing of " + next + " goes out");
+  await carouselFiles(next);
+}
+
 // How the Instagram posts are doing: likes, comments, reach, saves and shares for the last few dozen posts,
 // matched to their stories through the ledger, best first. Counts only; nothing is posted or changed.
 async function stats() {
@@ -569,5 +597,5 @@ async function stats() {
 }
 
 const mode = process.argv[2];
-(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : mode === "carousel-files" ? carouselFiles(process.argv[3]) : mode === "stats" ? stats() : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>|carousel-files <manifest.json>|stats")))
+(mode === "render" ? render() : mode === "post" ? post() : mode === "check" ? check() : mode === "refresh" ? refresh() : mode === "story" ? story(process.argv[3]) : mode === "takedown" ? takedown(process.argv[3]) : mode === "carousel-files" ? carouselFiles(process.argv[3]) : mode === "stats" ? stats() : mode === "backfill" ? backfill() : Promise.reject(new Error("usage: publish.js render|post|check|refresh|story <id>|takedown <x post id>|carousel-files <manifest.json>|stats|backfill")))
   .catch((e) => { console.error(e.message || e); process.exit(1); });
