@@ -42,8 +42,11 @@ async function api(method, url, body, extra = {}) {
 }
 
 const uploads = new Map();
-async function upload(file) {
-  if (uploads.has(file)) return uploads.get(file);
+function upload(file) {
+  if (!uploads.has(file)) uploads.set(file, uploadNow(file).catch((e) => { uploads.delete(file); throw e; }));
+  return uploads.get(file);
+}
+async function uploadNow(file) {
   const type = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".mp4": "video/mp4", ".mov": "video/quicktime" }[path.extname(file).toLowerCase()];
   if (!type) throw new Error("unsupported file type: " + path.extname(file));
   if (!fs.existsSync(file)) throw new Error("no such input file: " + path.basename(file));
@@ -51,7 +54,6 @@ async function upload(file) {
   const u = await api("POST", API + "/files/generate-upload-url", { content_type: type });
   const r = await fetch(u.upload_url, { method: "PUT", headers: u.upload_headers || { "Content-Type": type }, body: data });
   if (!r.ok) throw new Error("upload failed: " + r.status);
-  uploads.set(file, u.public_url);
   log("  uploaded " + path.basename(file) + " (" + Math.round(data.length / 1024) + " KB)");
   return u.public_url;
 }
