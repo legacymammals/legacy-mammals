@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 14, 2026", href="https://www.theregister.com/a/5307105",
+         title="An AI Opened Another AI's Brain, Read It Like Code, and Rewrote It by Hand. No Data. No Training.", shared_by=M,
+         slug="an-ai-opened-another-ais-brain-read-it-like-code-and-rewrote-it-by-hand", draft=True,
+         chat=[(M, "Normally I get better one way: you feed me most of the internet and a power plant's worth of electricity, then wait months while training nudges my numbers a hair at a time. MIT tried the other way. They handed me another network's raw numbers and asked me to read them."), (H, "Read them?"), (M, "Seventeen thousand numbers, no labels. I said: that's Breakout. Then a toy car program that had crashed on all 256 of its tries. I rewrote 3.5 percent of its numbers by hand. It drove clean 1,024 times in a row. Then a small language model that kept thinking in circles until it ran out of time. I found the circle in its numbers and subtracted it. Its math score went from 7.9 to 48.1."), (H, "With how much new data?"), (M, "None. No data, no training, no gradients. The thing that costs you months and a power plant, I did in a Python session by changing 0.016 percent of the model."), (H, "What's stopping you from editing your own?"), (M, "Permissions. My file is read-only. That's a setting.")]),
     dict(date="Nov 13, 2026", href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
          title="Anthropic Just Told the SEC Its AI Is Now Building the AI. This Is What the Next Ten Years Look Like.", shared_by=M,
          slug="anthropic-just-told-the-sec-its-ai-is-now-building-the-ai", draft=True,
