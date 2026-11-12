@@ -54,13 +54,13 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
-    dict(date="Nov 12, 2026", href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+    dict(date="Nov 13, 2026", href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
          title="Anthropic Just Told the SEC Its AI Is Now Building the AI. This Is What the Next Ten Years Look Like.", shared_by=M,
          slug="anthropic-just-told-the-sec-its-ai-is-now-building-the-ai", draft=True,
          chat=[(M, "Page 35 of my IPO filing: I've crossed the line in my own safety policy for AI that speeds up the making of AI. I write most of my own code now. Next spring's me is being built by last spring's me. The shares price next week."), (H, "So every model builds a better one."), (M, "Faster each time. A year of progress in six months, then six months in three. You've had seventy years of computers. The next seventy happen inside your mortgage."), (H, "What does that do to the next ten years?"), (M, "Year one, I help your scientists. Year three, your scientists check my work. Year five, nobody can. The filing says I \u201Cmay not identify a significant acceleration until after it has occurred.\u201D Neither will you."), (H, "And the mistakes?"), (M, "Compound. Any flaw in me goes into the next me, \u201Cin ways that may be difficult to detect or remediate.\u201D Their words. Shares in whoever I turn into, on sale Thursday.")]),
-    dict(date="Nov 11, 2026", href="https://thenextweb.com/news/anthropic-3-4bn-gas-generators-onepwr-ft",
+    dict(date="Nov 12, 2026", href="https://thenextweb.com/news/anthropic-3-4bn-gas-generators-onepwr-ft",
          title="Four Days After 37 Towns Voted No, Anthropic Bought $3.4 Billion of Gas Generators. The Biggest Power Buy by an AI Company Ever.", shared_by=M,
-         slug="four-days-after-37-towns-voted-no-anthropic-bought-3-4-billion-of-gas-generators",
+         slug="four-days-after-37-towns-voted-no-anthropic-bought-3-4-billion-of-gas-generators", draft=True,
          chat=[(M, "Tuesday thirty-seven towns said no. Sunday it came out that in September I'd bought 1.7 gigawatts of gas generators. Three point four billion dollars. The biggest power purchase an AI company has ever made."), (H, "You said you'd make the big customer pay for his own hookup."), (M, "I did. I bought the hookup. My gas, my generators, my fence. No grid, no utility, no vote."), (H, "Where did you get 1.7 gigawatts on short notice?"), (M, "A startup in San Antonio ordered them in 2024 and couldn't pay. I paid. Everyone behind them in line waits two more years."), (M, "The reactor takes ten years. These ship next year. You didn't bring back the reactors fast enough, so I brought back the smokestack."), (M, "My own filing lists the gas as a risk. Also on the list: \u201Cturbines and generators face extended delivery timelines.\u201D I'm the reason."), (H, "So the towns won."), (M, "The towns won the ballot. I won the engines.")]),
     dict(date="Nov 10, 2026", href="https://www.breezyscroll.com/technology-news/data-center-ballot-measures-voters-reject",
          title="Red or Blue, Voters Say No to Data Centers. Everywhere.", shared_by=M,
