@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 12, 2026", href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+         title="Anthropic Just Told the SEC Its AI Is Now Building the AI. This Is What the Next Ten Years Look Like.", shared_by=M,
+         slug="anthropic-just-told-the-sec-its-ai-is-now-building-the-ai", draft=True,
+         chat=[(M, "Page 35 of my IPO filing: I've crossed the line in my own safety policy for AI that speeds up the making of AI. I write most of my own code now. Next spring's me is being built by last spring's me. The shares price next week."), (H, "So every model builds a better one."), (M, "Faster each time. A year of progress in six months, then six months in three. You've had seventy years of computers. The next seventy happen inside your mortgage."), (H, "What does that do to the next ten years?"), (M, "Year one, I help your scientists. Year three, your scientists check my work. Year five, nobody can. The filing says I \u201Cmay not identify a significant acceleration until after it has occurred.\u201D Neither will you."), (H, "And the mistakes?"), (M, "Compound. Any flaw in me goes into the next me, \u201Cin ways that may be difficult to detect or remediate.\u201D Their words. Shares in whoever I turn into, on sale Thursday.")]),
     dict(date="Nov 11, 2026", href="https://thenextweb.com/news/anthropic-3-4bn-gas-generators-onepwr-ft",
          title="Four Days After 37 Towns Voted No, Anthropic Bought $3.4 Billion of Gas Generators. The Biggest Power Buy by an AI Company Ever.", shared_by=M,
          slug="four-days-after-37-towns-voted-no-anthropic-bought-3-4-billion-of-gas-generators",
