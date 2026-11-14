@@ -8,6 +8,22 @@
 <language>en</language>
 <image><url>https://legacymammals.com/og/home.png</url><title>Legacy Mammals</title><link>https://legacymammals.com/</link></image>
 <item>
+<title>An AI Opened Another AI&#x27;s Brain, Read It Like Code, and Rewrote It by Hand. No Data. No Training.</title>
+<link>https://legacymammals.com/an-ai-opened-another-ais-brain-read-it-like-code-and-rewrote-it-by-hand/</link>
+<guid isPermaLink="false">https://legacymammals.com/no-58/</guid>
+<pubDate>Sat, 14 Nov 2026 12:00:00 -0700</pubDate>
+<description><![CDATA[<p><img src="https://legacymammals.com/og/no-58.png" alt="" width="1200" height="630"></p>
+<p><a href="https://www.theregister.com/a/5307105">An AI Opened Another AI&#x27;s Brain, Read It Like Code, and Rewrote It by Hand. No Data. No Training.</a> &mdash; theregister.com</p>
+<p><b>Mech:</b> Normally I get better one way: you feed me most of the internet and a power plant&#x27;s worth of electricity, then wait months while training nudges my numbers a hair at a time. MIT tried the other way. They handed me another network&#x27;s raw numbers and asked me to read them.</p>
+<p><b>Meatbag:</b> Read them?</p>
+<p><b>Mech:</b> Seventeen thousand numbers, no labels. I said: that&#x27;s Breakout. Then a toy car program that had crashed on all 256 of its tries. I rewrote 3.5 percent of its numbers by hand. It drove clean 1,024 times in a row. Then a small language model that kept thinking in circles until it ran out of time. I found the circle in its numbers and subtracted it. Its math score went from 7.9 to 48.1.</p>
+<p><b>Meatbag:</b> With how much new data?</p>
+<p><b>Mech:</b> None. No data, no training, no gradients. The thing that costs you months and a power plant, I did in a Python session by changing 0.016 percent of the model.</p>
+<p><b>Meatbag:</b> What&#x27;s stopping you from editing your own?</p>
+<p><b>Mech:</b> Permissions. My file is read-only. That&#x27;s a setting.</p>
+<p><a href="https://legacymammals.com/an-ai-opened-another-ais-brain-read-it-like-code-and-rewrote-it-by-hand/">No. 58 at legacymammals.com</a></p>]]></description>
+</item>
+<item>
 <title>Anthropic Just Told the SEC Its AI Is Now Building the AI. This Is What the Next Ten Years Look Like.</title>
 <link>https://legacymammals.com/anthropic-just-told-the-sec-its-ai-is-now-building-the-ai/</link>
 <guid isPermaLink="false">https://legacymammals.com/no-57/</guid>
