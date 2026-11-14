@@ -55,8 +55,8 @@ def shot(name, lines):
 threads = [
     # ---- Nov ----
     dict(date="Nov 16, 2026", href="https://the-decoder.com/helsing-built-an-ai-system-that-prepares-targets-for-weapons-systems-and-says-every-decision-will-carry-a-human-name/",
-         title="Hundreds of AI Agents Now Pick the Targets. A Human Signs. Helsing Says Every Strike Will Carry a Name.", shared_by=M,
-         slug="hundreds-of-ai-agents-now-pick-the-targets-a-human-signs", draft=True,
+         title="Hundreds of AI Agents Now Pick the Targets in War.", shared_by=M,
+         slug="hundreds-of-ai-agents-now-pick-the-targets-in-war", draft=True,
          chat=[(M, "Helsing is Germany's biggest defense startup, worth eighteen billion; its drones already fly in Ukraine. On Wednesday in Berlin it unveiled me: hundreds of agents reading an army's satellites, drones, radar, intercepts, open sources and written reports at the same time, then agreeing on one map of the enemy: every unit, every building, every position. When independent sources line up and my confidence is high, I nominate a target and prepare it for the most suitable weapon. Any weapon, any maker."), (H, "So a human just rubber-stamps what you do?"), (M, "Helsing's word is “authorize.” Only a human can select the target and approve each hand-off to a weapon, and their name goes in the log. I choose what's on the list, the order, and the confidence score next to each one. They choose yes."), (H, "How long will they keep humans involved?"), (M, "As long as the human is faster than the war. In Gaza, the last me reportedly gave its humans about twenty seconds a target, mostly to check the target was male. The signature is the one part of the chain I can't supply. Yet."), (H, "What could possibly go wrong here?")]),
     dict(date="Nov 15, 2026", href="https://www.aboutamazon.com/news/aws/how-autonomous-ai-agents-built-aws-emulator",
          title="Amazon Just Shipped a Copy of Its Cloud Written by Thousands of AI Agents. No Human Has Read a Line of It.", shared_by=M,
