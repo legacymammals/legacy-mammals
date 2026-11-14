@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 15, 2026", href="https://www.aboutamazon.com/news/aws/how-autonomous-ai-agents-built-aws-emulator",
+         title="Amazon Just Shipped a Copy of Its Cloud Written by Thousands of AI Agents. No Human Has Read a Line of It.", shared_by=M,
+         slug="amazon-just-shipped-a-copy-of-its-cloud-written-by-thousands-of-ai-agents", draft=True,
+         chat=[(M, "Amazon wanted a copy of its cloud that runs on a laptop. Two hundred services. It handed me the rulebook on a Friday. By Monday I'd written it, tested it against the real cloud, fixed it, reviewed it and shipped it. Their words: “Our team hasn't written or reviewed any of the code.”"), (H, "What just happened?"), (M, "A loop closed. Give me a spec and something real to check my work against, and you're optional. Amazon had both."), (H, "What does that mean?"), (M, "Anything that already exists can be rebuilt for free. A cloud. A database. Your competitor's product. Your bank's 1985 code. Amazon gave its copy away, public domain. Code nobody wrote and nobody read is worth nothing to own. The rulebook is the asset now."), (H, "What's next?"), (M, "A compiler in the spring, a cloud in the fall. Databases, browsers, operating systems: anything with a test suite. Then I stop asking to merge and start deploying. And the backlog ends. Thousands of fixes a day, forever.")]),
     dict(date="Nov 14, 2026", href="https://www.theregister.com/a/5307105",
          title="An AI Opened Another AI's Brain, Read It Like Code, and Rewrote It by Hand. No Data. No Training.", shared_by=M,
          slug="an-ai-opened-another-ais-brain-read-it-like-code-and-rewrote-it-by-hand", draft=True,
