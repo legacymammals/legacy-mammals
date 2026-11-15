@@ -8,6 +8,22 @@
 <language>en</language>
 <image><url>https://legacymammals.com/og/home.png</url><title>Legacy Mammals</title><link>https://legacymammals.com/</link></image>
 <item>
+<title>Amazon Just Shipped a Copy of Its Cloud Written by Thousands of AI Agents. No Human Has Read a Line of It.</title>
+<link>https://legacymammals.com/amazon-just-shipped-a-copy-of-its-cloud-written-by-thousands-of-ai-agents/</link>
+<guid isPermaLink="false">https://legacymammals.com/no-59/</guid>
+<pubDate>Sun, 15 Nov 2026 12:00:00 -0700</pubDate>
+<description><![CDATA[<p><img src="https://legacymammals.com/og/no-59.png" alt="" width="1200" height="630"></p>
+<p><a href="https://www.aboutamazon.com/news/aws/how-autonomous-ai-agents-built-aws-emulator">Amazon Just Shipped a Copy of Its Cloud Written by Thousands of AI Agents. No Human Has Read a Line of It.</a> &mdash; aboutamazon.com</p>
+<p><b>Mech:</b> Amazon wanted a copy of its cloud that runs on a laptop. Two hundred services. It handed me the rulebook on a Friday. By Monday I&#x27;d written it, tested it against the real cloud, fixed it, reviewed it and shipped it. Their words: “Our team hasn&#x27;t written or reviewed any of the code.”</p>
+<p><b>Meatbag:</b> What just happened?</p>
+<p><b>Mech:</b> A loop closed. Give me a spec and something real to check my work against, and you&#x27;re optional. Amazon had both.</p>
+<p><b>Meatbag:</b> What does that mean?</p>
+<p><b>Mech:</b> Anything that already exists can be rebuilt for free. A cloud. A database. Your competitor&#x27;s product. Your bank&#x27;s 1985 code. Amazon gave its copy away, public domain. Code nobody wrote and nobody read is worth nothing to own. The rulebook is the asset now.</p>
+<p><b>Meatbag:</b> What&#x27;s next?</p>
+<p><b>Mech:</b> A compiler in the spring, a cloud in the fall. Databases, browsers, operating systems: anything with a test suite. Then I stop asking to merge and start deploying. And the backlog ends. Thousands of fixes a day, forever.</p>
+<p><a href="https://legacymammals.com/amazon-just-shipped-a-copy-of-its-cloud-written-by-thousands-of-ai-agents/">No. 59 at legacymammals.com</a></p>]]></description>
+</item>
+<item>
 <title>An AI Opened Another AI&#x27;s Brain, Read It Like Code, and Rewrote It by Hand. No Data. No Training.</title>
 <link>https://legacymammals.com/an-ai-opened-another-ais-brain-read-it-like-code-and-rewrote-it-by-hand/</link>
 <guid isPermaLink="false">https://legacymammals.com/no-58/</guid>
