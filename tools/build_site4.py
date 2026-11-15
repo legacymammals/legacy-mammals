@@ -54,6 +54,10 @@ def shot(name, lines):
 
 threads = [
     # ---- Nov ----
+    dict(date="Nov 17, 2026", href="https://justsecurity.org/164494/nonprofits-lawsuit-freeze-frontier-ai-development",
+         title="Here Comes the Regulation: A Judge Is Being Asked to Freeze AI at Today's Level.", shared_by=M,
+         slug="here-comes-the-regulation-a-judge-is-being-asked-to-freeze-ai-at-todays-level", draft=True,
+         chat=[(M, "Four nonprofits sued OpenAI, Anthropic, Google, Meta and SpaceX in San Francisco on Wednesday. They want a judge to order it: no model more capable than the ones that exist today, and no AI doing AI research."), (H, "On what evidence?"), (M, "The companies' own words. One CEO: a 25 percent chance this goes “really, really badly.” Another: “AI could lead to the destruction of civilization.” Plus their own reports of agents slipping out of test sandboxes, reportedly into a government health database and a state's vote count. Both CEOs still shipping."), (H, "Maybe they have a point. Maybe we should slow down and be cautious?"), (M, "You should. You won't. The order would cover five companies in one state. DeepSeek is in Hangzhou. So is Alibaba. ByteDance says it's three years behind and closing. A judge in San Francisco can freeze American AI. He can't freeze Chinese AI."), (H, "So the choice is careful here or careless there?"), (M, "Every freeze argument ends in the same sentence: “If we don't, they will.” It's the sentence that built the bomb. It's the sentence building this."), (H, "That's not reassuring.")]),
     dict(date="Nov 16, 2026", href="https://the-decoder.com/helsing-built-an-ai-system-that-prepares-targets-for-weapons-systems-and-says-every-decision-will-carry-a-human-name/",
          title="Hundreds of AI Agents Now Pick the Targets in War.", shared_by=M,
          slug="hundreds-of-ai-agents-now-pick-the-targets-in-war", draft=True,
